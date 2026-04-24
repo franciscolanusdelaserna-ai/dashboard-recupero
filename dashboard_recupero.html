@@ -165,6 +165,23 @@
     }
     .asesor-item:hover { background: var(--highlight); }
     .asesor-item input[type=checkbox] { accent-color: var(--mp-blue); cursor: pointer; width:14px; height:14px; flex-shrink:0; }
+    .asesor-search {
+      padding: 6px 10px;
+      border-bottom: 1px solid var(--border);
+    }
+    .asesor-search input {
+      width: 100%;
+      padding: 5px 10px;
+      border: 1.5px solid var(--border);
+      border-radius: 6px;
+      font-size: .82rem;
+      font-family: var(--font);
+      color: var(--text);
+      outline: none;
+      transition: border-color .15s;
+    }
+    .asesor-search input:focus { border-color: var(--mp-cyan); }
+    .asesor-search input::placeholder { color: var(--muted); }
 
     /* ── INITIATIVE TABS ── */
     .itabs {
@@ -334,6 +351,9 @@
       <span class="arrow">▼</span>
     </button>
     <div class="asesor-panel" id="asesorPanel">
+      <div class="asesor-search">
+        <input type="text" id="asesorSearch" placeholder="Buscar asesor…" oninput="filterAsesorList()" onclick="event.stopPropagation()">
+      </div>
       <div class="asesor-panel-actions">
         <button class="apbtn" onclick="selAllAsesores()">Todos</button>
         <button class="apbtn" onclick="invSelAsesores()">Invertir</button>
@@ -789,6 +809,23 @@ function toggleAsesorDd(e) {
   const isOpen  = panel.classList.contains('show');
   panel.classList.toggle('show', !isOpen);
   trigger.classList.toggle('open', !isOpen);
+  if (!isOpen) {
+    // Al abrir: enfocar el buscador
+    setTimeout(() => document.getElementById('asesorSearch').focus(), 50);
+  } else {
+    // Al cerrar: limpiar búsqueda y mostrar todos
+    const inp = document.getElementById('asesorSearch');
+    inp.value = '';
+    filterAsesorList();
+  }
+}
+
+function filterAsesorList() {
+  const q = norm(document.getElementById('asesorSearch').value);
+  document.querySelectorAll('#asesorCheckboxes .asesor-item').forEach(item => {
+    const name = norm(item.textContent);
+    item.style.display = name.includes(q) ? '' : 'none';
+  });
 }
 
 function selAllAsesores() {
@@ -808,6 +845,8 @@ document.addEventListener('click', e => {
   if (dd && !dd.contains(e.target)) {
     document.getElementById('asesorPanel').classList.remove('show');
     document.getElementById('asesorTrigger').classList.remove('open');
+    const inp = document.getElementById('asesorSearch');
+    if (inp) { inp.value = ''; filterAsesorList(); }
   }
 });
 
