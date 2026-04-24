@@ -3,61 +3,62 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard Seguimiento Recupero</title>
-  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <title>Dashboard · Seguimiento Recupero — Mercado Pago</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <style>
     :root {
-      --mp-navy:   #00295B;
+      --mp-navy:   #0a0080;
+      --mp-cyan:   #00bcff;
       --mp-blue:   #009EE3;
       --mp-blue2:  #0075BE;
       --mp-green:  #00A650;
-      --mp-orange: #F73;
+      --mp-orange: #FF7733;
       --mp-purple: #8C4DFF;
-      --mp-yellow: #FFD100;
-      --bg:        #F0F2F5;
-      --card:      #FFFFFF;
-      --text:      #1A1A2E;
-      --muted:     #7A8499;
-      --border:    #E8ECF0;
+      --mp-yellow: #FFE600;
+      --bg:        #f0f0f0;
+      --card:      #ffffff;
+      --text:      #333333;
+      --muted:     #888888;
+      --border:    #DcDDE7;
+      --highlight: #EAF6FF;
+      --font:      'MELI Proxima Nova A', -apple-system, 'Helvetica Neue', Arial, sans-serif;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Nunito', 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); }
-
-    /* ── HEADER ── */
+    body { font-family: var(--font); background: var(--bg); color: var(--text); }
     .header {
-      background: var(--mp-navy);
+      background: var(--mp-yellow);
       padding: 0 32px;
-      height: 68px;
+      height: 64px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      box-shadow: 0 2px 8px rgba(0,0,0,.25);
+      box-shadow: 0 2px 8px rgba(0,0,0,.12);
       position: sticky; top: 0; z-index: 100;
     }
     .header-left { display: flex; align-items: center; gap: 16px; }
     .header-logo {
-      background: var(--mp-blue);
-      color: white;
+      background: var(--mp-navy);
+      color: #FFE600;
       font-weight: 800;
       font-size: .82rem;
-      padding: 5px 10px;
+      padding: 5px 11px;
       border-radius: 6px;
       letter-spacing: .5px;
       text-transform: uppercase;
+      font-family: var(--font);
     }
-    .header h1 { color: white; font-size: 1.75rem; font-weight: 900; letter-spacing: -.5px; font-family: 'Nunito', sans-serif; }
-    .header-meta { font-size: .73rem; color: rgba(255,255,255,.45); margin-top: 3px; }
+    .header h1 { color: var(--mp-navy); font-size: 1.55rem; font-weight: 700; letter-spacing: -.3px; font-family: var(--font); }
+    .header-meta { font-size: .73rem; color: rgba(10,0,128,.55); margin-top: 3px; }
     .header-badge {
-      background: rgba(0,158,227,.18);
-      border: 1px solid rgba(0,158,227,.35);
-      color: #7DD4F5;
+      background: rgba(10,0,128,.10);
+      border: 1px solid rgba(10,0,128,.20);
+      color: var(--mp-navy);
       font-size: .72rem;
+      font-weight: 600;
       padding: 4px 12px;
       border-radius: 20px;
+      font-family: var(--font);
     }
-
-    /* ── FILTERS ── */
     .filters {
       background: white;
       padding: 12px 32px;
@@ -69,46 +70,44 @@
       box-shadow: 0 2px 6px rgba(0,0,0,.04);
     }
     .flabel {
-      font-size: .7rem; font-weight: 800; color: var(--mp-navy);
+      font-size: .7rem; font-weight: 700; color: var(--mp-navy);
       text-transform: uppercase; letter-spacing: .8px; white-space: nowrap;
-      font-family: 'Nunito', sans-serif;
+      font-family: var(--font);
     }
     .fsep { width: 1px; height: 28px; background: var(--border); margin: 0 8px; }
     .fbtn {
       padding: 6px 16px;
       border: 2px solid var(--border);
-      border-radius: 22px;
+      border-radius: 8px;
       background: white;
       cursor: pointer;
       font-size: .82rem;
-      font-weight: 700;
+      font-weight: 600;
       color: #555;
       transition: all .15s;
       white-space: nowrap;
-      font-family: 'Nunito', sans-serif;
+      font-family: var(--font);
     }
-    .fbtn:hover  { background: #EBF5FC; border-color: var(--mp-blue); color: var(--mp-blue); }
+    .fbtn:hover  { background: var(--highlight); border-color: var(--mp-cyan); color: var(--mp-navy); }
     .fbtn.active {
-      background: var(--mp-navy); color: white;
-      border-color: var(--mp-navy); font-weight: 800;
-      box-shadow: 0 2px 8px rgba(0,41,91,.3);
+      background: var(--mp-blue); color: white;
+      border-color: var(--mp-blue); font-weight: 700;
+      box-shadow: 0 2px 8px rgba(0,158,227,.30);
     }
     select.fsel {
       padding: 6px 14px;
       border: 2px solid var(--border);
-      border-radius: 22px;
+      border-radius: 8px;
       font-size: .82rem;
-      font-weight: 700;
+      font-weight: 600;
       color: #444;
       background: white;
       outline: none;
       cursor: pointer;
-      font-family: 'Nunito', sans-serif;
+      font-family: var(--font);
       transition: border-color .15s;
     }
-    select.fsel:focus { border-color: var(--mp-blue); }
-
-    /* ── INITIATIVE TABS ── */
+    select.fsel:focus { border-color: var(--mp-cyan); }
     .itabs {
       background: white;
       border-bottom: 2px solid var(--border);
@@ -132,6 +131,7 @@
       gap: 8px;
       transition: color .15s;
       white-space: nowrap;
+      font-family: var(--font);
     }
     .itab:hover { color: #444; }
     .itab.active { color: var(--tc); border-bottom-color: var(--tc); }
@@ -140,11 +140,7 @@
       padding: 2px 7px; border-radius: 10px;
       background: var(--tc); color: white;
     }
-
-    /* ── MAIN ── */
     .main { padding: 20px 32px; }
-
-    /* ── KPI CARDS ── */
     .kpi-grid {
       display: grid;
       grid-template-columns: repeat(10, 1fr);
@@ -153,53 +149,45 @@
     }
     @media (max-width:1800px) { .kpi-grid { grid-template-columns: repeat(5,1fr); } }
     @media (max-width:900px)  { .kpi-grid { grid-template-columns: repeat(2,1fr); } }
-
     .kpi {
       background: var(--card);
-      border-radius: 10px;
-      padding: 14px 16px;
-      box-shadow: 0 1px 4px rgba(0,0,0,.06);
+      border-radius: 16px;
+      padding: 16px 18px;
+      box-shadow: 0 4px 32px rgba(0,0,0,.08);
       border-top: 3px solid transparent;
     }
-    .kpi-lbl { font-size: .63rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; }
-    .kpi-val { font-size: 1.6rem; font-weight: 800; margin: 4px 0 2px; line-height: 1; }
-    .kpi-sub { font-size: .68rem; color: #AAA; }
-    .kpi-delta { display:inline-block; font-size:.68rem; font-weight:700; padding:2px 6px; border-radius:8px; margin-top:4px; }
+    .kpi-lbl { font-size: .63rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; font-family: var(--font); }
+    .kpi-val { font-size: 1.6rem; font-weight: 700; margin: 4px 0 2px; line-height: 1; }
+    .kpi-sub { font-size: .68rem; color: var(--muted); }
+    .kpi-delta { display:inline-block; font-size:.68rem; font-weight:700; padding:2px 6px; border-radius:8px; margin-top:4px; font-family: var(--font); }
     .up   { background:#E5F7EE; color:#00A650; }
     .down { background:#FDECEA; color:#E53935; }
     .flat { background:#F5F5F5; color:#AAA; }
-
-    /* ── CARDS ── */
     .card {
       background: var(--card);
-      border-radius: 10px;
-      padding: 16px 18px;
-      box-shadow: 0 1px 4px rgba(0,0,0,.06);
+      border-radius: 16px;
+      padding: 20px 22px;
+      box-shadow: 0 4px 32px rgba(0,0,0,.08);
     }
     .card-title {
       font-size: .66rem; font-weight: 700; color: var(--muted);
       text-transform: uppercase; letter-spacing: .7px; margin-bottom: 14px;
+      font-family: var(--font);
     }
-
-    /* ── GRIDS ── */
     .g2  { display:grid; grid-template-columns:1fr 1fr;   gap:12px; margin-bottom:12px; }
     .g32 { display:grid; grid-template-columns:3fr 2fr;   gap:12px; margin-bottom:12px; }
     .g1  { margin-bottom:12px; }
     @media (max-width:1024px) { .g2,.g32 { grid-template-columns:1fr; } }
-
-    /* ── FUNNEL ── */
     .funnel { display:flex; flex-direction:column; gap:8px; }
     .fstep  { display:flex; align-items:center; gap:10px; }
     .fstep-lbl { font-size:.75rem; color:#555; min-width:160px; font-weight:500; }
-    .fbar-wrap { flex:1; background:#F0F2F5; border-radius:5px; height:32px; overflow:hidden; }
+    .fbar-wrap { flex:1; background:#f0f0f0; border-radius:5px; height:32px; overflow:hidden; }
     .fbar {
       height:100%; border-radius:5px; display:flex; align-items:center;
       padding:0 10px; transition:width .45s ease; min-width:44px;
     }
     .fbar-n { color:white; font-size:.78rem; font-weight:700; }
     .fstep-pct { font-size:.75rem; font-weight:700; min-width:50px; text-align:right; }
-
-    /* ── TABLE ── */
     .tw { overflow-x:auto; }
     table { width:100%; border-collapse:collapse; font-size:.8rem; }
     thead th {
@@ -208,41 +196,37 @@
       letter-spacing:.5px; color:var(--muted);
       border-bottom:2px solid var(--border);
       cursor:pointer; white-space:nowrap; user-select:none;
+      font-family: var(--font);
     }
-    thead th:hover { color:var(--mp-blue); }
-    thead th.sorted { color:var(--mp-blue); }
+    thead th:hover { color:var(--mp-navy); }
+    thead th.sorted { color:var(--mp-navy); }
     td { padding:8px 10px; border-bottom:1px solid #F5F5F5; vertical-align:middle; }
     tr:last-child td { border-bottom:none; }
-    tr:hover td { background:#FAFBFD; }
+    tr:hover td { background:var(--highlight); }
     .mbar { display:flex; align-items:center; gap:5px; }
-    .mbar-bg  { flex:1; height:4px; background:#F0F2F5; border-radius:3px; min-width:35px; }
+    .mbar-bg  { flex:1; height:4px; background:#f0f0f0; border-radius:3px; min-width:35px; }
     .mbar-fg  { height:100%; border-radius:3px; transition:width .35s; }
     .plbl { font-size:.75rem; font-weight:700; min-width:34px; }
     .nlbl { font-size:.75rem; font-weight:700; }
-
-    /* ── LOADING / ERROR ── */
-    .loading { display:flex; flex-direction:column; align-items:center; justify-content:center; height:300px; color:#AAA; }
-    .spin { width:32px;height:32px;border:3px solid #E8ECF0;border-top-color:var(--mp-blue);border-radius:50%;animation:spin .7s linear infinite;margin-bottom:12px; }
+    .loading { display:flex; flex-direction:column; align-items:center; justify-content:center; height:300px; color:var(--muted); font-family:var(--font); }
+    .spin { width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--mp-cyan);border-radius:50%;animation:spin .7s linear infinite;margin-bottom:12px; }
     @keyframes spin { to { transform:rotate(360deg); } }
-    .errbox { background:#FFF5F5;border:1px solid #FCC;border-radius:10px;padding:18px 22px;color:#C0392B;line-height:1.6;max-width:600px; }
+    .errbox { background:#FFF5F5;border:1px solid #FCC;border-radius:16px;padding:18px 22px;color:#C0392B;line-height:1.6;max-width:600px; }
     .errbox code { font-size:.75rem;opacity:.7;display:block;margin-top:6px; }
-    .empty { display:flex;align-items:center;justify-content:center;height:80px;color:#CCC;font-size:.82rem; }
-
-    /* ── SECTION DIVIDER ── */
+    .empty { display:flex;align-items:center;justify-content:center;height:80px;color:var(--muted);font-size:.82rem;font-family:var(--font); }
     .sdiv {
       font-size:.65rem; font-weight:700; color:var(--muted);
       text-transform:uppercase; letter-spacing:.8px;
       margin:18px 0 10px; display:flex; align-items:center; gap:8px;
+      font-family: var(--font);
     }
     .sdiv::after { content:''; flex:1; height:1px; background:var(--border); }
-
-    /* ── MOTIVO TABLE (inside card) ── */
     .mtable { width:100%; border-collapse:collapse; font-size:.78rem; }
     .mtable th { font-size:.62rem; font-weight:700; color:var(--muted); text-transform:uppercase; padding:5px 8px; border-bottom:2px solid var(--border); text-align:left; }
     .mtable td { padding:5px 8px; border-bottom:1px solid #F5F5F5; }
     .mtable tr:last-child td { border-bottom:none; }
     .mpct-bar { display:flex; align-items:center; gap:6px; }
-    .mpct-bg  { flex:1; height:5px; background:#F0F2F5; border-radius:3px; }
+    .mpct-bg  { flex:1; height:5px; background:#f0f0f0; border-radius:3px; }
     .mpct-fg  { height:100%; border-radius:3px; }
   </style>
 </head>
@@ -273,7 +257,7 @@
 <div class="itabs" id="itabs">
   <button class="itab active" data-tab="total"        style="--tc:#009EE3">Total iniciativas       <span class="tpill" id="pill-total">—</span></button>
   <button class="itab"        data-tab="temprano"     style="--tc:#00A650">Recupero Temprano       <span class="tpill" id="pill-temprano">—</span></button>
-  <button class="itab"        data-tab="tardio"       style="--tc:#F73">Recupero Tardío         <span class="tpill" id="pill-tardio">—</span></button>
+  <button class="itab"        data-tab="tardio"       style="--tc:#FF7733">Recupero Tardío         <span class="tpill" id="pill-tardio">—</span></button>
   <button class="itab"        data-tab="reactivacion" style="--tc:#8C4DFF">Reactivación            <span class="tpill" id="pill-reactivacion">—</span></button>
 </div>
 
@@ -358,61 +342,42 @@
 
   <div id="errDiv" style="display:none;"></div>
 </div>
-
 <script>
-// ─── CONSTANTS ────────────────────────────────────────────────────────────────
 const MIN_PERIOD = '2025-12-01';
-
 const MONTH_NAMES = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
-
 const TAB_CFG = {
   total:        { color:'#009EE3', match: null },
   temprano:     { color:'#00A650', match: 'temprano' },
-  tardio:       { color:'#F73',    match: 'tard' },
+  tardio:       { color:'#FF7733', match: 'tard' },
   reactivacion: { color:'#8C4DFF', match: 'reactiv' },
 };
-
-// Targets TPV M1 por iniciativa
 const TARGETS = {
   temprano:     550e6,
   tardio:       960e6,
   reactivacion: 600e6,
-  total:        550e6 + 960e6 + 600e6,  // 2.110M
+  total:        550e6 + 960e6 + 600e6,
 };
-
-// Estados that count as GESTIONADO (numerator: sobre leads reales, excluye pendiente)
 const ESTADOS_GEST = ['gestionado','contactado','no aplica','irresoluble','regestion','sin interes/rechazado','en negociacion / en resolucion','convertido'];
-// Estados that count as CONTACTADO
 const ESTADOS_CONT = ['contactado','no aplica','irresoluble','regestion','sin interes/rechazado','en negociacion / en resolucion','convertido'];
-
-// Motivos que se agrupan como "Otros"
 const MOTIVOS_OTROS = ['otro particular gestionable','otro particular','problema cobros','impuestos y retenciones','promociones y cuotas'];
-
-// ─── STATE ────────────────────────────────────────────────────────────────────
 let allData = [];
 let activePeriod = 'all';
 let activeAsesor = '';
 let activeTab    = 'total';
 let sortCol = 'convVal', sortDir = -1;
 let charts  = {};
-
-// ─── UTILS ────────────────────────────────────────────────────────────────────
 const norm = s => String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
-
 function parseNum(v) {
   if (!v || v==='-' || v==='') return 0;
-  let s = String(v).trim().replace(/[$\s]/g, '');  // quitar $ y espacios
+  let s = String(v).trim().replace(/[$\s]/g, '');
   if (!s || s==='-') return 0;
-  // Plain number or Python float string ("231876255" or "231876255.0")
   if (/^-?\d+(\.\d+)?$/.test(s)) return parseFloat(s) || 0;
-  // Spanish format ("1.234.567,89") — dot=thousands, comma=decimal
   if (s.includes(',')) return parseFloat(s.replace(/\./g,'').replace(',','.')) || 0;
-  // English format with commas as thousands ("1,234,567")
   return parseFloat(s.replace(/,/g,'')) || 0;
 }
 function isTrue(v) {
   const s = norm(v);
-  return s==='si'||s==='sí'||s==='true'||s==='1'||s==='x'||s==='yes'||s==='s';
+  return s==='si'||s==='s\u00ed'||s==='true'||s==='1'||s==='x'||s==='yes'||s==='s';
 }
 function fmtN(n)  { return n.toLocaleString('es-AR'); }
 function fmtM(n)  {
@@ -421,7 +386,7 @@ function fmtM(n)  {
   if(n>=1e3) return '$'+(n/1e3).toFixed(0)+' K';
   return '$'+Math.round(n).toLocaleString('es-AR');
 }
-function fmtPct(a,b) { return b ? Math.round(a/b*100)+'%' : '—'; }
+function fmtPct(a,b) { return b ? Math.round(a/b*100)+'%' : '\u2014'; }
 function fmtPeriod(v) {
   if(!v) return v;
   const p = String(v).trim().split('-');
@@ -434,36 +399,24 @@ function fmtPeriod(v) {
 }
 function dClass(p) { return p===null?'flat':p>0?'up':p<0?'down':'flat'; }
 function dLabel(p) {
-  if(p===null) return '—';
-  return (p>0?'▲ ':p<0?'▼ ':'= ')+Math.abs(p).toFixed(1)+'%';
+  if(p===null) return '\u2014';
+  return (p>0?'\u25b2 ':p<0?'\u25bc ':'= ')+Math.abs(p).toFixed(1)+'%';
 }
-
-// ─── FORECAST HELPERS ────────────────────────────────────────────────────────
-// Detecta si hay un cohort cuyo M1 está en el mes corriente (incompleto)
-// y devuelve { cohortPeriod, multiplier, daysElapsed, daysInMonth } o null
 function getOpenCohortInfo() {
   const today     = new Date();
   const todayY    = today.getFullYear();
-  const todayM    = today.getMonth() + 1;   // 1-based
+  const todayM    = today.getMonth() + 1;
   const dayToday  = today.getDate();
-  const daysElapsed = dayToday - 1;          // datos hasta ayer
+  const daysElapsed = dayToday - 1;
   if (daysElapsed <= 0) return null;
-
-  // El cohort cuyo M1 = mes corriente → cohort = mes anterior
   let cohortM = todayM - 1, cohortY = todayY;
   if (cohortM === 0) { cohortM = 12; cohortY--; }
   const cohortPeriod = `${cohortY}-${String(cohortM).padStart(2,'0')}-01`;
-
-  // Verificar que exista en los datos
   if (!allData.some(r => String(r.MES||'').trim() === cohortPeriod)) return null;
-
-  const daysInMonth = new Date(todayY, todayM, 0).getDate();  // último día del mes corriente
+  const daysInMonth = new Date(todayY, todayM, 0).getDate();
   const multiplier  = daysInMonth / daysElapsed;
-
   return { cohortPeriod, multiplier, daysElapsed, daysInMonth };
 }
-
-// Devuelve el período anterior (YYYY-MM-01 → mes anterior)
 function getPrevPeriod(period) {
   if (!period || period === 'all') return null;
   const p = period.split('-');
@@ -472,8 +425,6 @@ function getPrevPeriod(period) {
   m--; if (m === 0) { m = 12; y--; }
   return `${y}-${String(m).padStart(2,'0')}-01`;
 }
-
-// Suma TPV M1 del cohort anterior (para MoM)
 function getPrevPeriodSum(field) {
   const prev = getPrevPeriod(activePeriod);
   if (!prev) return null;
@@ -486,8 +437,6 @@ function getPrevPeriodSum(field) {
   });
   return rows.reduce((s,r) => s + parseNum(r[field]), 0);
 }
-
-// ─── METRIC HELPERS ───────────────────────────────────────────────────────────
 function isLeadReal(r) {
   const e = norm(r.ESTADO||''), s = norm(r.SUBMOTIVO_ABANDONO||'');
   if (e.includes('volvio a cobrar sin gestion')) return false;
@@ -495,10 +444,10 @@ function isLeadReal(r) {
   return true;
 }
 function isGestionado(r) {
-  if (!isLeadReal(r)) return false;                          // base: solo leads reales
+  if (!isLeadReal(r)) return false;
   const e = norm(r.ESTADO||''), s = norm(r.SUBMOTIVO_ABANDONO||'');
-  if (e === 'pendiente') return false;                       // excluir pendiente
-  if (s === 'cambio de cuenta') return false;                // excluir cambio de cuenta
+  if (e === 'pendiente') return false;
+  if (s === 'cambio de cuenta') return false;
   if (e.includes('volvio a cobrar sin gestion')) return false;
   return ESTADOS_GEST.some(k => norm(k) === e || e.startsWith(norm(k).slice(0,9)));
 }
@@ -515,26 +464,19 @@ function isConvVal(r)   { return norm(r.ESTADO||'') === 'convertido' && isValidR
 function isValidRow(r)  {
   const v = String(r.RECUPERO_VALIDO||'').trim();
   if (!v) return false;
-  // Exclude explicit negatives only; accept "SI", "Si", "Sí", "S", "1", "X", etc.
   const vu = v.toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
   return !['NO','N','FALSE','0'].includes(vu);
 }
-
-// ─── DATA LOAD ────────────────────────────────────────────────────────────────
-
-// Lee directo de Google Sheets vía gviz (funciona para sheets públicos, sin API key)
+</script>
+<script>
 async function fetchFromSheets() {
   const SHEET_ID = '1qNWFsUQwXzDd6fj1HzIRfIsvZRDJAxjsmZNjzkWX73o';
   const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=Base_Historica`;
-
   const res = await fetch(url);
   if (!res.ok) throw new Error('HTTP ' + res.status);
   const text = await res.text();
-
-  // El response viene como: /*O_o*/\ngoogle.visualization.Query.setResponse({...});
   const jsonStr = text.slice(text.indexOf('{'), text.lastIndexOf('}') + 1);
   const gviz = JSON.parse(jsonStr);
-
   const FIELD_MAP = {
     0:  'CUST_ID',
     2:  'SEGMENTO',
@@ -554,9 +496,7 @@ async function fetchFromSheets() {
     68: 'VC_M1',
   };
   const NUMERIC_FIELDS = new Set(['TPV_M0','TPV_M1','VC_M0','VC_M1']);
-
   function parseGvizDate(v) {
-    // gviz devuelve fechas como "Date(2025,11,1)" con mes 0-indexado
     const m = String(v).match(/Date\((\d+),(\d+),(\d+)\)/);
     if (m) {
       const mo = String(parseInt(m[2]) + 1).padStart(2,'0');
@@ -565,14 +505,12 @@ async function fetchFromSheets() {
     }
     return String(v||'').trim();
   }
-
   const records = [];
   for (const row of gviz.table.rows) {
     if (!row || !row.c) continue;
     const cells  = row.c;
     const custId = cells[0] ? String(cells[0].v||'').trim() : '';
     if (!custId || custId.toLowerCase() === 'cust_id') continue;
-
     const record = {};
     for (const [idx, field] of Object.entries(FIELD_MAP)) {
       const cell = cells[parseInt(idx)];
@@ -589,9 +527,7 @@ async function fetchFromSheets() {
   }
   return records;
 }
-
 async function loadData() {
-  // 1. Leer data.json del repo (GitHub Pages o local)
   const dataSources = [
     'data.json',
     'http://127.0.0.1:8082/data.json',
@@ -606,27 +542,23 @@ async function loadData() {
           return;
         }
       }
-    } catch(e) { console.warn('fetch falló:', url, e); }
+    } catch(e) { console.warn('fetch fall\u00f3:', url, e); }
   }
-  showErr('No se pudieron cargar los datos.<br><code>Corré actualizar_dashboard.py para subir los datos.</code>');
+  showErr('No se pudieron cargar los datos.<br><code>Corr\u00e9 actualizar_dashboard.py para subir los datos.</code>');
 }
-
 function boot(data) {
-  // Filter periods < 2025-12-01
   allData = data.filter(r => {
     const m = String(r.MES||'').trim();
     return m && m >= MIN_PERIOD;
   });
   document.getElementById('lastUpdated').textContent =
-    `Actualizado: ${new Date().toLocaleString('es-AR')} · ${allData.length.toLocaleString('es-AR')} registros`;
+    `Actualizado: ${new Date().toLocaleString('es-AR')} \u00b7 ${allData.length.toLocaleString('es-AR')} registros`;
   document.getElementById('headerBadge').textContent = `${allData.length.toLocaleString('es-AR')} registros`;
-  // Debug TPV: log RECUPERO_VALIDO unique values and sample TPV
   const rvVals = [...new Set(allData.map(r => String(r.RECUPERO_VALIDO||'').trim()))];
   const tpvSample = allData.slice(0,5).map(r => r.TPV_M0);
-  console.log('[DEBUG] RECUPERO_VALIDO valores únicos:', rvVals);
+  console.log('[DEBUG] RECUPERO_VALIDO valores \u00fanicos:', rvVals);
   console.log('[DEBUG] TPV_M0 muestra (5 filas):', tpvSample);
   console.log('[DEBUG] Filas con RECUPERO_VALIDO truthy:', allData.filter(isValidRow).length, '/', allData.length);
-
   buildFilters();
   updatePills();
   render();
@@ -634,27 +566,24 @@ function boot(data) {
   document.getElementById('dash').style.display = 'block';
   scheduleRefresh();
 }
-
-// Auto-refresh cada hora entre las 10 y las 17
 let refreshTimer = null;
 function scheduleRefresh() {
-  if (refreshTimer) return;  // ya programado
+  if (refreshTimer) return;
   refreshTimer = setInterval(() => {
     const h = new Date().getHours();
     if (h >= 10 && h < 17) {
       console.log('Auto-refresh:', new Date().toLocaleTimeString('es-AR'));
       loadData();
     }
-  }, 60 * 60 * 1000);  // cada 1 hora
+  }, 60 * 60 * 1000);
 }
-
 function showErr(msg) {
   document.getElementById('loadingDiv').style.display = 'none';
   document.getElementById('errDiv').style.display = 'block';
   document.getElementById('errDiv').innerHTML = `<div class="errbox"><strong>No se pudieron cargar los datos</strong><br>${msg}</div>`;
 }
-
-// ─── FILTERS ─────────────────────────────────────────────────────────────────
+</script>
+<script>
 function buildFilters() {
   const periods = [...new Set(allData.map(r => String(r.MES||'').trim()).filter(Boolean))].sort();
   const cc = document.getElementById('cohortFilters');
@@ -668,7 +597,6 @@ function buildFilters() {
   };
   mkBtn('all', 'Todos');
   periods.forEach(p => mkBtn(p, fmtPeriod(p)));
-
   const sel = document.getElementById('asesorFilter');
   sel.innerHTML = '<option value="">Todos</option>';
   [...new Set(allData.map(r => (r.ASESOR||'').trim()).filter(Boolean))].sort().forEach(a => {
@@ -676,13 +604,11 @@ function buildFilters() {
   });
   sel.onchange = () => { activeAsesor = sel.value; updatePills(); render(); };
 }
-
 function syncPeriodBtns() {
   document.querySelectorAll('#cohortFilters .fbtn').forEach(b =>
     b.classList.toggle('active', b.dataset.id === activePeriod)
   );
 }
-
 function getFiltered(tab) {
   const t = TAB_CFG[tab || activeTab];
   return allData.filter(r => {
@@ -692,15 +618,12 @@ function getFiltered(tab) {
     return true;
   });
 }
-
 function updatePills() {
   Object.keys(TAB_CFG).forEach(k => {
     const el = document.getElementById('pill-'+k);
     if (el) el.textContent = getFiltered(k).length.toLocaleString('es-AR');
   });
 }
-
-// ─── TAB SWITCH ───────────────────────────────────────────────────────────────
 document.getElementById('itabs').addEventListener('click', e => {
   const b = e.target.closest('.itab'); if (!b) return;
   document.querySelectorAll('.itab').forEach(x => x.classList.remove('active'));
@@ -708,8 +631,6 @@ document.getElementById('itabs').addEventListener('click', e => {
   activeTab = b.dataset.tab;
   render();
 });
-
-// ─── AGGREGATE BY ASESOR ─────────────────────────────────────────────────────
 function byAsesor(data, openCohort) {
   const map = {};
   data.forEach(r => {
@@ -726,7 +647,6 @@ function byAsesor(data, openCohort) {
       s.tpvM0 += parseNum(r.TPV_M0);
       s.vcM0  += parseNum(r.VC_M0);
       s.vcM1  += parseNum(r.VC_M1);
-      // Aplicar forecast al M1 del cohort abierto
       const m1Raw = parseNum(r.TPV_M1);
       const isOpen = openCohort && String(r.MES||'').trim() === openCohort.cohortPeriod;
       s.tpvM1 += isOpen ? m1Raw * openCohort.multiplier : m1Raw;
@@ -734,13 +654,11 @@ function byAsesor(data, openCohort) {
   });
   return Object.values(map);
 }
-
-// ─── RENDER ───────────────────────────────────────────────────────────────────
+</script>
+<script>
 function render() {
   const data  = getFiltered();
   const color = TAB_CFG[activeTab].color;
-
-  // Aggregate totals
   const asign = data.length;
   const reals = data.filter(isLeadReal).length;
   const gest  = data.filter(isGestionado).length;
@@ -752,21 +670,17 @@ function render() {
   const tpvM1 = vrows.reduce((s,r) => s+parseNum(r.TPV_M1), 0);
   const vcM0  = vrows.reduce((s,r) => s+parseNum(r.VC_M0),  0);
   const vcM1  = vrows.reduce((s,r) => s+parseNum(r.VC_M1),  0);
-  // ── Forecast M1 para el cohort abierto (M1 parcial del mes corriente) ──────
   const openCohort = getOpenCohortInfo();
   let tpvM1Disp = tpvM1, vcM1Disp = vcM1;
   let isFcst    = false;
-
   if (openCohort) {
     if (activePeriod !== 'all') {
-      // Cohort específico: ¿es el cohort abierto?
       if (activePeriod === openCohort.cohortPeriod) {
         tpvM1Disp = tpvM1 * openCohort.multiplier;
         vcM1Disp  = vcM1  * openCohort.multiplier;
         isFcst    = true;
       }
     } else {
-      // Vista "todos": separar rows del cohort abierto del resto
       const t        = TAB_CFG[activeTab];
       const openRows = allData.filter(r => {
         if (String(r.MES||'').trim() !== openCohort.cohortPeriod) return false;
@@ -784,65 +698,60 @@ function render() {
       isFcst    = true;
     }
   }
-
-  const tpvD0 = tpvM1Disp ? (tpvM0-tpvM1Disp)/tpvM1Disp*100 : null;  // M0 vs M1 fcst
-  const tpvD1 = tpvM0     ? (tpvM1Disp-tpvM0)/tpvM0*100      : null;  // M1 fcst vs M0
+  const tpvD0 = tpvM1Disp ? (tpvM0-tpvM1Disp)/tpvM1Disp*100 : null;
+  const tpvD1 = tpvM0     ? (tpvM1Disp-tpvM0)/tpvM0*100      : null;
   const vcD0  = vcM1Disp  ? (vcM0-vcM1Disp)/vcM1Disp*100     : null;
   const vcD1  = vcM0      ? (vcM1Disp-vcM0)/vcM0*100         : null;
   const tpvD  = tpvD0;
   const vcD   = vcD0;
-
-  // MoM: M1 del cohort actual (fcst) vs M1 del cohort anterior (completo)
   const prevTpvM1 = getPrevPeriodSum('TPV_M1');
   const prevVcM1  = getPrevPeriodSum('VC_M1');
   const tpvMoM = (prevTpvM1 !== null && prevTpvM1 > 0) ? (tpvM1Disp - prevTpvM1) / prevTpvM1 * 100 : null;
   const vcMoM  = (prevVcM1  !== null && prevVcM1  > 0) ? (vcM1Disp  - prevVcM1)  / prevVcM1  * 100 : null;
-
   renderTargetBar(tpvM1Disp, isFcst, openCohort);
   renderKPIs({ asign, reals, gest, cont, cvdcl, cvval, tpvM0, tpvM1:tpvM1Disp, vcM0, vcM1:vcM1Disp,
+               tpvM1Real: isFcst ? tpvM1 : null,
+               vcM1Real:  isFcst ? vcM1  : null,
                tpvD0, tpvD1, vcD0, vcD1, tpvMoM, vcMoM, isFcst,
                fcstInfo: openCohort, color, vrows: vrows.length });
   renderFunnel({ asign, reals, gest, cont, cvval, color });
   renderEstado(data);
   renderMotivos(data, color);
   renderConvMotivo(data, color);
-
   const stats = byAsesor(data, openCohort);
   renderAsesorChart('tpvChart', stats, 'tpvM0', color, 'TPV M0');
   renderAsesorChart('vcChart',  stats, 'tpvM1', color, 'TPV M1' + (isFcst ? ' (fcst)' : ''));
   const t = document.getElementById('tpvM1ChartTitle');
-  if (t) t.innerHTML = 'TPV M1 por asesor (convertidos válidos)' + (isFcst && openCohort ? ` <span style="font-size:.6rem;font-weight:700;color:#FF8C00;background:#FFF3E0;padding:1px 5px;border-radius:6px;margin-left:4px">fcst</span>` : '');
+  if (t) t.innerHTML = 'TPV M1 por asesor (convertidos v\u00e1lidos)' + (isFcst && openCohort ? ` <span style="font-size:.6rem;font-weight:700;color:#FF8C00;background:#FFF3E0;padding:1px 5px;border-radius:6px;margin-left:4px">fcst</span>` : '');
   renderTable(stats);
 }
-
-// ─── TARGET BAR ───────────────────────────────────────────────────────────────
+</script>
+<script>
 function renderTargetBar(tpvM1Disp, isFcst, openCohort) {
   const target = TARGETS[activeTab];
   if (!target) { document.getElementById('targetBar').innerHTML = ''; return; }
-
   const color    = TAB_CFG[activeTab].color;
   const pct      = Math.round(tpvM1Disp / target * 100);
   const barW     = Math.min(pct, 100);
   const delta    = (tpvM1Disp - target) / target * 100;
   const dCls     = delta >= 0 ? 'up' : 'down';
-  const dLbl     = (delta >= 0 ? '▲ ' : '▼ ') + Math.abs(delta).toFixed(1) + '%';
+  const dLbl     = (delta >= 0 ? '\u25b2 ' : '\u25bc ') + Math.abs(delta).toFixed(1) + '%';
   const fcstTag  = isFcst && openCohort
-    ? `<span style="font-size:.6rem;font-weight:700;color:#FF8C00;background:#FFF3E0;padding:1px 6px;border-radius:6px;margin-left:6px" title="Proyección al ${openCohort.daysInMonth}/${new Date().getMonth()+1}">fcst</span>`
+    ? `<span style="font-size:.6rem;font-weight:700;color:#FF8C00;background:#FFF3E0;padding:1px 6px;border-radius:6px;margin-left:6px" title="Proyecci\u00f3n al ${openCohort.daysInMonth}/${new Date().getMonth()+1}">fcst</span>`
     : '';
-  const tabNames = { total:'Total Recupero', temprano:'Recupero Temprano', tardio:'Recupero Tardío', reactivacion:'Reactivación' };
-
+  const tabNames = { total:'Total Recupero', temprano:'Recupero Temprano', tardio:'Recupero Tard\u00edo', reactivacion:'Reactivaci\u00f3n' };
   document.getElementById('targetBar').innerHTML = `
-    <div style="background:white;border-radius:10px;padding:16px 22px;box-shadow:0 1px 4px rgba(0,0,0,.06);border-left:4px solid ${color}">
+    <div style="background:white;border-radius:16px;padding:18px 24px;box-shadow:0 4px 32px rgba(0,0,0,.08);border-left:4px solid #00bcff">
       <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:12px">
         <div style="display:flex;align-items:center;gap:10px">
-          <span style="font-size:.65rem;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.8px">Target TPV M1 — ${tabNames[activeTab]}</span>
+          <span style="font-size:.85rem;font-weight:700;color:#0a0080;letter-spacing:-.2px;font-family:'MELI Proxima Nova A',sans-serif">Target TPV M1 <span style="color:${color}">— ${tabNames[activeTab]}</span></span>
         </div>
         <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap">
           <div style="text-align:center">
             <div style="font-size:.6rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px">Target</div>
             <div style="font-size:1.3rem;font-weight:800;color:#444">${fmtM(target)}</div>
           </div>
-          <div style="font-size:1.4rem;color:#CCC">→</div>
+          <div style="font-size:1.4rem;color:#CCC">\u2192</div>
           <div style="text-align:center">
             <div style="font-size:.6rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px">TPV M1 actual${isFcst?' (fcst)':''}</div>
             <div style="font-size:1.3rem;font-weight:800;color:${color}">${fmtM(tpvM1Disp)}${fcstTag}</div>
@@ -857,35 +766,33 @@ function renderTargetBar(tpvM1Disp, isFcst, openCohort) {
           </div>
         </div>
       </div>
-      <div style="background:#F0F2F5;border-radius:6px;height:10px;overflow:hidden">
+      <div style="background:#f0f0f0;border-radius:6px;height:10px;overflow:hidden">
         <div style="height:100%;width:${barW}%;background:${color};border-radius:6px;transition:width .5s ease;position:relative">
-          ${pct >= 100 ? `<div style="position:absolute;right:0;top:0;height:100%;width:3px;background:white;opacity:.6"></div>` : ''}
+          ${pct >= 100 ? '<div style="position:absolute;right:0;top:0;height:100%;width:3px;background:white;opacity:.6"></div>' : ''}
         </div>
       </div>
-      ${pct >= 100 ? `<div style="margin-top:6px;font-size:.7rem;font-weight:700;color:#00A650">✓ Target superado</div>` : `<div style="margin-top:6px;font-size:.7rem;color:var(--muted)">Falta ${fmtM(target - tpvM1Disp)} para el target</div>`}
+      ${pct >= 100 ? '<div style="margin-top:6px;font-size:.7rem;font-weight:700;color:#00A650">\u2713 Target superado</div>' : `<div style="margin-top:6px;font-size:.7rem;color:var(--muted)">Falta ${fmtM(target - tpvM1Disp)} para el target</div>`}
     </div>`;
 }
-
-// ─── KPIs ─────────────────────────────────────────────────────────────────────
-function renderKPIs({ asign, reals, gest, cont, cvdcl, cvval, tpvM0, tpvM1, vcM0, vcM1, tpvD0, tpvD1, vcD0, vcD1, tpvMoM, vcMoM, isFcst, fcstInfo, color, vrows }) {
-  const c2 = '#F73', c3 = '#8C4DFF', c4 = '#00A650';
-
-  // Etiqueta de forecast para mostrar en las cards de M1
+</script>
+<script>
+function renderKPIs({ asign, reals, gest, cont, cvdcl, cvval, tpvM0, tpvM1, vcM0, vcM1, tpvM1Real, vcM1Real, tpvD0, tpvD1, vcD0, vcD1, tpvMoM, vcMoM, isFcst, fcstInfo, color, vrows }) {
+  console.log('[DEBUG] isFcst:', isFcst, 'tpvM1Real:', tpvM1Real, 'tpvM1:', tpvM1);
+  const c2 = '#FF7733', c3 = '#8C4DFF', c4 = '#00A650';
   const fcstTag = isFcst && fcstInfo
-    ? `<span style="font-size:.6rem;font-weight:700;color:#FF8C00;background:#FFF3E0;padding:1px 5px;border-radius:6px;margin-left:4px" title="Proyección al ${fcstInfo.daysInMonth}/${new Date().getMonth()+1} · datos hasta día ${fcstInfo.daysElapsed} · factor ×${fcstInfo.multiplier.toFixed(2)}">fcst</span>`
+    ? `<span style="font-size:.6rem;font-weight:700;color:#FF8C00;background:#FFF3E0;padding:1px 5px;border-radius:6px;margin-left:4px" title="Proyecci\u00f3n al ${fcstInfo.daysInMonth}/${new Date().getMonth()+1} \u00b7 datos hasta d\u00eda ${fcstInfo.daysElapsed} \u00b7 factor \u00d7${fcstInfo.multiplier.toFixed(2)}">fcst</span>`
     : '';
-
   const cards = [
     { lbl:'Leads asignados',    val: fmtN(asign), sub:'base total',                       color,  delta:null,   delta2:null },
-    { lbl:'Leads reales',       val: fmtN(reals), sub:'pre-gestión',                      color:'#0075BE', delta:null,  delta2:null },
+    { lbl:'Leads reales',       val: fmtN(reals), sub:'pre-gesti\u00f3n',                      color:'#0075BE', delta:null,  delta2:null },
     { lbl:'Gestionados',        val: fmtPct(gest,reals), sub: fmtN(gest)+' abs',          color:c2, delta:null,  delta2:null },
-    { lbl:'Contactados',        val: fmtPct(cont,reals), sub: fmtN(cont)+' · '+fmtPct(cont,reals)+' sobre reales', color:c3, delta:null, delta2:null },
+    { lbl:'Contactados',        val: fmtPct(cont,reals), sub: fmtN(cont)+' \u00b7 '+fmtPct(cont,reals)+' sobre reales', color:c3, delta:null, delta2:null },
     { lbl:'Conv. declarados',   val: fmtN(cvdcl), sub: fmtPct(cvdcl,cont)+' de contactados', color:c4, delta:null, delta2:null },
-    { lbl:'Conv. válidos',      val: fmtN(cvval), sub: fmtPct(cvval,cvdcl)+' de declarados', color:c4, delta:null, delta2:null },
-    { lbl:'TPV M0',  val: fmtM(tpvM0), sub:'convertidos válidos', color, delta:null, delta2:null },
-    { lbl:'TPV M1',  val: fmtM(tpvM1), fcstTag,   sub:'',  color:'#0075BE', delta:tpvD1, delta2:tpvMoM, dlbl1:'vs M0', dlbl2:'MoM' },
-    { lbl:'VC M0',   val: fmtM(vcM0),  sub:'convertidos válidos', color:c4, delta:null, delta2:null },
-    { lbl:'VC M1',   val: fmtM(vcM1),  fcstTag,   sub:'',  color:'#00854A', delta:vcD1, delta2:vcMoM, dlbl1:'vs M0', dlbl2:'MoM' },
+    { lbl:'Conv. v\u00e1lidos',      val: fmtN(cvval), sub: fmtPct(cvval,cvdcl)+' de declarados', color:c4, delta:null, delta2:null },
+    { lbl:'TPV M0',  val: fmtM(tpvM0), sub:'convertidos v\u00e1lidos', color, delta:null, delta2:null },
+    { lbl:'TPV M1',  val: fmtM(tpvM1), fcstTag, sub:'', realVal: tpvM1Real, color:'#0075BE', delta:tpvD1, delta2:tpvMoM, dlbl1:'vs M0', dlbl2:'MoM' },
+    { lbl:'VC M0',   val: fmtM(vcM0),  sub:'convertidos v\u00e1lidos', color:c4, delta:null, delta2:null },
+    { lbl:'VC M1',   val: fmtM(vcM1),  fcstTag, sub:'', realVal: vcM1Real, color:'#00854A', delta:vcD1, delta2:vcMoM, dlbl1:'vs M0', dlbl2:'MoM' },
   ];
   document.getElementById('kpiGrid').innerHTML = cards.map(k => {
     const d1 = k.delta  !== null && k.delta  !== undefined;
@@ -900,25 +807,24 @@ function renderKPIs({ asign, reals, gest, cont, cvdcl, cvval, tpvM0, tpvM1, vcM0
     <div class="kpi" style="border-top-color:${k.color}">
       <div class="kpi-lbl">${k.lbl}${k.fcstTag||''}</div>
       <div class="kpi-val" style="color:${k.color}">${k.val}</div>
+      ${k.realVal ? `<div style="font-size:.78rem;font-weight:700;color:#888;margin-top:2px">real: <span style="color:${k.color}">${fmtM(k.realVal)}</span></div>` : ''}
       <div class="kpi-sub">${k.sub}</div>
       ${badges}
     </div>`;
   }).join('');
 }
-
-// ─── FUNNEL ───────────────────────────────────────────────────────────────────
 function renderFunnel({ asign, reals, gest, cont, cvval, color }) {
   const steps = [
     { lbl:'Leads asignados',       n:asign, c:color },
     { lbl:'Leads reales (pre-g.)', n:reals, c:'#0075BE' },
-    { lbl:'Gestionados',           n:gest,  c:'#F73' },
+    { lbl:'Gestionados',           n:gest,  c:'#FF7733' },
     { lbl:'Contactados',           n:cont,  c:'#8C4DFF' },
-    { lbl:'Convertidos válidos',   n:cvval, c:'#00A650' },
+    { lbl:'Convertidos v\u00e1lidos',   n:cvval, c:'#00A650' },
   ];
   const mx = asign || 1;
   document.getElementById('funnelSteps').innerHTML = steps.map((s,i) => {
     const w   = Math.max(Math.round(s.n/mx*100), 3);
-    const pct = i===0 ? '100%' : (steps[i-1].n ? Math.round(s.n/steps[i-1].n*100)+'%' : '—');
+    const pct = i===0 ? '100%' : (steps[i-1].n ? Math.round(s.n/steps[i-1].n*100)+'%' : '\u2014');
     return `<div class="fstep">
       <div class="fstep-lbl">${s.lbl}</div>
       <div class="fbar-wrap">
@@ -930,8 +836,8 @@ function renderFunnel({ asign, reals, gest, cont, cvval, color }) {
     </div>`;
   }).join('');
 }
-
-// ─── ESTADO DISTRIBUTION ─────────────────────────────────────────────────────
+</script>
+<script>
 function renderEstado(data) {
   const counts = {};
   data.forEach(r => {
@@ -945,7 +851,7 @@ function renderEstado(data) {
   const total = sorted.reduce((s,[,v])=>s+v, 0);
   const STATE_COLORS = {
     'convertido':'#00A650','contactado':'#009EE3','en negociacion':'#8C4DFF',
-    'sin interes':'#F73','sin interes/rechazado':'#F73','irresoluble':'#E53935',
+    'sin interes':'#FF7733','sin interes/rechazado':'#FF7733','irresoluble':'#E53935',
     'no aplica':'#999','gestionado':'#0075BE','regestion':'#FFD100',
     'volvio a cobrar':'#AAA','sin tipificar':'#CCC'
   };
@@ -972,20 +878,16 @@ function renderEstado(data) {
   t.appendChild(tbody);
   wrap.appendChild(t);
 }
-
-// ─── MOTIVOS DE ABANDONO ──────────────────────────────────────────────────────
 const NA_KEY = 'No Gestionable / No Aplica';
 function normMotivo(v) {
   if (!v) return null;
   const n = norm(v);
-  const nClean = n.replace(/-/g, ' ');  // "otro-particular" → "otro particular"
+  const nClean = n.replace(/-/g, ' ');
   if (n.includes('no aplica') || n.includes('no gestionable')) return NA_KEY;
   if (MOTIVOS_OTROS.some(k => nClean.includes(norm(k).replace(/-/g,' ')))) return 'Otros';
   return v.trim();
 }
-
 function buildMotivoSubMap(data) {
-  // Returns { motivo: { submotivo: count } }
   const map = {};
   data.forEach(r => {
     const raw = (r.MOTIVO_ABANDONO||'').trim();
@@ -998,26 +900,20 @@ function buildMotivoSubMap(data) {
   });
   return map;
 }
-
 function renderExpandableTable(wrap, entries, subMap, totalForPct) {
-  // entries: [[label, count], ...]  sorted
-  // subMap:  { label: { sublabel: count } }
   const PALETTE = ['#009EE3','#00A650','#F73','#8C4DFF','#E53935','#FFD100','#0075BE','#607D8B','#555'];
   const t = document.createElement('table');
   t.className = 'mtable';
   t.innerHTML = '<thead><tr><th>Motivo</th><th style="text-align:right">N</th><th style="min-width:130px">% del total</th></tr></thead>';
   const tbody = document.createElement('tbody');
-
   entries.forEach(([k, v], i) => {
     const pct   = Math.round(v / totalForPct * 100);
     const col   = PALETTE[i % PALETTE.length];
     const grpId = 'grp-' + Math.random().toString(36).slice(2);
     const subs  = subMap[k] ? Object.entries(subMap[k]).sort((a,b)=>b[1]-a[1]) : [];
-
-    // Main row (always expandable if has subs)
     const tr = document.createElement('tr');
     tr.style.cursor = subs.length ? 'pointer' : 'default';
-    const arrow = subs.length ? `<span id="arr-${grpId}" style="margin-right:6px;font-size:.68rem;color:${col}">▶</span>` : `<span style="margin-right:14px"></span>`;
+    const arrow = subs.length ? `<span id="arr-${grpId}" style="margin-right:6px;font-size:.68rem;color:${col}">\u25b6</span>` : `<span style="margin-right:14px"></span>`;
     tr.innerHTML = `
       <td>${arrow}<strong>${k}</strong></td>
       <td style="text-align:right;font-weight:700">${fmtN(v)}</td>
@@ -1025,27 +921,24 @@ function renderExpandableTable(wrap, entries, subMap, totalForPct) {
         <span style="font-size:.72rem;font-weight:700;min-width:32px;color:${col}">${pct}%</span>
         <div class="mpct-bg"><div class="mpct-fg" style="width:${pct}%;background:${col}"></div></div>
       </div></td>`;
-
     if (subs.length) {
       tr.onclick = () => {
         const rows  = document.querySelectorAll('.sub-' + grpId);
         const btn   = document.getElementById('arr-' + grpId);
-        const open  = btn.textContent === '▼';
+        const open  = btn.textContent === '\u25bc';
         rows.forEach(r => r.style.display = open ? 'none' : '');
-        btn.textContent = open ? '▶' : '▼';
+        btn.textContent = open ? '\u25b6' : '\u25bc';
       };
     }
     tbody.appendChild(tr);
-
-    // Sub-rows (hidden by default)
     subs.forEach(([sk, sv]) => {
       const spct = Math.round(sv / v * 100);
       const subTr = document.createElement('tr');
       subTr.className = 'sub-' + grpId;
       subTr.style.display = 'none';
-      subTr.style.background = '#F8FAFC';
+      subTr.style.background = 'rgba(0,188,255,0.04)';
       subTr.innerHTML = `
-        <td style="padding-left:26px;font-size:.74rem;color:#555">↳ ${sk}</td>
+        <td style="padding-left:26px;font-size:.74rem;color:#555">\u21b3 ${sk}</td>
         <td style="text-align:right;font-size:.74rem;font-weight:600">${fmtN(sv)}</td>
         <td><div class="mpct-bar">
           <span style="font-size:.7rem;font-weight:600;min-width:32px;color:${col}">${spct}%</span>
@@ -1054,12 +947,10 @@ function renderExpandableTable(wrap, entries, subMap, totalForPct) {
       tbody.appendChild(subTr);
     });
   });
-
   t.appendChild(tbody);
   wrap.innerHTML = '';
   wrap.appendChild(t);
 }
-
 function renderMotivos(data, color) {
   const subMap = buildMotivoSubMap(data);
   const counts = Object.fromEntries(
@@ -1071,25 +962,22 @@ function renderMotivos(data, color) {
   const total  = sorted.reduce((s,[,v])=>s+v, 0);
   renderExpandableTable(wrap, sorted, subMap, total);
 }
-
-// ─── CONV VÁLIDOS POR MOTIVO ──────────────────────────────────────────────────
 function renderConvMotivo(data, color) {
   const subMap = buildMotivoSubMap(data.filter(isConvVal));
   const counts = Object.fromEntries(
     Object.entries(subMap).map(([k, subs]) => [k, Object.values(subs).reduce((a,b)=>a+b,0)])
   );
-  // Add rows with no motivo
   data.filter(r => isConvVal(r) && !(r.MOTIVO_ABANDONO||'').trim()).forEach(() => {
     counts['Sin motivo'] = (counts['Sin motivo']||0) + 1;
   });
   const sorted = Object.entries(counts).sort((a,b)=>b[1]-a[1]);
   const wrap = document.getElementById('convMotivoWrap');
-  if (!sorted.length) { wrap.innerHTML='<div class="empty">Sin convertidos válidos</div>'; return; }
+  if (!sorted.length) { wrap.innerHTML='<div class="empty">Sin convertidos v\u00e1lidos</div>'; return; }
   const total = sorted.reduce((s,[,v])=>s+v, 0);
   renderExpandableTable(wrap, sorted, subMap, total);
 }
-
-// ─── ASESOR CHARTS ────────────────────────────────────────────────────────────
+</script>
+<script>
 function renderAsesorChart(id, stats, field, color, label) {
   const sorted = [...stats].sort((a,b) => b[field]-a[field]).slice(0, 15);
   if (charts[id]) charts[id].destroy();
@@ -1098,21 +986,19 @@ function renderAsesorChart(id, stats, field, color, label) {
   charts[id] = new Chart(document.getElementById(id), {
     type: 'bar',
     data: {
-      labels: sorted.map(s => s.asesor.length>18 ? s.asesor.slice(0,18)+'…' : s.asesor),
+      labels: sorted.map(s => s.asesor.length>18 ? s.asesor.slice(0,18)+'\u2026' : s.asesor),
       datasets: [{ label, data: sorted.map(s => s[field]), backgroundColor: color, borderRadius: 4 }]
     },
     options: {
       responsive: true,
       plugins: { legend:{display:false}, tooltip:{callbacks:{label:ctx=>' '+fmtM(ctx.raw)}} },
       scales: {
-        x: { grid:{display:false}, ticks:{font:{size:10}} },
-        y: { grid:{color:'#F0F2F5'}, ticks:{callback:v=>fmtM(v),font:{size:10}} }
+        x: { grid:{display:false}, ticks:{font:{size:10,family:'MELI Proxima Nova A, Helvetica Neue, Arial, sans-serif'}} },
+        y: { grid:{color:'#f0f0f0'}, ticks:{callback:v=>fmtM(v),font:{size:10,family:'MELI Proxima Nova A, Helvetica Neue, Arial, sans-serif'}} }
       }
     }
   });
 }
-
-// ─── ASESOR TABLE ─────────────────────────────────────────────────────────────
 function renderTable(stats) {
   const sorted = [...stats].sort((a,b) => {
     let av = a[sortCol]??0, bv = b[sortCol]??0;
@@ -1123,11 +1009,9 @@ function renderTable(stats) {
   document.querySelectorAll('#thead th').forEach(th=>th.classList.remove('sorted'));
   const idx = map[sortCol];
   if(idx!==undefined) document.querySelectorAll('#thead th')[idx]?.classList.add('sorted');
-
   const color = TAB_CFG[activeTab].color;
   const maxT = Math.max(...sorted.map(r=>r.tpvM0), 1);
   const maxV = Math.max(...sorted.map(r=>r.vcM0),  1);
-
   document.getElementById('tbody').innerHTML = sorted.map(r => {
     const gPct = r.reales    ? Math.round(r.gestionados/r.reales*100)  : 0;
     const cPct = r.reales    ? Math.round(r.contactados/r.reales*100)  : 0;
@@ -1137,8 +1021,8 @@ function renderTable(stats) {
       <td style="text-align:right">${fmtN(r.asignados)}</td>
       <td style="text-align:right">${fmtN(r.reales)}</td>
       <td><div class="mbar">
-        <span class="plbl" style="color:#F73">${gPct}%</span>
-        <div class="mbar-bg"><div class="mbar-fg" style="width:${gPct}%;background:#F73"></div></div>
+        <span class="plbl" style="color:#FF7733">${gPct}%</span>
+        <div class="mbar-bg"><div class="mbar-fg" style="width:${gPct}%;background:#FF7733"></div></div>
         <span style="font-size:.7rem;color:#AAA">${fmtN(r.gestionados)}</span>
       </div></td>
       <td><div class="mbar">
@@ -1160,14 +1044,11 @@ function renderTable(stats) {
     </tr>`;
   }).join('');
 }
-
 function srt(col) {
   sortDir = (sortCol===col) ? sortDir*-1 : -1;
   sortCol = col;
   renderTable(byAsesor(getFiltered()));
 }
-
-// ─── BOOT ─────────────────────────────────────────────────────────────────────
 loadData();
 </script>
 </body>
