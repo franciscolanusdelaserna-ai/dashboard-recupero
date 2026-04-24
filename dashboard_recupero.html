@@ -591,28 +591,24 @@ async function fetchFromSheets() {
 }
 
 async function loadData() {
-  // 1. Intentar leer directo de Google Sheets (para GitHub Pages y acceso compartido)
-  try {
-    const d = await fetchFromSheets();
-    if (d && d.length) {
-      try { boot(d); } catch(e) { showErr('Error en boot: ' + e.message + '<br><code>' + e.stack + '</code>'); }
-      return;
-    }
-  } catch(e) { console.warn('gviz fetch falló:', e); }
-
-  // 2. Fallback: servidor local (para desarrollo)
-  try {
-    const res = await fetch('http://127.0.0.1:8082/data.json');
-    if (res.ok) {
-      const d = await res.json();
-      if (d && d.length) {
-        try { boot(d); } catch(e) { showErr('Error en boot: ' + e.message + '<br><code>' + e.stack + '</code>'); }
-        return;
+  // 1. Leer data.json del repo (GitHub Pages o local)
+  const dataSources = [
+    'data.json',
+    'http://127.0.0.1:8082/data.json',
+  ];
+  for (const url of dataSources) {
+    try {
+      const res = await fetch(url);
+      if (res.ok) {
+        const d = await res.json();
+        if (d && d.length) {
+          try { boot(d); } catch(e) { showErr('Error en boot: ' + e.message + '<br><code>' + e.stack + '</code>'); }
+          return;
+        }
       }
-    }
-  } catch(e) { console.warn('fetch 8082 falló:', e); }
-
-  showErr('No se pudo cargar los datos.<br><code>Verificá que el Google Sheet sea público o iniciá servidor_datos.py.</code>');
+    } catch(e) { console.warn('fetch falló:', url, e); }
+  }
+  showErr('No se pudieron cargar los datos.<br><code>Corré actualizar_dashboard.py para subir los datos.</code>');
 }
 
 function boot(data) {
