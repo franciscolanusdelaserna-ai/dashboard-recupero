@@ -583,6 +583,7 @@ let activePeriod  = 'all';
 let activeAsesores = null;  // null = todos; Set = solo los seleccionados
 let activeTab     = 'total';
 let sortCol = 'convVal', sortDir = -1;
+let lastIsFcst = false;
 let charts  = {};
 
 // ─── UTILS ────────────────────────────────────────────────────────────────────
@@ -1521,13 +1522,23 @@ function renderTable(stats, isFcst) {
     return (av>bv?1:av<bv?-1:0)*sortDir;
   });
   const map = {asesor:0,asignados:1,reales:2,gestionados:3,contactados:4,convDecl:5,convVal:6,tpvM0:7,tpvM1:8,vcM0:9,vcM1:10};
-  document.querySelectorAll('#thead th').forEach(th=>th.classList.remove('sorted'));
+  const ths = document.querySelectorAll('#thead th');
+  ths.forEach(th => { th.classList.remove('sorted'); th.dataset.arrow && (th.dataset.arrow = ''); });
   const idx = map[sortCol];
-  if(idx!==undefined) document.querySelectorAll('#thead th')[idx]?.classList.add('sorted');
+  if (idx !== undefined) {
+    const th = ths[idx];
+    if (th) {
+      th.classList.add('sorted');
+      // inject arrow into the th — strip existing arrow first
+      const base = th.innerHTML.replace(/\s*[▲▼]$/, '');
+      th.innerHTML = base + (sortDir === -1 ? ' ▼' : ' ▲');
+    }
+  }
 
+  lastIsFcst = !!isFcst;
   const fcstBadge = `<span style="font-size:.55rem;font-weight:700;color:#FF8C00;background:#FFF3E0;padding:1px 4px;border-radius:4px;margin-left:4px;vertical-align:middle">FCST</span>`;
-  document.getElementById('thTpvM1').innerHTML = `<span onclick="srt('tpvM1')">TPV M1${isFcst ? fcstBadge : ''}</span>`;
-  document.getElementById('thVcM1').innerHTML  = `<span onclick="srt('vcM1')">VC M1${isFcst ? fcstBadge : ''}</span>`;
+  document.getElementById('thTpvM1').innerHTML = `TPV M1${isFcst ? fcstBadge : ''}`;
+  document.getElementById('thVcM1').innerHTML  = `VC M1${isFcst ? fcstBadge : ''}`;
 
   const color  = TAB_CFG[activeTab].color;
   const maxT0  = Math.max(...sorted.map(r=>r.tpvM0), 1);
@@ -1588,7 +1599,7 @@ function renderTable(stats, isFcst) {
 function srt(col) {
   sortDir = (sortCol===col) ? sortDir*-1 : -1;
   sortCol = col;
-  renderTable(byAsesor(getFiltered()));
+  renderTable(byAsesor(getFiltered()), lastIsFcst);
 }
 
 // ─── BOOT ─────────────────────────────────────────────────────────────────────
