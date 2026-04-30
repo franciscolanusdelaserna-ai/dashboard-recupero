@@ -1188,9 +1188,9 @@ function renderKPIs({ asign, reals, gest, cont, cvdcl, cvval, tpvM0, tpvM1, vcM0
 
   const cards = [
     { lbl:'Leads asignados',    val: fmtN(asign), sub:'base total',                       color,  delta:null,   delta2:null },
-    { lbl:'Leads reales',       val: fmtN(reals), sub:'pre-gestión',                      color:'#0075BE', delta:null,  delta2:null },
+    { lbl:'Leads reales',       val: fmtN(reals), sub: fmtPct(reals,asign)+' sobre asignados', color:'#0075BE', delta:null,  delta2:null },
     { lbl:'Gestionados',        val: fmtPct(gest,reals), sub: fmtN(gest)+' abs',          color:c2, delta:null,  delta2:null },
-    { lbl:'Contactados',        val: fmtPct(cont,reals), sub: fmtN(cont)+' · '+fmtPct(cont,reals)+' sobre reales', color:c3, delta:null, delta2:null },
+    { lbl:'Contactados',        val: fmtN(cont), sub: fmtN(cont)+' contactados', color:c3, delta:null, delta2:null },
     { lbl:'Conv. declarados',   val: fmtN(cvdcl), sub: fmtPct(cvdcl,cont)+' de contactados', color:c4, delta:null, delta2:null },
     { lbl:'Conv. válidos',      val: fmtN(cvval), sub: fmtPct(cvval,cvdcl)+' de declarados', color:c4, delta:null, delta2:null },
     { lbl:'TPV M0',  val: fmtM(tpvM0), sub:'', color, delta:tpvM0MoM, delta2:null, dlbl1:'MoM' },
