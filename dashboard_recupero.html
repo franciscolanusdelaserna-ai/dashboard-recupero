@@ -1775,7 +1775,7 @@ function renderTable(stats, isFcst) {
     const rPct = r.asignados ? Math.round(r.reales/r.asignados*100)       : 0;
     const gPct = r.reales    ? Math.round(r.gestionados/r.reales*100)     : 0;
     const cPct = r.reales    ? Math.round(r.contactados/r.reales*100)     : 0;
-    const dPct = r.reales    ? Math.round(r.convDecl/r.reales*100)        : 0;
+    const dPct = r.contactados ? Math.round(r.convDecl/r.contactados*100) : 0;
     const vPct = r.convDecl  ? Math.round(r.convVal/r.convDecl*100)       : 0;
     return `<tr>
       <td style="text-align:left;white-space:nowrap"><strong>${r.asesor}</strong></td>
@@ -1794,7 +1794,7 @@ function renderTable(stats, isFcst) {
         <span style="font-size:.68rem;color:#AAA">${fmtN(r.contactados)}</span>
       </div></td>
       <td>
-        <strong>${fmtN(r.convDecl)}</strong>${sub(dPct,'de reales')}
+        <strong>${fmtN(r.convDecl)}</strong>${sub(dPct,'de cont.')}
       </td>
       <td>
         <strong style="color:#00A650">${fmtN(r.convVal)}</strong>${sub(vPct,'de decl.')}
