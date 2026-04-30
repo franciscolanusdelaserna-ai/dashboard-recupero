@@ -1241,16 +1241,17 @@ function renderKPIs({ asign, reals, gest, cont, cvdcl, cvval, tpvM0, tpvM1, vcM0
 // ─── FUNNEL ───────────────────────────────────────────────────────────────────
 function renderFunnel({ asign, reals, gest, cont, cvval, color }) {
   const steps = [
-    { lbl:'Leads asignados',       n:asign, c:color },
-    { lbl:'Leads reales (pre-g.)', n:reals, c:'#0075BE' },
-    { lbl:'Gestionados',           n:gest,  c:'#FF7733' },
-    { lbl:'Contactados',           n:cont,  c:'#8C4DFF' },
-    { lbl:'Convertidos válidos',   n:cvval, c:'#00A650' },
+    { lbl:'Leads asignados',       n:asign, c:color,     denom:asign, denomLbl:'asignados'  },
+    { lbl:'Leads reales (pre-g.)', n:reals, c:'#0075BE', denom:asign, denomLbl:'asignados'  },
+    { lbl:'Gestionados',           n:gest,  c:'#FF7733', denom:reals, denomLbl:'reales'     },
+    { lbl:'Contactados',           n:cont,  c:'#8C4DFF', denom:reals, denomLbl:'reales'     },
+    { lbl:'Convertidos válidos',   n:cvval, c:'#00A650', denom:cont,  denomLbl:'contactados'},
   ];
   const mx = asign || 1;
   document.getElementById('funnelSteps').innerHTML = steps.map((s,i) => {
-    const w   = Math.max(Math.round(s.n/mx*100), 3);
-    const pct = i===0 ? '100%' : i===1 ? (asign ? Math.round(s.n/asign*100)+'%' : '—') : (reals ? Math.round(s.n/reals*100)+'%' : '—');
+    const w       = Math.max(Math.round(s.n/mx*100), 3);
+    const pct     = i===0 ? '100%' : (s.denom ? Math.round(s.n/s.denom*100)+'%' : '—');
+    const tooltip = i===0 ? '' : `${fmtN(s.n)} de ${fmtN(s.denom)} ${s.denomLbl}`;
     return `<div class="fstep">
       <div class="fstep-lbl">${s.lbl}</div>
       <div class="fbar-wrap">
@@ -1258,7 +1259,7 @@ function renderFunnel({ asign, reals, gest, cont, cvval, color }) {
           <span class="fbar-n">${fmtN(s.n)}</span>
         </div>
       </div>
-      <div class="fstep-pct" style="color:${s.c}">${pct}</div>
+      <div class="fstep-pct" style="color:${s.c};cursor:default" title="${tooltip}">${pct}</div>
     </div>`;
   }).join('');
 }
