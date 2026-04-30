@@ -1139,8 +1139,9 @@ function render() {
   renderConvMotivo(data, color);
 
   const stats = byAsesor(data, openCohort);
+  const perAsesorTarget = TARGETS[activeTab]?.perAsesor ?? null;
   renderAsesorChart('tpvChart', stats, 'tpvM0', color, 'TPV M0');
-  renderAsesorChart('vcChart',  stats, 'tpvM1', color, 'TPV M1' + (isFcst ? ' (fcst)' : ''));
+  renderAsesorChart('vcChart',  stats, 'tpvM1', color, 'TPV M1' + (isFcst ? ' (fcst)' : ''), perAsesorTarget);
   const t = document.getElementById('tpvM1ChartTitle');
   if (t) t.innerHTML = 'TPV M1 por asesor (convertidos válidos)' + (isFcst && openCohort ? ` <span style="font-size:.6rem;font-weight:700;color:#FF8C00;background:#FFF3E0;padding:1px 5px;border-radius:6px;margin-left:4px">fcst</span>` : '');
   renderTable(stats);
@@ -1425,20 +1426,60 @@ function renderConvMotivo(data, color) {
 }
 
 // ─── ASESOR CHARTS ────────────────────────────────────────────────────────────
-function renderAsesorChart(id, stats, field, color, label) {
+function renderAsesorChart(id, stats, field, color, label, perAsesorTarget) {
   const sorted = [...stats].sort((a,b) => b[field]-a[field]).slice(0, 15);
   if (charts[id]) charts[id].destroy();
   if (!sorted.length) { document.getElementById(id).style.display='none'; return; }
   document.getElementById(id).style.display = '';
+
+  const datasets = [
+    { label, data: sorted.map(s => s[field]), backgroundColor: color, borderRadius: 4, order: 2 }
+  ];
+
+  if (perAsesorTarget) {
+    datasets.push({
+      type: 'line',
+      label: 'Target',
+      data: sorted.map(() => perAsesorTarget),
+      borderColor: '#E53935',
+      borderWidth: 2,
+      borderDash: [6, 4],
+      pointRadius: 0,
+      pointHoverRadius: 0,
+      fill: false,
+      backgroundColor: 'transparent',
+      order: 1,
+    });
+  }
+
   charts[id] = new Chart(document.getElementById(id), {
     type: 'bar',
     data: {
       labels: sorted.map(s => s.asesor.length>18 ? s.asesor.slice(0,18)+'…' : s.asesor),
-      datasets: [{ label, data: sorted.map(s => s[field]), backgroundColor: color, borderRadius: 4 }]
+      datasets
     },
     options: {
       responsive: true,
-      plugins: { legend:{display:false}, tooltip:{callbacks:{label:ctx=>' '+fmtM(ctx.raw)}} },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          filter: item => item.datasetIndex === 0,
+          callbacks: {
+            label: ctx => {
+              const val = ctx.raw;
+              let txt = ' ' + fmtM(val);
+              if (perAsesorTarget) {
+                const dev = val - perAsesorTarget;
+                const devPct = Math.round(dev / perAsesorTarget * 100);
+                const sign = dev >= 0 ? '+' : '';
+                txt += `  |  desvío: ${sign}${fmtM(dev)} (${sign}${devPct}%)`;
+              }
+              return txt;
+            },
+            afterLabel: ctx => perAsesorTarget ? ` Target: ${fmtM(perAsesorTarget)}` : null,
+          }
+        }
+      },
       scales: {
         x: { grid:{display:false}, ticks:{font:{size:10,family:'MELI Proxima Nova A, Helvetica Neue, Arial, sans-serif'}} },
         y: { grid:{color:'#f0f0f0'}, ticks:{callback:v=>fmtM(v),font:{size:10,family:'MELI Proxima Nova A, Helvetica Neue, Arial, sans-serif'}} }
