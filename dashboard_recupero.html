@@ -298,7 +298,7 @@
     .tw { overflow-x:auto; }
     table { width:100%; border-collapse:collapse; font-size:.8rem; }
     thead th {
-      padding:7px 10px; text-align:left;
+      padding:7px 8px; text-align:center;
       font-size:.63rem; font-weight:700; text-transform:uppercase;
       letter-spacing:.5px; color:var(--muted);
       border-bottom:2px solid var(--border);
@@ -307,7 +307,7 @@
     }
     thead th:hover { color:var(--mp-navy); }
     thead th.sorted { color:var(--mp-navy); }
-    td { padding:8px 10px; border-bottom:1px solid #F5F5F5; vertical-align:middle; }
+    td { padding:7px 8px; border-bottom:1px solid #F5F5F5; vertical-align:middle; text-align:center; }
     tr:last-child td { border-bottom:none; }
     tr:hover td { background:var(--highlight); }
     .mbar { display:flex; align-items:center; gap:5px; }
@@ -472,7 +472,7 @@
         <table>
           <thead id="thead">
             <tr>
-              <th onclick="srt('asesor')">Asesor</th>
+              <th onclick="srt('asesor')" style="text-align:left">Asesor</th>
               <th onclick="srt('asignados')"   style="text-align:right">Asignados</th>
               <th onclick="srt('reales')"      style="text-align:right">Leads Reales</th>
               <th onclick="srt('gestionados')">Gestionados</th>
@@ -1540,9 +1540,9 @@ function renderTable(stats) {
     const dPct = r.reales    ? Math.round(r.convDecl/r.reales*100)        : 0;
     const vPct = r.convDecl  ? Math.round(r.convVal/r.convDecl*100)       : 0;
     return `<tr>
-      <td><strong>${r.asesor}</strong></td>
-      <td style="text-align:right">${fmtN(r.asignados)}</td>
-      <td style="text-align:right">
+      <td style="text-align:left;white-space:nowrap"><strong>${r.asesor}</strong></td>
+      <td>${fmtN(r.asignados)}</td>
+      <td>
         <strong>${fmtN(r.reales)}</strong>${sub(rPct,'de asig.')}
       </td>
       <td><div class="mbar">
@@ -1555,10 +1555,10 @@ function renderTable(stats) {
         <div class="mbar-bg"><div class="mbar-fg" style="width:${cPct}%;background:#8C4DFF"></div></div>
         <span style="font-size:.68rem;color:#AAA">${fmtN(r.contactados)}</span>
       </div></td>
-      <td style="text-align:right">
+      <td>
         <strong>${fmtN(r.convDecl)}</strong>${sub(dPct,'de reales')}
       </td>
-      <td style="text-align:right">
+      <td>
         <strong style="color:#00A650">${fmtN(r.convVal)}</strong>${sub(vPct,'de decl.')}
       </td>
       <td><div class="mbar">
