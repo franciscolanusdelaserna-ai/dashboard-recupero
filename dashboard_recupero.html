@@ -561,7 +561,7 @@ const TARGETS = {
   temprano:     { total: 550e6,  perAsesor: 110e6 },
   tardio:       { total: 960e6,  perAsesor: 120e6 },
   reactivacion: { total: 500e6,  perAsesor: 100e6 },
-  chinos:       { total: 120e6,  perAsesor: 120e6 },
+  chinos:       { total: 120e6,  perAsesor: 120e6, multiplyCohorts: false },
   total:        { total: 2010e6, perAsesor: null  },
 };
 
@@ -599,7 +599,7 @@ function getEffectiveTarget(tab) {
 
   // Cuando se ven todos los cohorts, multiplicar por la cantidad de períodos con M1 disponible
   // Se excluye el cohort del mes corriente porque su M1 aún no ocurrió
-  if (activePeriod === 'all' && allData.length > 0) {
+  if (activePeriod === 'all' && allData.length > 0 && cfg.multiplyCohorts !== false) {
     const today = new Date();
     const currentMonthPeriod = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-01`;
     const t = TAB_CFG[tab];
