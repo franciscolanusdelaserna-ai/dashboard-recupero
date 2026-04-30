@@ -1961,9 +1961,7 @@ function renderMonitoreo(data) {
     const m0 = parseFloat(r.TPV_M0)||0, m1 = parseFloat(r.TPV_M1)||0;
     const vc0 = parseFloat(r.VC_M0)||0, vc1 = parseFloat(r.VC_M1)||0;
     const dias = parseInt(r.DIAS_SIN_COBRAR)||0;
-    const diasCell = color === 'red' && m0 === 0 && m1 === 0
-      ? `<span style="color:#E53935;font-weight:700">Sin TPV</span>`
-      : `<span style="font-weight:700;color:${dotColor[color]}">${dias}</span>`;
+    const diasCell = `<span style="font-weight:700;color:${dotColor[color]}">${dias}</span>`;
 
     return `<tr style="background:${bg}">
       <td>${dot}${r.CUST_ID}</td>
