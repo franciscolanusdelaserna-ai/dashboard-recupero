@@ -316,6 +316,24 @@
     .plbl { font-size:.7rem; font-weight:700; min-width:28px; }
     .nlbl { font-size:.7rem; font-weight:700; min-width:40px; }
 
+    /* ── DIAGNOSTIC PANEL ── */
+    .diag-panel { background:#fff; border-radius:12px; padding:18px 22px; margin-top:10px; box-shadow:0 4px 20px rgba(0,0,0,.07); border:1.5px solid var(--border); animation:fadeIn .18s ease; }
+    @keyframes fadeIn { from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:none} }
+    .diag-section { margin-bottom:18px; }
+    .diag-section:last-child { margin-bottom:0; }
+    .diag-section-title { font-size:.68rem; font-weight:800; text-transform:uppercase; letter-spacing:.7px; color:var(--mp-navy); margin-bottom:10px; padding-bottom:6px; border-bottom:1.5px solid var(--border); font-family:var(--font); }
+    .diag-ok { font-size:.78rem; font-weight:700; color:#00A650; display:flex; align-items:center; gap:6px; padding:8px 12px; background:#F0FBF5; border-radius:8px; }
+    .diag-row { display:flex; align-items:center; gap:10px; padding:6px 0; border-bottom:1px solid #F8F8F8; font-family:var(--font); }
+    .diag-row:last-child { border-bottom:none; }
+    .diag-name { font-size:.78rem; font-weight:700; color:#333; min-width:140px; }
+    .diag-val  { font-size:.78rem; font-weight:600; color:#555; min-width:70px; }
+    .diag-dev  { font-size:.75rem; font-weight:700; padding:2px 8px; border-radius:6px; white-space:nowrap; }
+    .diag-dev.down { color:#D32F2F; background:#FFF0F0; }
+    .diag-dev.up   { color:#00A650; background:#F0FBF5; }
+    .diag-btn { display:inline-flex; align-items:center; gap:6px; margin-top:10px; padding:5px 14px; border:1.5px solid var(--border); border-radius:20px; background:white; cursor:pointer; font-size:.72rem; font-weight:700; color:#555; font-family:var(--font); transition:all .15s; }
+    .diag-btn:hover { border-color:var(--mp-navy); color:var(--mp-navy); background:var(--highlight); }
+    .diag-btn.open  { border-color:var(--mp-navy); color:var(--mp-navy); background:var(--highlight); }
+
     /* ── LOADING / ERROR ── */
     .loading { display:flex; flex-direction:column; align-items:center; justify-content:center; height:300px; color:var(--muted); font-family:var(--font); }
     .spin { width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--mp-cyan);border-radius:50%;animation:spin .7s linear infinite;margin-bottom:12px; }
@@ -515,7 +533,12 @@ const TARGETS = {
   tardio:       { total: 960e6,  perAsesor: 120e6 },
   reactivacion: { total: 500e6,  perAsesor: 100e6 },
   chinos:       { total: 120e6,  perAsesor: 120e6 },
-  total:        { total: 2010e6, perAsesor: null  },  // 550+960+500
+  total:        { total: 2010e6, perAsesor: null  },
+};
+
+// Mínimo de Convertidos Válidos por asesor por iniciativa
+const CV_TARGETS = {
+  temprano: 15, tardio: 10, reactivacion: 8, chinos: 12, total: null,
 };
 
 // Asesoras exclusivas del tab Chinos — excluidas por defecto en otros tabs
@@ -584,6 +607,8 @@ let activeAsesores = null;  // null = todos; Set = solo los seleccionados
 let activeTab     = 'total';
 let sortCol = 'convVal', sortDir = -1;
 let lastIsFcst = false;
+let lastStats  = [];
+let diagOpen   = false;
 let charts  = {};
 
 // ─── UTILS ────────────────────────────────────────────────────────────────────
@@ -1141,6 +1166,8 @@ function render() {
   renderConvMotivo(data, color);
 
   const stats = byAsesor(data, openCohort);
+  lastStats = stats;
+  diagOpen = false;
   const perAsesorTarget = TARGETS[activeTab]?.perAsesor ?? null;
   renderAsesorChart('tpvChart', stats, 'tpvM0', color, 'TPV M0');
   renderAsesorChart('vcChart',  stats, 'tpvM1', color, 'TPV M1' + (isFcst ? ' (fcst)' : ''), perAsesorTarget);
@@ -1198,8 +1225,109 @@ function renderTargetBar(tpvM1Disp, isFcst, openCohort) {
           ${pct >= 100 ? `<div style="position:absolute;right:0;top:0;height:100%;width:3px;background:white;opacity:.6"></div>` : ''}
         </div>
       </div>
-      ${pct >= 100 ? `<div style="margin-top:6px;font-size:.7rem;font-weight:700;color:#00A650">✓ Target superado</div>` : `<div style="margin-top:6px;font-size:.7rem;color:var(--muted)">Falta ${fmtM(target - tpvM1Disp)} para el target</div>`}
-    </div>`;
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px">
+        ${pct >= 100 ? `<div style="font-size:.7rem;font-weight:700;color:#00A650">✓ Target superado</div>` : `<div style="font-size:.7rem;color:var(--muted)">Falta ${fmtM(target - tpvM1Disp)} para el target</div>`}
+        ${(TARGETS[activeTab]?.perAsesor || CV_TARGETS[activeTab]) ? `<button class="diag-btn" id="diagBtn" onclick="toggleDiagnostic()">🔍 ¿Por qué?</button>` : ''}
+      </div>
+    </div>
+    <div id="diagPanel" style="display:none"></div>`;
+}
+
+// ─── DIAGNOSTIC PANEL ────────────────────────────────────────────────────────
+function toggleDiagnostic() {
+  diagOpen = !diagOpen;
+  const panel = document.getElementById('diagPanel');
+  const btn   = document.getElementById('diagBtn');
+  if (!panel || !btn) return;
+  if (diagOpen) {
+    panel.style.display = 'block';
+    btn.textContent = '✕ Cerrar';
+    btn.classList.add('open');
+    renderDiagnosticPanel();
+  } else {
+    panel.style.display = 'none';
+    btn.textContent = '🔍 ¿Por qué?';
+    btn.classList.remove('open');
+  }
+}
+
+function renderDiagnosticPanel() {
+  const panel      = document.getElementById('diagPanel');
+  const perAsesor  = TARGETS[activeTab]?.perAsesor;
+  const cvMin      = CV_TARGETS[activeTab];
+  const color      = TAB_CFG[activeTab].color;
+  const stats      = lastStats.filter(s => s.asesor !== 'Sin asignar' && s.asignados > 0);
+
+  let html = '<div class="diag-panel">';
+
+  // ── Sección 1: TPV M1 por asesor ──────────────────────────────────────────
+  if (perAsesor) {
+    const sorted = [...stats].sort((a,b) => a.tpvM1 - b.tpvM1);
+    const below  = sorted.filter(s => s.tpvM1 < perAsesor);
+    const above  = sorted.filter(s => s.tpvM1 >= perAsesor).reverse();
+
+    html += `<div class="diag-section">
+      <div class="diag-section-title">📊 TPV M1 por asesor — target: ${fmtM(perAsesor)} c/u</div>`;
+
+    if (below.length === 0) {
+      html += `<div class="diag-ok">✓ Todos los asesores por encima del target TPV M1</div>`;
+    } else {
+      below.forEach(s => {
+        const dev    = s.tpvM1 - perAsesor;
+        const devPct = Math.abs(Math.round(dev / perAsesor * 100));
+        html += `<div class="diag-row">
+          <span class="diag-name">${s.asesor}</span>
+          <span class="diag-val">${fmtM(s.tpvM1)}</span>
+          <span class="diag-dev down">▼ ${fmtM(Math.abs(dev))} (−${devPct}%)</span>
+        </div>`;
+      });
+      above.forEach(s => {
+        const dev    = s.tpvM1 - perAsesor;
+        const devPct = Math.round(dev / perAsesor * 100);
+        html += `<div class="diag-row">
+          <span class="diag-name">${s.asesor}</span>
+          <span class="diag-val">${fmtM(s.tpvM1)}</span>
+          <span class="diag-dev up">▲ +${fmtM(dev)} (+${devPct}%)</span>
+        </div>`;
+      });
+    }
+    html += '</div>';
+  }
+
+  // ── Sección 2: Convertidos válidos ───────────────────────────────────────
+  if (cvMin) {
+    const sorted = [...stats].sort((a,b) => a.convVal - b.convVal);
+    const below  = sorted.filter(s => s.convVal < cvMin);
+    const above  = sorted.filter(s => s.convVal >= cvMin).reverse();
+
+    html += `<div class="diag-section">
+      <div class="diag-section-title">🎯 Convertidos válidos — mínimo: ${cvMin} por asesor</div>`;
+
+    if (below.length === 0) {
+      html += `<div class="diag-ok">✓ Convertidos válidos OK — todos por encima del mínimo</div>`;
+    } else {
+      below.forEach(s => {
+        const dev = s.convVal - cvMin;
+        html += `<div class="diag-row">
+          <span class="diag-name">${s.asesor}</span>
+          <span class="diag-val">${s.convVal} conv. vál.</span>
+          <span class="diag-dev down">▼ faltan ${Math.abs(dev)}</span>
+        </div>`;
+      });
+      above.forEach(s => {
+        const dev = s.convVal - cvMin;
+        html += `<div class="diag-row">
+          <span class="diag-name">${s.asesor}</span>
+          <span class="diag-val">${s.convVal} conv. vál.</span>
+          <span class="diag-dev up">▲ +${dev} sobre mínimo</span>
+        </div>`;
+      });
+    }
+    html += '</div>';
+  }
+
+  html += '</div>';
+  panel.innerHTML = html;
 }
 
 // ─── KPIs ─────────────────────────────────────────────────────────────────────
