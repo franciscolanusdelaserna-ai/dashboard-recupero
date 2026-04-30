@@ -537,8 +537,11 @@ function getEffectiveTarget(tab) {
     ? cfg.perAsesor * activeAsesores.size
     : cfg.total;
 
-  // Cuando se ven todos los cohorts, multiplicar por la cantidad de períodos con datos
+  // Cuando se ven todos los cohorts, multiplicar por la cantidad de períodos con M1 disponible
+  // Se excluye el cohort del mes corriente porque su M1 aún no ocurrió
   if (activePeriod === 'all' && allData.length > 0) {
+    const today = new Date();
+    const currentMonthPeriod = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-01`;
     const t = TAB_CFG[tab];
     const periods = new Set(
       allData
@@ -549,9 +552,9 @@ function getEffectiveTarget(tab) {
           return true;
         })
         .map(r => String(r.MES||'').trim())
-        .filter(Boolean)
+        .filter(p => p && p !== currentMonthPeriod)   // excluir mes corriente
     );
-    if (periods.size > 1) baseTarget *= periods.size;
+    if (periods.size > 0) baseTarget *= periods.size;
   }
 
   return baseTarget;
