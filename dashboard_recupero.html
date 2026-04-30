@@ -296,25 +296,25 @@
 
     /* ── TABLE ── */
     .tw { overflow-x:auto; }
-    table { width:100%; border-collapse:collapse; font-size:.8rem; }
+    table { width:100%; border-collapse:collapse; font-size:.73rem; }
     thead th {
-      padding:7px 8px; text-align:center;
-      font-size:.63rem; font-weight:700; text-transform:uppercase;
-      letter-spacing:.5px; color:var(--muted);
+      padding:5px 6px; text-align:center;
+      font-size:.6rem; font-weight:700; text-transform:uppercase;
+      letter-spacing:.4px; color:var(--muted);
       border-bottom:2px solid var(--border);
       cursor:pointer; white-space:nowrap; user-select:none;
       font-family: var(--font);
     }
     thead th:hover { color:var(--mp-navy); }
     thead th.sorted { color:var(--mp-navy); }
-    td { padding:7px 8px; border-bottom:1px solid #F5F5F5; vertical-align:middle; text-align:center; }
+    td { padding:5px 6px; border-bottom:1px solid #F5F5F5; vertical-align:middle; text-align:center; }
     tr:last-child td { border-bottom:none; }
     tr:hover td { background:var(--highlight); }
-    .mbar { display:flex; align-items:center; gap:5px; }
-    .mbar-bg  { flex:1; height:4px; background:#f0f0f0; border-radius:3px; min-width:35px; }
+    .mbar { display:flex; align-items:center; gap:4px; }
+    .mbar-bg  { flex:1; height:4px; background:#f0f0f0; border-radius:3px; min-width:24px; }
     .mbar-fg  { height:100%; border-radius:3px; transition:width .35s; }
-    .plbl { font-size:.75rem; font-weight:700; min-width:34px; }
-    .nlbl { font-size:.75rem; font-weight:700; }
+    .plbl { font-size:.7rem; font-weight:700; min-width:28px; }
+    .nlbl { font-size:.7rem; font-weight:700; min-width:40px; }
 
     /* ── LOADING / ERROR ── */
     .loading { display:flex; flex-direction:column; align-items:center; justify-content:center; height:300px; color:var(--muted); font-family:var(--font); }
@@ -1522,23 +1522,25 @@ function renderTable(stats, isFcst) {
     return (av>bv?1:av<bv?-1:0)*sortDir;
   });
   const map = {asesor:0,asignados:1,reales:2,gestionados:3,contactados:4,convDecl:5,convVal:6,tpvM0:7,tpvM1:8,vcM0:9,vcM1:10};
-  const ths = document.querySelectorAll('#thead th');
-  ths.forEach(th => { th.classList.remove('sorted'); th.dataset.arrow && (th.dataset.arrow = ''); });
-  const idx = map[sortCol];
-  if (idx !== undefined) {
-    const th = ths[idx];
-    if (th) {
-      th.classList.add('sorted');
-      // inject arrow into the th — strip existing arrow first
-      const base = th.innerHTML.replace(/\s*[▲▼]$/, '');
-      th.innerHTML = base + (sortDir === -1 ? ' ▼' : ' ▲');
-    }
-  }
-
   lastIsFcst = !!isFcst;
   const fcstBadge = `<span style="font-size:.55rem;font-weight:700;color:#FF8C00;background:#FFF3E0;padding:1px 4px;border-radius:4px;margin-left:4px;vertical-align:middle">FCST</span>`;
-  document.getElementById('thTpvM1').innerHTML = `TPV M1${isFcst ? fcstBadge : ''}`;
-  document.getElementById('thVcM1').innerHTML  = `VC M1${isFcst ? fcstBadge : ''}`;
+
+  // Base labels for each th (without arrows)
+  const baseLabels = ['Asesor','Asignados','Leads Reales','Gestionados','Contactados','Conv. Decl.','Conv. Válidos','TPV M0',`TPV M1${isFcst?fcstBadge:''}`, 'VC M0',`VC M1${isFcst?fcstBadge:''}`];
+  const ths = document.querySelectorAll('#thead th');
+
+  // Reset all headers to base labels, no arrows, no sorted class
+  ths.forEach((th, i) => {
+    th.classList.remove('sorted');
+    if (baseLabels[i] !== undefined) th.innerHTML = baseLabels[i];
+  });
+
+  // Add arrow only to the active sort column
+  const idx = map[sortCol];
+  if (idx !== undefined && ths[idx]) {
+    ths[idx].classList.add('sorted');
+    ths[idx].innerHTML += sortDir === -1 ? ' ▼' : ' ▲';
+  }
 
   const color  = TAB_CFG[activeTab].color;
   const maxT0  = Math.max(...sorted.map(r=>r.tpvM0), 1);
