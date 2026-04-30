@@ -1168,7 +1168,7 @@ function renderKPIs({ asign, reals, gest, cont, cvdcl, cvval, tpvM0, tpvM1, vcM0
            <span class="kpi-delta ${dClass(k.delta)}">${k.dlbl1||''} ${dLabel(k.delta)}</span>
            <span class="kpi-delta ${dClass(k.delta2)}">${k.dlbl2||''} ${dLabel(k.delta2)}</span>
          </div>`
-      : (d1 ? `<span class="kpi-delta ${dClass(k.delta)}">${dLabel(k.delta)}</span>` : '');
+      : (d1 ? `<span class="kpi-delta ${dClass(k.delta)}">${k.dlbl1 ? k.dlbl1+' ' : ''}${dLabel(k.delta)}</span>` : '');
     return `
     <div class="kpi" style="border-top-color:${k.color}">
       <div class="kpi-lbl">${k.lbl}${k.fcstTag||''}</div>
