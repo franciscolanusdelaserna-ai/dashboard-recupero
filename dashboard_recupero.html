@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard · Seguimiento Recupero — Mercado Pago</title>
+  <title>Dashboard Â· Seguimiento Recupero â Mercado Pago</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <style>
     :root {
@@ -26,7 +26,7 @@
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: var(--font); background: var(--bg); color: var(--text); }
 
-    /* ── HEADER ── */
+    /* ââ HEADER ââ */
     .header {
       background: var(--mp-yellow);
       padding: 0 32px;
@@ -51,7 +51,7 @@
       font-family: var(--font);
     }
 
-    /* ── FILTERS ── */
+    /* ââ FILTERS ââ */
     .filters {
       background: white;
       padding: 12px 32px;
@@ -102,7 +102,7 @@
     }
     select.fsel:focus { border-color: var(--mp-cyan); }
 
-    /* ── MULTI-SELECT ASESOR ── */
+    /* ââ MULTI-SELECT ASESOR ââ */
     .asesor-dd { position: relative; }
     .asesor-trigger {
       display: flex; align-items: center; gap: 6px;
@@ -172,7 +172,7 @@
     .asesor-search input:focus { border-color: var(--mp-cyan); }
     .asesor-search input::placeholder { color: var(--muted); }
 
-    /* ── INITIATIVE TABS ── */
+    /* ââ INITIATIVE TABS ââ */
     .itabs {
       background: white;
       border-bottom: 2px solid var(--border);
@@ -206,10 +206,10 @@
       background: var(--tc); color: white;
     }
 
-    /* ── MAIN ── */
+    /* ââ MAIN ââ */
     .main { padding: 20px 32px; }
 
-    /* ── KPI CARDS ── */
+    /* ââ KPI CARDS ââ */
     .kpi-grid {
       display: grid;
       grid-template-columns: repeat(10, 1fr);
@@ -234,7 +234,7 @@
     .down { background:#FDECEA; color:#E53935; }
     .flat { background:#F5F5F5; color:#AAA; }
 
-    /* ── CARDS ── */
+    /* ââ CARDS ââ */
     .card {
       background: var(--card);
       border-radius: 16px;
@@ -247,13 +247,13 @@
       font-family: var(--font);
     }
 
-    /* ── GRIDS ── */
+    /* ââ GRIDS ââ */
     .g2  { display:grid; grid-template-columns:1fr 1fr;   gap:12px; margin-bottom:12px; }
     .g32 { display:grid; grid-template-columns:3fr 2fr;   gap:12px; margin-bottom:12px; }
     .g1  { margin-bottom:12px; }
     @media (max-width:1024px) { .g2,.g32 { grid-template-columns:1fr; } }
 
-    /* ── FUNNEL ── */
+    /* ââ FUNNEL ââ */
     .funnel { display:flex; flex-direction:column; gap:8px; }
     .fstep  { display:flex; align-items:center; gap:10px; }
     .fstep-lbl { font-size:.75rem; color:#555; min-width:160px; font-weight:500; }
@@ -265,7 +265,7 @@
     .fbar-n { color:white; font-size:.78rem; font-weight:700; }
     .fstep-pct { font-size:.75rem; font-weight:700; min-width:50px; text-align:right; }
 
-    /* ── TABLE ── */
+    /* ââ TABLE ââ */
     .tw { overflow-x:auto; }
     table { width:100%; border-collapse:collapse; font-size:.8rem; }
     thead th {
@@ -287,7 +287,7 @@
     .plbl { font-size:.75rem; font-weight:700; min-width:34px; }
     .nlbl { font-size:.75rem; font-weight:700; }
 
-    /* ── LOADING / ERROR ── */
+    /* ââ LOADING / ERROR ââ */
     .loading { display:flex; flex-direction:column; align-items:center; justify-content:center; height:300px; color:var(--muted); font-family:var(--font); }
     .spin { width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--mp-cyan);border-radius:50%;animation:spin .7s linear infinite;margin-bottom:12px; }
     @keyframes spin { to { transform:rotate(360deg); } }
@@ -295,7 +295,7 @@
     .errbox code { font-size:.75rem;opacity:.7;display:block;margin-top:6px; }
     .empty { display:flex;align-items:center;justify-content:center;height:80px;color:var(--muted);font-size:.82rem;font-family:var(--font); }
 
-    /* ── SECTION DIVIDER ── */
+    /* ââ SECTION DIVIDER ââ */
     .sdiv {
       font-size:.65rem; font-weight:700; color:var(--muted);
       text-transform:uppercase; letter-spacing:.8px;
@@ -304,7 +304,7 @@
     }
     .sdiv::after { content:''; flex:1; height:1px; background:var(--border); }
 
-    /* ── MOTIVO TABLE (inside card) ── */
+    /* ââ MOTIVO TABLE (inside card) ââ */
     .mtable { width:100%; border-collapse:collapse; font-size:.78rem; }
     .mtable th { font-size:.62rem; font-weight:700; color:var(--muted); text-transform:uppercase; padding:5px 8px; border-bottom:2px solid var(--border); text-align:left; }
     .mtable td { padding:5px 8px; border-bottom:1px solid #F5F5F5; }
@@ -343,10 +343,10 @@
     <div style="width:1px;height:32px;background:rgba(10,0,128,.15);margin:0 4px"></div>
     <div>
       <h1>Dashboard Seguimiento Recupero</h1>
-      <div class="header-meta" id="lastUpdated">Cargando…</div>
+      <div class="header-meta" id="lastUpdated">Cargandoâ¦</div>
     </div>
   </div>
-  <div class="header-badge" id="headerBadge">— registros</div>
+  <div class="header-badge" id="headerBadge">â registros</div>
 </div>
 
 <!-- FILTERS -->
@@ -358,11 +358,11 @@
   <div class="asesor-dd" id="asesorDd">
     <button class="asesor-trigger" id="asesorTrigger" onclick="toggleAsesorDd(event)">
       <span id="asesorTriggerLbl">Todos</span>
-      <span class="arrow">▼</span>
+      <span class="arrow">â¼</span>
     </button>
     <div class="asesor-panel" id="asesorPanel">
       <div class="asesor-search">
-        <input type="text" id="asesorSearch" placeholder="Buscar asesor…" oninput="filterAsesorList()" onclick="event.stopPropagation()">
+        <input type="text" id="asesorSearch" placeholder="Buscar asesorâ¦" oninput="filterAsesorList()" onclick="event.stopPropagation()">
       </div>
       <div class="asesor-panel-actions">
         <button class="apbtn" onclick="selAllAsesores()">Todos</button>
@@ -375,11 +375,11 @@
 
 <!-- INITIATIVE TABS -->
 <div class="itabs" id="itabs">
-  <button class="itab active" data-tab="total"        style="--tc:#009EE3">Total iniciativas       <span class="tpill" id="pill-total">—</span></button>
-  <button class="itab"        data-tab="temprano"     style="--tc:#00A650">Recupero Temprano       <span class="tpill" id="pill-temprano">—</span></button>
-  <button class="itab"        data-tab="tardio"       style="--tc:#FF7733">Recupero Tardío         <span class="tpill" id="pill-tardio">—</span></button>
-  <button class="itab"        data-tab="reactivacion" style="--tc:#8C4DFF">Reactivación            <span class="tpill" id="pill-reactivacion">—</span></button>
-  <button class="itab"        data-tab="chinos"       style="--tc:#E53935">Chinos                  <span class="tpill" id="pill-chinos">—</span></button>
+  <button class="itab active" data-tab="total"        style="--tc:#009EE3">Total iniciativas       <span class="tpill" id="pill-total">â</span></button>
+  <button class="itab"        data-tab="temprano"     style="--tc:#00A650">Recupero Temprano       <span class="tpill" id="pill-temprano">â</span></button>
+  <button class="itab"        data-tab="tardio"       style="--tc:#FF7733">Recupero TardÃ­o         <span class="tpill" id="pill-tardio">â</span></button>
+  <button class="itab"        data-tab="reactivacion" style="--tc:#8C4DFF">ReactivaciÃ³n            <span class="tpill" id="pill-reactivacion">â</span></button>
+  <button class="itab"        data-tab="chinos"       style="--tc:#E53935">Chinos                  <span class="tpill" id="pill-chinos">â</span></button>
 </div>
 
 <!-- MAIN -->
@@ -387,7 +387,7 @@
 
   <div id="loadingDiv" class="loading">
     <div class="spin"></div>
-    <span>Cargando datos desde Google Sheets…</span>
+    <span>Cargando datos desde Google Sheetsâ¦</span>
   </div>
 
   <div id="dash" style="display:none;">
@@ -401,11 +401,11 @@
     <!-- FUNNEL + ESTADO -->
     <div class="g32">
       <div class="card">
-        <div class="card-title">Funnel de gestión</div>
+        <div class="card-title">Funnel de gestiÃ³n</div>
         <div class="funnel" id="funnelSteps"></div>
       </div>
       <div class="card">
-        <div class="card-title">Distribución por estado</div>
+        <div class="card-title">DistribuciÃ³n por estado</div>
         <div id="estadoWrap"></div>
       </div>
     </div>
@@ -413,11 +413,11 @@
     <!-- MOTIVOS -->
     <div class="g2">
       <div class="card">
-        <div class="card-title">Motivo de abandono — distribución</div>
+        <div class="card-title">Motivo de abandono â distribuciÃ³n</div>
         <div id="motivosWrap"></div>
       </div>
       <div class="card">
-        <div class="card-title">Convertidos válidos por motivo de abandono</div>
+        <div class="card-title">Convertidos vÃ¡lidos por motivo de abandono</div>
         <div id="convMotivoWrap"></div>
       </div>
     </div>
@@ -426,11 +426,11 @@
     <div class="sdiv">Breakdown por asesor</div>
     <div class="g2">
       <div class="card">
-        <div class="card-title">TPV M0 por asesor (convertidos válidos)</div>
+        <div class="card-title">TPV M0 por asesor (convertidos vÃ¡lidos)</div>
         <canvas id="tpvChart"></canvas>
       </div>
       <div class="card">
-        <div class="card-title" id="tpvM1ChartTitle">TPV M1 por asesor (convertidos válidos)</div>
+        <div class="card-title" id="tpvM1ChartTitle">TPV M1 por asesor (convertidos vÃ¡lidos)</div>
         <canvas id="vcChart"></canvas>
       </div>
     </div>
@@ -448,10 +448,10 @@
               <th onclick="srt('gestionados')">Gestionados</th>
               <th onclick="srt('contactados')">Contactados</th>
               <th onclick="srt('convDecl')">Conv. Decl.</th>
-              <th onclick="srt('convVal')">Conv. Válidos</th>
+              <th onclick="srt('convVal')">Conv. VÃ¡lidos</th>
               <th onclick="srt('tpvM0')">TPV M0</th>
               <th onclick="srt('vcM0')">VC M0</th>
-              <th onclick="srt('tpvDelta')">Δ TPV</th>
+              <th onclick="srt('tpvDelta')">Î TPV</th>
             </tr>
           </thead>
           <tbody id="tbody"></tbody>
@@ -465,7 +465,7 @@
 </div>
 
 <script>
-// ─── CONSTANTS ────────────────────────────────────────────────────────────────
+// âââ CONSTANTS ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 const MIN_PERIOD = '2025-12-01';
 
 const MONTH_NAMES = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
@@ -480,12 +480,22 @@ const TAB_CFG = {
 
 // Targets TPV M1 por iniciativa
 const TARGETS = {
-  temprano:     550e6,
-  tardio:       960e6,
-  reactivacion: 600e6,
-  chinos:       120e6,
-  total:        550e6 + 960e6 + 600e6,  // 2.110M
+  temprano:     { total: 550e6,  perAsesor: 110e6 },
+  tardio:       { total: 960e6,  perAsesor: 120e6 },
+  reactivacion: { total: 500e6,  perAsesor: 100e6 },
+  chinos:       { total: 120e6,  perAsesor: null  },
+  total:        { total: 2010e6, perAsesor: null  },  // 550+960+500
 };
+
+// Devuelve el target efectivo según cuántos asesores estén filtrados
+function getEffectiveTarget(tab) {
+  const cfg = TARGETS[tab];
+  if (!cfg) return null;
+  if (activeAsesores && activeAsesores.size > 0 && cfg.perAsesor) {
+    return cfg.perAsesor * activeAsesores.size;
+  }
+  return cfg.total;
+}
 
 // Estados that count as GESTIONADO (numerator: sobre leads reales, excluye pendiente)
 const ESTADOS_GEST = ['gestionado','contactado','no aplica','irresoluble','regestion','sin interes/rechazado','en negociacion / en resolucion','convertido'];
@@ -495,7 +505,7 @@ const ESTADOS_CONT = ['contactado','no aplica','irresoluble','regestion','sin in
 // Motivos que se agrupan como "Otros"
 const MOTIVOS_OTROS = ['otro particular gestionable','otro particular','problema cobros','impuestos y retenciones','promociones y cuotas'];
 
-// ─── STATE ────────────────────────────────────────────────────────────────────
+// âââ STATE ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 let allData       = [];
 let allAsesores   = [];   // lista completa de asesores (para el multi-select)
 let activePeriod  = 'all';
@@ -504,7 +514,7 @@ let activeTab     = 'total';
 let sortCol = 'convVal', sortDir = -1;
 let charts  = {};
 
-// ─── UTILS ────────────────────────────────────────────────────────────────────
+// âââ UTILS ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 const norm = s => String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
 
 function parseNum(v) {
@@ -513,14 +523,14 @@ function parseNum(v) {
   if (!s || s==='-') return 0;
   // Plain number or Python float string ("231876255" or "231876255.0")
   if (/^-?\d+(\.\d+)?$/.test(s)) return parseFloat(s) || 0;
-  // Spanish format ("1.234.567,89") — dot=thousands, comma=decimal
+  // Spanish format ("1.234.567,89") â dot=thousands, comma=decimal
   if (s.includes(',')) return parseFloat(s.replace(/\./g,'').replace(',','.')) || 0;
   // English format with commas as thousands ("1,234,567")
   return parseFloat(s.replace(/,/g,'')) || 0;
 }
 function isTrue(v) {
   const s = norm(v);
-  return s==='si'||s==='sí'||s==='true'||s==='1'||s==='x'||s==='yes'||s==='s';
+  return s==='si'||s==='sÃ­'||s==='true'||s==='1'||s==='x'||s==='yes'||s==='s';
 }
 function fmtN(n)  { return n.toLocaleString('es-AR'); }
 function fmtM(n)  {
@@ -529,7 +539,7 @@ function fmtM(n)  {
   if(n>=1e3) return '$'+(n/1e3).toFixed(0)+' K';
   return '$'+Math.round(n).toLocaleString('es-AR');
 }
-function fmtPct(a,b) { return b ? Math.round(a/b*100)+'%' : '—'; }
+function fmtPct(a,b) { return b ? Math.round(a/b*100)+'%' : 'â'; }
 function fmtPeriod(v) {
   if(!v) return v;
   const p = String(v).trim().split('-');
@@ -542,12 +552,12 @@ function fmtPeriod(v) {
 }
 function dClass(p) { return p===null?'flat':p>0?'up':p<0?'down':'flat'; }
 function dLabel(p) {
-  if(p===null) return '—';
-  return (p>0?'▲ ':p<0?'▼ ':'= ')+Math.abs(p).toFixed(1)+'%';
+  if(p===null) return 'â';
+  return (p>0?'â² ':p<0?'â¼ ':'= ')+Math.abs(p).toFixed(1)+'%';
 }
 
-// ─── FORECAST HELPERS ────────────────────────────────────────────────────────
-// Detecta si hay un cohort cuyo M1 está en el mes corriente (incompleto)
+// âââ FORECAST HELPERS ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Detecta si hay un cohort cuyo M1 estÃ¡ en el mes corriente (incompleto)
 // y devuelve { cohortPeriod, multiplier, daysElapsed, daysInMonth } o null
 function getOpenCohortInfo() {
   const today     = new Date();
@@ -557,7 +567,7 @@ function getOpenCohortInfo() {
   const daysElapsed = dayToday - 1;          // datos hasta ayer
   if (daysElapsed <= 0) return null;
 
-  // El cohort cuyo M1 = mes corriente → cohort = mes anterior
+  // El cohort cuyo M1 = mes corriente â cohort = mes anterior
   let cohortM = todayM - 1, cohortY = todayY;
   if (cohortM === 0) { cohortM = 12; cohortY--; }
   const cohortPeriod = `${cohortY}-${String(cohortM).padStart(2,'0')}-01`;
@@ -565,13 +575,13 @@ function getOpenCohortInfo() {
   // Verificar que exista en los datos
   if (!allData.some(r => String(r.MES||'').trim() === cohortPeriod)) return null;
 
-  const daysInMonth = new Date(todayY, todayM, 0).getDate();  // último día del mes corriente
+  const daysInMonth = new Date(todayY, todayM, 0).getDate();  // Ãºltimo dÃ­a del mes corriente
   const multiplier  = daysInMonth / daysElapsed;
 
   return { cohortPeriod, multiplier, daysElapsed, daysInMonth };
 }
 
-// Devuelve el período anterior (YYYY-MM-01 → mes anterior)
+// Devuelve el perÃ­odo anterior (YYYY-MM-01 â mes anterior)
 function getPrevPeriod(period) {
   if (!period || period === 'all') return null;
   const p = period.split('-');
@@ -596,7 +606,7 @@ function getPrevPeriodSum(field) {
   return rows.reduce((s,r) => s + parseNum(r[field]), 0);
 }
 
-// ─── METRIC HELPERS ───────────────────────────────────────────────────────────
+// âââ METRIC HELPERS âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 function isLeadReal(r) {
   const e = norm(r.ESTADO||''), s = norm(r.SUBMOTIVO_ABANDONO||'');
   if (e.includes('volvio a cobrar sin gestion')) return false;
@@ -624,14 +634,14 @@ function isConvVal(r)   { return norm(r.ESTADO||'') === 'convertido' && isValidR
 function isValidRow(r)  {
   const v = String(r.RECUPERO_VALIDO||'').trim();
   if (!v) return false;
-  // Exclude explicit negatives only; accept "SI", "Si", "Sí", "S", "1", "X", etc.
+  // Exclude explicit negatives only; accept "SI", "Si", "SÃ­", "S", "1", "X", etc.
   const vu = v.toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
   return !['NO','N','FALSE','0'].includes(vu);
 }
 
-// ─── DATA LOAD ────────────────────────────────────────────────────────────────
+// âââ DATA LOAD ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 
-// Lee directo de Google Sheets vía gviz (funciona para sheets públicos, sin API key)
+// Lee directo de Google Sheets vÃ­a gviz (funciona para sheets pÃºblicos, sin API key)
 async function fetchFromSheets() {
   const SHEET_ID = '1qNWFsUQwXzDd6fj1HzIRfIsvZRDJAxjsmZNjzkWX73o';
   const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=Base_Historica`;
@@ -715,9 +725,9 @@ async function loadData() {
           return;
         }
       }
-    } catch(e) { console.warn('fetch falló:', url, e); }
+    } catch(e) { console.warn('fetch fallÃ³:', url, e); }
   }
-  showErr('No se pudieron cargar los datos.<br><code>Corré actualizar_dashboard.py para subir los datos.</code>');
+  showErr('No se pudieron cargar los datos.<br><code>CorrÃ© actualizar_dashboard.py para subir los datos.</code>');
 }
 
 function boot(data) {
@@ -727,12 +737,12 @@ function boot(data) {
     return m && m >= MIN_PERIOD;
   });
   document.getElementById('lastUpdated').textContent =
-    `Actualizado: ${new Date().toLocaleString('es-AR')} · ${allData.length.toLocaleString('es-AR')} registros`;
+    `Actualizado: ${new Date().toLocaleString('es-AR')} Â· ${allData.length.toLocaleString('es-AR')} registros`;
   document.getElementById('headerBadge').textContent = `${allData.length.toLocaleString('es-AR')} registros`;
   // Debug TPV: log RECUPERO_VALIDO unique values and sample TPV
   const rvVals = [...new Set(allData.map(r => String(r.RECUPERO_VALIDO||'').trim()))];
   const tpvSample = allData.slice(0,5).map(r => r.TPV_M0);
-  console.log('[DEBUG] RECUPERO_VALIDO valores únicos:', rvVals);
+  console.log('[DEBUG] RECUPERO_VALIDO valores Ãºnicos:', rvVals);
   console.log('[DEBUG] TPV_M0 muestra (5 filas):', tpvSample);
   console.log('[DEBUG] Filas con RECUPERO_VALIDO truthy:', allData.filter(isValidRow).length, '/', allData.length);
 
@@ -763,7 +773,7 @@ function showErr(msg) {
   document.getElementById('errDiv').innerHTML = `<div class="errbox"><strong>No se pudieron cargar los datos</strong><br>${msg}</div>`;
 }
 
-// ─── FILTERS ─────────────────────────────────────────────────────────────────
+// âââ FILTERS âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 function buildFilters() {
   const periods = [...new Set(allData.map(r => String(r.MES||'').trim()).filter(Boolean))].sort();
   const cc = document.getElementById('cohortFilters');
@@ -839,7 +849,7 @@ function toggleAsesorDd(e) {
     // Al abrir: enfocar el buscador
     setTimeout(() => document.getElementById('asesorSearch').focus(), 50);
   } else {
-    // Al cerrar: limpiar búsqueda y mostrar todos
+    // Al cerrar: limpiar bÃºsqueda y mostrar todos
     const inp = document.getElementById('asesorSearch');
     inp.value = '';
     filterAsesorList();
@@ -904,7 +914,7 @@ function updatePills() {
   });
 }
 
-// ─── TAB SWITCH ───────────────────────────────────────────────────────────────
+// âââ TAB SWITCH âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 document.getElementById('itabs').addEventListener('click', e => {
   const b = e.target.closest('.itab'); if (!b) return;
   document.querySelectorAll('.itab').forEach(x => x.classList.remove('active'));
@@ -913,7 +923,7 @@ document.getElementById('itabs').addEventListener('click', e => {
   render();
 });
 
-// ─── AGGREGATE BY ASESOR ─────────────────────────────────────────────────────
+// âââ AGGREGATE BY ASESOR âââââââââââââââââââââââââââââââââââââââââââââââââââââ
 function byAsesor(data, openCohort) {
   const map = {};
   data.forEach(r => {
@@ -939,7 +949,7 @@ function byAsesor(data, openCohort) {
   return Object.values(map);
 }
 
-// ─── RENDER ───────────────────────────────────────────────────────────────────
+// âââ RENDER âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 function render() {
   const data  = getFiltered();
   const color = TAB_CFG[activeTab].color;
@@ -956,14 +966,14 @@ function render() {
   const tpvM1 = vrows.reduce((s,r) => s+parseNum(r.TPV_M1), 0);
   const vcM0  = vrows.reduce((s,r) => s+parseNum(r.VC_M0),  0);
   const vcM1  = vrows.reduce((s,r) => s+parseNum(r.VC_M1),  0);
-  // ── Forecast M1 para el cohort abierto (M1 parcial del mes corriente) ──────
+  // ââ Forecast M1 para el cohort abierto (M1 parcial del mes corriente) ââââââ
   const openCohort = getOpenCohortInfo();
   let tpvM1Disp = tpvM1, vcM1Disp = vcM1;
   let isFcst    = false;
 
   if (openCohort) {
     if (activePeriod !== 'all') {
-      // Cohort específico: ¿es el cohort abierto?
+      // Cohort especÃ­fico: Â¿es el cohort abierto?
       if (activePeriod === openCohort.cohortPeriod) {
         tpvM1Disp = tpvM1 * openCohort.multiplier;
         vcM1Disp  = vcM1  * openCohort.multiplier;
@@ -1018,13 +1028,13 @@ function render() {
   renderAsesorChart('tpvChart', stats, 'tpvM0', color, 'TPV M0');
   renderAsesorChart('vcChart',  stats, 'tpvM1', color, 'TPV M1' + (isFcst ? ' (fcst)' : ''));
   const t = document.getElementById('tpvM1ChartTitle');
-  if (t) t.innerHTML = 'TPV M1 por asesor (convertidos válidos)' + (isFcst && openCohort ? ` <span style="font-size:.6rem;font-weight:700;color:#FF8C00;background:#FFF3E0;padding:1px 5px;border-radius:6px;margin-left:4px">fcst</span>` : '');
+  if (t) t.innerHTML = 'TPV M1 por asesor (convertidos vÃ¡lidos)' + (isFcst && openCohort ? ` <span style="font-size:.6rem;font-weight:700;color:#FF8C00;background:#FFF3E0;padding:1px 5px;border-radius:6px;margin-left:4px">fcst</span>` : '');
   renderTable(stats);
 }
 
-// ─── TARGET BAR ───────────────────────────────────────────────────────────────
+// âââ TARGET BAR âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 function renderTargetBar(tpvM1Disp, isFcst, openCohort) {
-  const target = TARGETS[activeTab];
+  const target = getEffectiveTarget(activeTab);
   if (!target) { document.getElementById('targetBar').innerHTML = ''; return; }
 
   const color    = TAB_CFG[activeTab].color;
@@ -1036,7 +1046,11 @@ function renderTargetBar(tpvM1Disp, isFcst, openCohort) {
   const fcstTag  = isFcst && openCohort
     ? `<span style="font-size:.6rem;font-weight:700;color:#FF8C00;background:#FFF3E0;padding:1px 6px;border-radius:6px;margin-left:6px" title="Proyección al ${openCohort.daysInMonth}/${new Date().getMonth()+1}">fcst</span>`
     : '';
-  const tabNames = { total:'Total Recupero', temprano:'Recupero Temprano', tardio:'Recupero Tardío', reactivacion:'Reactivación' };
+  const tabNames = { total:'Total Recupero', temprano:'Recupero Temprano', tardío:'Recupero Tardío', reactivacion:'Reactivación', chinos:'Chinos' };
+  const isIndividual = activeAsesores && activeAsesores.size > 0 && TARGETS[activeTab]?.perAsesor;
+  const targetLbl = isIndividual
+    ? (activeAsesores.size === 1 ? 'Target individual' : `Target × ${activeAsesores.size} asesores`)
+    : 'Target total';
 
   document.getElementById('targetBar').innerHTML = `
     <div style="background:white;border-radius:16px;padding:18px 24px;box-shadow:0 4px 32px rgba(0,0,0,.08);border-left:4px solid #00bcff">
@@ -1046,7 +1060,7 @@ function renderTargetBar(tpvM1Disp, isFcst, openCohort) {
         </div>
         <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap">
           <div style="text-align:center">
-            <div style="font-size:.6rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px">Target</div>
+            <div style="font-size:.6rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px">${targetLbl}</div>
             <div style="font-size:1.3rem;font-weight:800;color:#444">${fmtM(target)}</div>
           </div>
           <div style="font-size:1.4rem;color:#CCC">→</div>
@@ -1073,26 +1087,25 @@ function renderTargetBar(tpvM1Disp, isFcst, openCohort) {
     </div>`;
 }
 
-// ─── KPIs ─────────────────────────────────────────────────────────────────────
 function renderKPIs({ asign, reals, gest, cont, cvdcl, cvval, tpvM0, tpvM1, vcM0, vcM1, tpvM1Real, vcM1Real, tpvD0, tpvD1, vcD0, vcD1, tpvMoM, vcMoM, isFcst, fcstInfo, color, vrows }) {
   console.log('[DEBUG] isFcst:', isFcst, 'tpvM1Real:', tpvM1Real, 'tpvM1:', tpvM1);
   const c2 = '#FF7733', c3 = '#8C4DFF', c4 = '#00A650';
 
   // Etiqueta de forecast para mostrar en las cards de M1
   const fcstTag = isFcst && fcstInfo
-    ? `<span style="font-size:.6rem;font-weight:700;color:#FF8C00;background:#FFF3E0;padding:1px 5px;border-radius:6px;margin-left:4px" title="Proyección al ${fcstInfo.daysInMonth}/${new Date().getMonth()+1} · datos hasta día ${fcstInfo.daysElapsed} · factor ×${fcstInfo.multiplier.toFixed(2)}">fcst</span>`
+    ? `<span style="font-size:.6rem;font-weight:700;color:#FF8C00;background:#FFF3E0;padding:1px 5px;border-radius:6px;margin-left:4px" title="ProyecciÃ³n al ${fcstInfo.daysInMonth}/${new Date().getMonth()+1} Â· datos hasta dÃ­a ${fcstInfo.daysElapsed} Â· factor Ã${fcstInfo.multiplier.toFixed(2)}">fcst</span>`
     : '';
 
   const cards = [
     { lbl:'Leads asignados',    val: fmtN(asign), sub:'base total',                       color,  delta:null,   delta2:null },
-    { lbl:'Leads reales',       val: fmtN(reals), sub:'pre-gestión',                      color:'#0075BE', delta:null,  delta2:null },
+    { lbl:'Leads reales',       val: fmtN(reals), sub:'pre-gestiÃ³n',                      color:'#0075BE', delta:null,  delta2:null },
     { lbl:'Gestionados',        val: fmtPct(gest,reals), sub: fmtN(gest)+' abs',          color:c2, delta:null,  delta2:null },
-    { lbl:'Contactados',        val: fmtPct(cont,reals), sub: fmtN(cont)+' · '+fmtPct(cont,reals)+' sobre reales', color:c3, delta:null, delta2:null },
+    { lbl:'Contactados',        val: fmtPct(cont,reals), sub: fmtN(cont)+' Â· '+fmtPct(cont,reals)+' sobre reales', color:c3, delta:null, delta2:null },
     { lbl:'Conv. declarados',   val: fmtN(cvdcl), sub: fmtPct(cvdcl,cont)+' de contactados', color:c4, delta:null, delta2:null },
-    { lbl:'Conv. válidos',      val: fmtN(cvval), sub: fmtPct(cvval,cvdcl)+' de declarados', color:c4, delta:null, delta2:null },
-    { lbl:'TPV M0',  val: fmtM(tpvM0), sub:'convertidos válidos', color, delta:null, delta2:null },
+    { lbl:'Conv. vÃ¡lidos',      val: fmtN(cvval), sub: fmtPct(cvval,cvdcl)+' de declarados', color:c4, delta:null, delta2:null },
+    { lbl:'TPV M0',  val: fmtM(tpvM0), sub:'convertidos vÃ¡lidos', color, delta:null, delta2:null },
     { lbl:'TPV M1',  val: fmtM(tpvM1), fcstTag, sub:'', realVal: tpvM1Real, color:'#0075BE', delta:tpvD1, delta2:tpvMoM, dlbl1:'vs M0', dlbl2:'MoM' },
-    { lbl:'VC M0',   val: fmtM(vcM0),  sub:'convertidos válidos', color:c4, delta:null, delta2:null },
+    { lbl:'VC M0',   val: fmtM(vcM0),  sub:'convertidos vÃ¡lidos', color:c4, delta:null, delta2:null },
     { lbl:'VC M1',   val: fmtM(vcM1),  fcstTag, sub:'', realVal: vcM1Real, color:'#00854A', delta:vcD1, delta2:vcMoM, dlbl1:'vs M0', dlbl2:'MoM' },
   ];
   document.getElementById('kpiGrid').innerHTML = cards.map(k => {
@@ -1115,19 +1128,19 @@ function renderKPIs({ asign, reals, gest, cont, cvdcl, cvval, tpvM0, tpvM1, vcM0
   }).join('');
 }
 
-// ─── FUNNEL ───────────────────────────────────────────────────────────────────
+// âââ FUNNEL âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 function renderFunnel({ asign, reals, gest, cont, cvval, color }) {
   const steps = [
     { lbl:'Leads asignados',       n:asign, c:color },
     { lbl:'Leads reales (pre-g.)', n:reals, c:'#0075BE' },
     { lbl:'Gestionados',           n:gest,  c:'#FF7733' },
     { lbl:'Contactados',           n:cont,  c:'#8C4DFF' },
-    { lbl:'Convertidos válidos',   n:cvval, c:'#00A650' },
+    { lbl:'Convertidos vÃ¡lidos',   n:cvval, c:'#00A650' },
   ];
   const mx = asign || 1;
   document.getElementById('funnelSteps').innerHTML = steps.map((s,i) => {
     const w   = Math.max(Math.round(s.n/mx*100), 3);
-    const pct = i===0 ? '100%' : (steps[i-1].n ? Math.round(s.n/steps[i-1].n*100)+'%' : '—');
+    const pct = i===0 ? '100%' : (steps[i-1].n ? Math.round(s.n/steps[i-1].n*100)+'%' : 'â');
     return `<div class="fstep">
       <div class="fstep-lbl">${s.lbl}</div>
       <div class="fbar-wrap">
@@ -1140,7 +1153,7 @@ function renderFunnel({ asign, reals, gest, cont, cvval, color }) {
   }).join('');
 }
 
-// ─── ESTADO DISTRIBUTION ─────────────────────────────────────────────────────
+// âââ ESTADO DISTRIBUTION âââââââââââââââââââââââââââââââââââââââââââââââââââââ
 function renderEstado(data) {
   const counts = {};
   data.forEach(r => {
@@ -1182,12 +1195,12 @@ function renderEstado(data) {
   wrap.appendChild(t);
 }
 
-// ─── MOTIVOS DE ABANDONO ──────────────────────────────────────────────────────
+// âââ MOTIVOS DE ABANDONO ââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 const NA_KEY = 'No Gestionable / No Aplica';
 function normMotivo(v) {
   if (!v) return null;
   const n = norm(v);
-  const nClean = n.replace(/-/g, ' ');  // "otro-particular" → "otro particular"
+  const nClean = n.replace(/-/g, ' ');  // "otro-particular" â "otro particular"
   if (n.includes('no aplica') || n.includes('no gestionable')) return NA_KEY;
   if (MOTIVOS_OTROS.some(k => nClean.includes(norm(k).replace(/-/g,' ')))) return 'Otros';
   return v.trim();
@@ -1226,7 +1239,7 @@ function renderExpandableTable(wrap, entries, subMap, totalForPct) {
     // Main row (always expandable if has subs)
     const tr = document.createElement('tr');
     tr.style.cursor = subs.length ? 'pointer' : 'default';
-    const arrow = subs.length ? `<span id="arr-${grpId}" style="margin-right:6px;font-size:.68rem;color:${col}">▶</span>` : `<span style="margin-right:14px"></span>`;
+    const arrow = subs.length ? `<span id="arr-${grpId}" style="margin-right:6px;font-size:.68rem;color:${col}">â¶</span>` : `<span style="margin-right:14px"></span>`;
     tr.innerHTML = `
       <td>${arrow}<strong>${k}</strong></td>
       <td style="text-align:right;font-weight:700">${fmtN(v)}</td>
@@ -1239,9 +1252,9 @@ function renderExpandableTable(wrap, entries, subMap, totalForPct) {
       tr.onclick = () => {
         const rows  = document.querySelectorAll('.sub-' + grpId);
         const btn   = document.getElementById('arr-' + grpId);
-        const open  = btn.textContent === '▼';
+        const open  = btn.textContent === 'â¼';
         rows.forEach(r => r.style.display = open ? 'none' : '');
-        btn.textContent = open ? '▶' : '▼';
+        btn.textContent = open ? 'â¶' : 'â¼';
       };
     }
     tbody.appendChild(tr);
@@ -1254,7 +1267,7 @@ function renderExpandableTable(wrap, entries, subMap, totalForPct) {
       subTr.style.display = 'none';
       subTr.style.background = 'rgba(0,188,255,0.04)';
       subTr.innerHTML = `
-        <td style="padding-left:26px;font-size:.74rem;color:#555">↳ ${sk}</td>
+        <td style="padding-left:26px;font-size:.74rem;color:#555">â³ ${sk}</td>
         <td style="text-align:right;font-size:.74rem;font-weight:600">${fmtN(sv)}</td>
         <td><div class="mpct-bar">
           <span style="font-size:.7rem;font-weight:600;min-width:32px;color:${col}">${spct}%</span>
@@ -1281,7 +1294,7 @@ function renderMotivos(data, color) {
   renderExpandableTable(wrap, sorted, subMap, total);
 }
 
-// ─── CONV VÁLIDOS POR MOTIVO ──────────────────────────────────────────────────
+// âââ CONV VÃLIDOS POR MOTIVO ââââââââââââââââââââââââââââââââââââââââââââââââââ
 function renderConvMotivo(data, color) {
   const subMap = buildMotivoSubMap(data.filter(isConvVal));
   const counts = Object.fromEntries(
@@ -1293,12 +1306,12 @@ function renderConvMotivo(data, color) {
   });
   const sorted = Object.entries(counts).sort((a,b)=>b[1]-a[1]);
   const wrap = document.getElementById('convMotivoWrap');
-  if (!sorted.length) { wrap.innerHTML='<div class="empty">Sin convertidos válidos</div>'; return; }
+  if (!sorted.length) { wrap.innerHTML='<div class="empty">Sin convertidos vÃ¡lidos</div>'; return; }
   const total = sorted.reduce((s,[,v])=>s+v, 0);
   renderExpandableTable(wrap, sorted, subMap, total);
 }
 
-// ─── ASESOR CHARTS ────────────────────────────────────────────────────────────
+// âââ ASESOR CHARTS ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 function renderAsesorChart(id, stats, field, color, label) {
   const sorted = [...stats].sort((a,b) => b[field]-a[field]).slice(0, 15);
   if (charts[id]) charts[id].destroy();
@@ -1307,7 +1320,7 @@ function renderAsesorChart(id, stats, field, color, label) {
   charts[id] = new Chart(document.getElementById(id), {
     type: 'bar',
     data: {
-      labels: sorted.map(s => s.asesor.length>18 ? s.asesor.slice(0,18)+'…' : s.asesor),
+      labels: sorted.map(s => s.asesor.length>18 ? s.asesor.slice(0,18)+'â¦' : s.asesor),
       datasets: [{ label, data: sorted.map(s => s[field]), backgroundColor: color, borderRadius: 4 }]
     },
     options: {
@@ -1321,7 +1334,7 @@ function renderAsesorChart(id, stats, field, color, label) {
   });
 }
 
-// ─── ASESOR TABLE ─────────────────────────────────────────────────────────────
+// âââ ASESOR TABLE âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 function renderTable(stats) {
   const sorted = [...stats].sort((a,b) => {
     let av = a[sortCol]??0, bv = b[sortCol]??0;
@@ -1376,7 +1389,7 @@ function srt(col) {
   renderTable(byAsesor(getFiltered()));
 }
 
-// ─── BOOT ─────────────────────────────────────────────────────────────────────
+// âââ BOOT âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 loadData();
 </script>
 </body>
