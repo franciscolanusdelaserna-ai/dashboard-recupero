@@ -286,13 +286,14 @@
     .funnel { display:flex; flex-direction:column; gap:8px; }
     .fstep  { display:flex; align-items:center; gap:10px; }
     .fstep-lbl { font-size:.75rem; color:#555; min-width:160px; font-weight:500; }
-    .fbar-wrap { flex:1; background:#f0f0f0; border-radius:5px; height:32px; position:relative; }
+    .fbar-wrap { flex:1; background:#f0f0f0; border-radius:5px; height:32px; position:relative; overflow:visible; }
     .fbar {
-      height:100%; border-radius:5px; display:flex; align-items:center;
+      position:absolute; left:0; top:0; bottom:0;
+      border-radius:5px; display:flex; align-items:center;
       padding:0 10px; transition:width .45s ease; min-width:44px;
     }
     .fbar-n { color:white; font-size:.78rem; font-weight:700; }
-    .fstep-pct { font-size:.75rem; font-weight:700; position:absolute; top:50%; transform:translateY(-50%); left:calc(var(--bar-w) + 7px); white-space:nowrap; }
+    .fstep-pct { font-size:.75rem; font-weight:700; position:absolute; top:50%; transform:translateY(-50%); left:calc(max(44px, var(--bar-w)) + 8px); white-space:nowrap; }
 
     /* ── TABLE ── */
     .tw { overflow-x:auto; }
