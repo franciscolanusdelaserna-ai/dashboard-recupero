@@ -332,8 +332,8 @@
     .diag-dev.up   { color:#00A650; background:#F0FBF5; }
     .diag-btn { display:inline-flex; align-items:center; gap:8px; padding:7px 18px; border:none; border-radius:22px; background:linear-gradient(135deg,#FF7733,#E53935); color:white; cursor:pointer; font-size:.76rem; font-weight:700; font-family:var(--font); box-shadow:0 3px 12px rgba(229,57,53,.35); transition:all .2s ease; letter-spacing:.1px; }
     .diag-btn:hover { transform:translateY(-2px); box-shadow:0 5px 18px rgba(229,57,53,.45); }
-    #monitoreoBtn:hover { background:var(--mp-navy); color:white; }
-    #monitoreoBtn.active { background:var(--mp-navy); color:white; }
+    #monitoreoBtn:hover { transform:translateY(-1px); box-shadow:0 5px 16px rgba(10,0,128,.35); }
+    #monitoreoBtn.active { background:var(--mp-yellow); color:var(--mp-navy); box-shadow:0 3px 10px rgba(10,0,128,.2); }
     #monitoreoPanel table thead th { padding:6px 8px; font-size:.62rem; text-transform:uppercase; color:#555; font-weight:700; border-bottom:2px solid #E0E0E0; }
     #monitoreoPanel table tbody td { padding:5px 8px; border-bottom:1px solid rgba(0,0,0,.04); vertical-align:middle; }
     .diag-btn.open  { background:#555; box-shadow:none; transform:none; }
@@ -427,7 +427,7 @@
     </div>
   </div>
   <div class="fsep"></div>
-  <button id="monitoreoBtn" onclick="toggleMonitoreo()" style="display:inline-flex;align-items:center;gap:8px;padding:9px 22px;border:2px solid var(--mp-navy);border-radius:24px;background:white;color:var(--mp-navy);font-size:.85rem;font-weight:700;cursor:pointer;font-family:var(--font);transition:all .2s;box-shadow:0 2px 8px rgba(10,0,128,.15);letter-spacing:.01em">
+  <button id="monitoreoBtn" onclick="toggleMonitoreo()" style="display:inline-flex;align-items:center;gap:8px;padding:10px 22px;border:none;border-radius:8px;background:var(--mp-navy);color:var(--mp-yellow);font-size:.82rem;font-weight:700;cursor:pointer;font-family:var(--font);transition:all .2s;box-shadow:0 3px 10px rgba(10,0,128,.25);letter-spacing:.02em;margin-left:8px">
     📋 Monitoreo Convertidos
   </button>
 </div>
