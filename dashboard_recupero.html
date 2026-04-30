@@ -1254,7 +1254,7 @@ function renderTargetBar(tpvM1Disp, isFcst, openCohort) {
       </div>
       <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px">
         ${pct >= 100 ? `<div style="font-size:.7rem;font-weight:700;color:#00A650">✓ Target superado</div>` : `<div style="font-size:.7rem;color:var(--muted)">Falta ${fmtM(target - tpvM1Disp)} para el target</div>`}
-        ${(TARGETS[activeTab]?.perAsesor || CV_TARGETS[activeTab]) ? `<button class="diag-btn" id="diagBtn" onclick="toggleDiagnostic()">🔍 ¿Por qué?</button>` : ''}
+        ${(TARGETS[activeTab]?.perAsesor || CV_TARGETS[activeTab]) ? `<button class="diag-btn" id="diagBtn" onclick="toggleDiagnostic()" style="min-width:280px;justify-content:center">🔍 ¿Por qué no estamos llegando al target?</button>` : ''}
       </div>
     </div>
     <div id="diagPanel" style="display:none"></div>`;
@@ -1273,7 +1273,7 @@ function toggleDiagnostic() {
     renderDiagnosticPanel();
   } else {
     panel.style.display = 'none';
-    btn.innerHTML = '🔍 ¿Por qué estamos lejos del target?';
+    btn.innerHTML = '🔍 ¿Por qué no estamos llegando al target?';
     btn.classList.remove('open');
   }
 }
