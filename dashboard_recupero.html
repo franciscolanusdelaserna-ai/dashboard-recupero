@@ -1982,9 +1982,9 @@ function renderMonitoreo(data) {
       <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap">
         <span style="font-size:.95rem;font-weight:700;color:var(--mp-navy)">Monitoreo Convertidos</span>
         <span style="font-size:.75rem;color:#888">${data.length} registros</span>
-        <span style="background:#FFF5F5;border:1px solid #FFCDD2;color:#C62828;font-size:.72rem;font-weight:700;padding:3px 10px;border-radius:12px">🔴 ${nRed} en riesgo</span>
-        <span style="background:#FFFDE7;border:1px solid #FFF176;color:#F57F17;font-size:.72rem;font-weight:700;padding:3px 10px;border-radius:12px">🟡 ${nYellow} atención</span>
-        <span style="background:#F1FFF6;border:1px solid #A5D6A7;color:#2E7D32;font-size:.72rem;font-weight:700;padding:3px 10px;border-radius:12px">🟢 ${nGreen} ok</span>
+        <span style="display:inline-flex;align-items:center;gap:6px;background:#FFF5F5;border:1.5px solid #FFCDD2;color:#C62828;font-size:.75rem;font-weight:700;padding:5px 14px;border-radius:20px"><span style="width:9px;height:9px;border-radius:50%;background:#E53935;display:inline-block;flex-shrink:0"></span>${nRed} en riesgo</span>
+        <span style="display:inline-flex;align-items:center;gap:6px;background:#FFFDE7;border:1.5px solid #FFE082;color:#E65100;font-size:.75rem;font-weight:700;padding:5px 14px;border-radius:20px"><span style="width:9px;height:9px;border-radius:50%;background:#F9A825;display:inline-block;flex-shrink:0"></span>${nYellow} atención</span>
+        <span style="display:inline-flex;align-items:center;gap:6px;background:#F1FFF6;border:1.5px solid #A5D6A7;color:#2E7D32;font-size:.75rem;font-weight:700;padding:5px 14px;border-radius:20px"><span style="width:9px;height:9px;border-radius:50%;background:#00A650;display:inline-block;flex-shrink:0"></span>${nGreen} ok</span>
       </div>
       <div style="overflow-x:auto">
         <table style="width:100%;border-collapse:collapse;font-size:.73rem">
