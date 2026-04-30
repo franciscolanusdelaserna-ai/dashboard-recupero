@@ -1124,7 +1124,7 @@ function render() {
   renderKPIs({ asign, reals, gest, cont, cvdcl, cvval, tpvM0, tpvM1:tpvM1Disp, vcM0, vcM1:vcM1Disp,
                tpvM1Real: isFcst ? tpvM1 : null,
                vcM1Real:  isFcst ? vcM1  : null,
-               tpvD0, tpvD1, vcD0, vcD1, tpvMoM, vcMoM, tpvM0MoM, vcM0MoM, isFcst,
+               tpvD0, tpvD1, vcD0, vcD1, tpvMoM, vcMoM, tpvM0MoM, vcM0MoM, cvValMoM, isFcst,
                fcstInfo: openCohort, color, vrows: vrows.length });
   renderFunnel({ asign, reals, gest, cont, cvval, color });
   renderEstado(data);
@@ -1193,7 +1193,7 @@ function renderTargetBar(tpvM1Disp, isFcst, openCohort) {
 }
 
 // ─── KPIs ─────────────────────────────────────────────────────────────────────
-function renderKPIs({ asign, reals, gest, cont, cvdcl, cvval, tpvM0, tpvM1, vcM0, vcM1, tpvM1Real, vcM1Real, tpvD0, tpvD1, vcD0, vcD1, tpvMoM, vcMoM, tpvM0MoM, vcM0MoM, isFcst, fcstInfo, color, vrows }) {
+function renderKPIs({ asign, reals, gest, cont, cvdcl, cvval, tpvM0, tpvM1, vcM0, vcM1, tpvM1Real, vcM1Real, tpvD0, tpvD1, vcD0, vcD1, tpvMoM, vcMoM, tpvM0MoM, vcM0MoM, cvValMoM, isFcst, fcstInfo, color, vrows }) {
   console.log('[DEBUG] isFcst:', isFcst, 'tpvM1Real:', tpvM1Real, 'tpvM1:', tpvM1);
   const c2 = '#FF7733', c3 = '#8C4DFF', c4 = '#00A650';
 
