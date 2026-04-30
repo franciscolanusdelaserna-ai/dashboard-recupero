@@ -1984,10 +1984,14 @@ function renderMonitoreo(data) {
       <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap">
         <span style="font-size:.95rem;font-weight:700;color:var(--mp-navy)">Monitoreo Convertidos</span>
         <span style="font-size:.75rem;color:#888">${data.length} registros</span>
-        <span style="display:inline-flex;align-items:center;gap:6px;background:#FFF5F5;border:1.5px solid #FFCDD2;color:#C62828;font-size:.75rem;font-weight:700;padding:5px 14px;border-radius:20px"><span style="width:9px;height:9px;border-radius:50%;background:#E53935;display:inline-block;flex-shrink:0"></span>${nRed} volvieron a abandonar</span>
-        <span style="display:inline-flex;align-items:center;gap:6px;background:#FFFDE7;border:1.5px solid #FFE082;color:#E65100;font-size:.75rem;font-weight:700;padding:5px 14px;border-radius:20px"><span style="width:9px;height:9px;border-radius:50%;background:#F9A825;display:inline-block;flex-shrink:0"></span>${nYellow} en riesgo</span>
-        <span style="display:inline-flex;align-items:center;gap:6px;background:#F1FFF6;border:1.5px solid #A5D6A7;color:#2E7D32;font-size:.75rem;font-weight:700;padding:5px 14px;border-radius:20px"><span style="width:9px;height:9px;border-radius:50%;background:#00A650;display:inline-block;flex-shrink:0"></span>${nGreen} activos</span>
-        <span style="display:inline-flex;align-items:center;gap:6px;background:#F7F7F7;border:1.5px solid #E0E0E0;color:#777;font-size:.75rem;font-weight:700;padding:5px 14px;border-radius:20px"><span style="width:9px;height:9px;border-radius:50%;background:#AAAAAA;display:inline-block;flex-shrink:0"></span>${nGray} todavía no activaron</span>
+        ${[
+          { n: nGreen,  bg:'#F1FFF6', border:'#A5D6A7', color:'#2E7D32',  dot:'#00A650', label:'activos' },
+          { n: nGray,   bg:'#F7F7F7', border:'#E0E0E0', color:'#777',     dot:'#AAAAAA', label:'todavía no activaron' },
+          { n: nYellow, bg:'#FFFDE7', border:'#FFE082', color:'#E65100',  dot:'#F9A825', label:'en riesgo' },
+          { n: nRed,    bg:'#FFF5F5', border:'#FFCDD2', color:'#C62828',  dot:'#E53935', label:'volvieron a abandonar' },
+        ].sort((a,b) => b.n - a.n).map(b =>
+          `<span style="display:inline-flex;align-items:center;gap:6px;background:${b.bg};border:1.5px solid ${b.border};color:${b.color};font-size:.75rem;font-weight:700;padding:5px 14px;border-radius:20px"><span style="width:9px;height:9px;border-radius:50%;background:${b.dot};display:inline-block;flex-shrink:0"></span>${b.n} ${b.label}</span>`
+        ).join('')}
       </div>
       <div style="overflow-x:auto">
         <table style="width:100%;border-collapse:collapse;font-size:.73rem">
