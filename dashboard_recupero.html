@@ -1432,38 +1432,62 @@ function renderAsesorChart(id, stats, field, color, label, perAsesorTarget) {
   if (!sorted.length) { document.getElementById(id).style.display='none'; return; }
   document.getElementById(id).style.display = '';
 
-  const datasets = [
-    { label, data: sorted.map(s => s[field]), backgroundColor: color, borderRadius: 4, order: 2 }
-  ];
+  // Plugin que dibuja la línea de target encima de las barras con badge
+  const targetLinePlugin = perAsesorTarget ? {
+    id: 'targetLine_' + id,
+    afterDraw(chart) {
+      const { ctx, chartArea, scales } = chart;
+      const y = scales.y.getPixelForValue(perAsesorTarget);
+      if (y < chartArea.top || y > chartArea.bottom) return;
+      ctx.save();
 
-  if (perAsesorTarget) {
-    datasets.push({
-      type: 'line',
-      label: 'Target',
-      data: sorted.map(() => perAsesorTarget),
-      borderColor: '#E53935',
-      borderWidth: 2,
-      borderDash: [6, 4],
-      pointRadius: 0,
-      pointHoverRadius: 0,
-      fill: false,
-      backgroundColor: 'transparent',
-      order: 1,
-    });
-  }
+      // Línea punteada
+      ctx.setLineDash([6, 4]);
+      ctx.strokeStyle = '#E53935';
+      ctx.lineWidth = 1.5;
+      ctx.globalAlpha = 0.85;
+      ctx.beginPath();
+      ctx.moveTo(chartArea.left, y);
+      ctx.lineTo(chartArea.right, y);
+      ctx.stroke();
+
+      // Badge "Target $110M" al final de la línea
+      ctx.setLineDash([]);
+      ctx.globalAlpha = 1;
+      const lbl = 'Target ' + fmtM(perAsesorTarget);
+      ctx.font = '700 10px MELI Proxima Nova A, Helvetica Neue, Arial, sans-serif';
+      const tw = ctx.measureText(lbl).width;
+      const pad = 5, bh = 16, bw = tw + pad * 2;
+      const bx = chartArea.right - bw - 2;
+      const by = y - bh / 2;
+
+      // Fondo del badge
+      ctx.fillStyle = '#E53935';
+      ctx.beginPath();
+      ctx.roundRect(bx, by, bw, bh, 4);
+      ctx.fill();
+
+      // Texto del badge
+      ctx.fillStyle = 'white';
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(lbl, bx + pad, y);
+
+      ctx.restore();
+    }
+  } : null;
 
   charts[id] = new Chart(document.getElementById(id), {
     type: 'bar',
     data: {
       labels: sorted.map(s => s.asesor.length>18 ? s.asesor.slice(0,18)+'…' : s.asesor),
-      datasets
+      datasets: [{ label, data: sorted.map(s => s[field]), backgroundColor: color, borderRadius: 4 }]
     },
     options: {
       responsive: true,
       plugins: {
         legend: { display: false },
         tooltip: {
-          filter: item => item.datasetIndex === 0,
           callbacks: {
             label: ctx => {
               const val = ctx.raw;
@@ -1472,11 +1496,10 @@ function renderAsesorChart(id, stats, field, color, label, perAsesorTarget) {
                 const dev = val - perAsesorTarget;
                 const devPct = Math.round(dev / perAsesorTarget * 100);
                 const sign = dev >= 0 ? '+' : '';
-                txt += `  |  desvío: ${sign}${fmtM(dev)} (${sign}${devPct}%)`;
+                txt += `   desvío: ${sign}${fmtM(dev)} (${sign}${devPct}%)`;
               }
               return txt;
             },
-            afterLabel: ctx => perAsesorTarget ? ` Target: ${fmtM(perAsesorTarget)}` : null,
           }
         }
       },
@@ -1484,7 +1507,8 @@ function renderAsesorChart(id, stats, field, color, label, perAsesorTarget) {
         x: { grid:{display:false}, ticks:{font:{size:10,family:'MELI Proxima Nova A, Helvetica Neue, Arial, sans-serif'}} },
         y: { grid:{color:'#f0f0f0'}, ticks:{callback:v=>fmtM(v),font:{size:10,family:'MELI Proxima Nova A, Helvetica Neue, Arial, sans-serif'}} }
       }
-    }
+    },
+    plugins: targetLinePlugin ? [targetLinePlugin] : []
   });
 }
 
