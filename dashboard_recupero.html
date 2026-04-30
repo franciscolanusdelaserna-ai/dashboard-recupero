@@ -524,18 +524,37 @@ function getDefaultAsesores() {
   return new Set(allAsesores.filter(a => !isChinoAsesor(a)));
 }
 
-// Devuelve el target efectivo según cuántos asesores estén filtrados
+// Devuelve el target efectivo según cuántos asesores y cuántos cohorts están visibles
 function getEffectiveTarget(tab) {
   const cfg = TARGETS[tab];
   if (!cfg) return null;
-  // Solo usar target por asesor si hay un filtro activo (no el estado "Todos" por defecto)
+
+  // Base: ¿filtro de asesor activo?
   const def = getDefaultAsesores();
   const isDefault = !activeAsesores ||
     (def && activeAsesores.size === def.size && [...def].every(a => activeAsesores.has(a)));
-  if (!isDefault && activeAsesores && activeAsesores.size > 0 && cfg.perAsesor) {
-    return cfg.perAsesor * activeAsesores.size;
+  let baseTarget = (!isDefault && activeAsesores && activeAsesores.size > 0 && cfg.perAsesor)
+    ? cfg.perAsesor * activeAsesores.size
+    : cfg.total;
+
+  // Cuando se ven todos los cohorts, multiplicar por la cantidad de períodos con datos
+  if (activePeriod === 'all' && allData.length > 0) {
+    const t = TAB_CFG[tab];
+    const periods = new Set(
+      allData
+        .filter(r => {
+          if (t.asesores && !t.asesores.some(a => norm(a) === norm(r.ASESOR||''))) return false;
+          if (activeAsesores && !activeAsesores.has((r.ASESOR||'').trim())) return false;
+          if (t.match && !norm(r.RECUPERO_TIPO||'').includes(t.match)) return false;
+          return true;
+        })
+        .map(r => String(r.MES||'').trim())
+        .filter(Boolean)
+    );
+    if (periods.size > 1) baseTarget *= periods.size;
   }
-  return cfg.total;
+
+  return baseTarget;
 }
 
 // Estados that count as GESTIONADO (numerator: sobre leads reales, excluye pendiente)
