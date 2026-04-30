@@ -553,7 +553,7 @@ const TAB_CFG = {
   temprano:     { color:'#00A650', match: 'temprano', asesores: null },
   tardio:       { color:'#FF7733', match: 'tard',     asesores: null },
   reactivacion: { color:'#8C4DFF', match: 'reactiv',  asesores: null },
-  chinos:       { color:'#E53935', match: null,       asesores: ['Sofia Zhuang','Ema Du Chen'] },
+  chinos:       { color:'#E53935', match: null,       asesores: ['Ema Du Chen'] },
 };
 
 // Targets TPV M1 por iniciativa { total, perAsesor }
@@ -561,7 +561,7 @@ const TARGETS = {
   temprano:     { total: 550e6,  perAsesor: 110e6 },
   tardio:       { total: 960e6,  perAsesor: 120e6 },
   reactivacion: { total: 500e6,  perAsesor: 100e6 },
-  chinos:       { total: 120e6,  perAsesor: 60e6 },
+  chinos:       { total: 120e6,  perAsesor: 120e6 },
   total:        { total: 2010e6, perAsesor: null  },
 };
 
@@ -571,7 +571,7 @@ const CV_TARGETS = {
 };
 
 // Asesoras exclusivas del tab Chinos — excluidas por defecto en otros tabs
-const CHINOS_ASESORES = ['Ema Du Chen', 'Sofia Zhuang'];
+const CHINOS_ASESORES = ['Ema Du Chen', 'Sofia Zhuang']; // Sofia solo en Mar26 (histórico)
 function isChinoAsesor(a) {
   return CHINOS_ASESORES.some(c => norm(c) === norm(a));
 }
