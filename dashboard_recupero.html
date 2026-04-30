@@ -1336,27 +1336,27 @@ function renderDiagnosticPanel() {
     const allOk = rows.filter(r=>!r.noTarget).every(r => r.val >= r.target);
     if (allOk && rows.every(r=>!r.noTarget)) {
       html += `<div class="diag-ok">✓ Todos los asesores por encima de su target TPV M1</div>`;
-    } else {
-      rows.forEach(({ s, adj, target, val, noTarget }) => {
-        const badge = adj ? tipoBadge(adj.tipo) : '';
-        if (noTarget) {
-          html += `<div class="diag-row">
-            <span class="diag-name">${s.asesor}${badge}</span>
-            <span class="diag-val">${fmtM(val)}</span>
-            <span style="font-size:.7rem;color:#AAA;font-style:italic">sin objetivo asignado</span>
-          </div>`;
-        } else {
-          const dev = val - target;
-          const devPct = Math.abs(Math.round(dev / target * 100));
-          const isBelow = dev < 0;
-          const targetNote = adj ? `<span style="font-size:.65rem;color:#AAA"> / ${fmtM(target)}</span>` : `<span style="font-size:.65rem;color:#AAA"> / ${fmtM(target)}</span>`;
-          html += `<div class="diag-row">
-            <span class="diag-name">${s.asesor}${badge}</span>
-            <span class="diag-val">${fmtM(val)}${targetNote}</span>
-            <span class="diag-dev ${isBelow?'down':'up'}">${isBelow?'▼ −':'▲ +'}${fmtM(Math.abs(dev))} (${isBelow?'−':'+'}${devPct}%)</span>
-          </div>`;
-        }
-      });
+    }
+    rows.forEach(({ s, adj, target, val, noTarget }) => {
+      const badge = adj ? tipoBadge(adj.tipo) : '';
+      if (noTarget) {
+        html += `<div class="diag-row">
+          <span class="diag-name">${s.asesor}${badge}</span>
+          <span class="diag-val">${fmtM(val)}</span>
+          <span style="font-size:.7rem;color:#AAA;font-style:italic">sin objetivo asignado</span>
+        </div>`;
+      } else {
+        const dev = val - target;
+        const devPct = Math.abs(Math.round(dev / target * 100));
+        const isBelow = dev < 0;
+        const targetNote = `<span style="font-size:.65rem;color:#AAA"> / ${fmtM(target)}</span>`;
+        html += `<div class="diag-row">
+          <span class="diag-name">${s.asesor}${badge}</span>
+          <span class="diag-val">${fmtM(val)}${targetNote}</span>
+          <span class="diag-dev ${isBelow?'down':'up'}">${isBelow?'▼ −':'▲ +'}${fmtM(Math.abs(dev))} (${isBelow?'−':'+'}${devPct}%)</span>
+        </div>`;
+      }
+    });
     }
     html += '</div>';
   }
@@ -1374,26 +1374,25 @@ function renderDiagnosticPanel() {
     const allOk = rows.filter(r=>!r.noTarget).every(r => r.val >= r.target);
     if (allOk && rows.every(r=>!r.noTarget)) {
       html += `<div class="diag-ok">✓ Convertidos válidos OK — todos por encima de su target individual</div>`;
-    } else {
-      rows.forEach(({ s, adj, target, val, noTarget }) => {
-        const badge = adj ? tipoBadge(adj.tipo) : '';
-        if (noTarget) {
-          html += `<div class="diag-row">
-            <span class="diag-name">${s.asesor}${badge}</span>
-            <span class="diag-val">${val} conv. vál.</span>
-            <span style="font-size:.7rem;color:#AAA;font-style:italic">sin objetivo asignado</span>
-          </div>`;
-        } else {
-          const dev = val - target;
-          const isBelow = dev < 0;
-          html += `<div class="diag-row">
-            <span class="diag-name">${s.asesor}${badge}</span>
-            <span class="diag-val">${val}<span style="font-size:.65rem;color:#AAA"> / ${target}</span></span>
-            <span class="diag-dev ${isBelow?'down':'up'}">${isBelow ? `▼ faltan ${Math.abs(dev)}` : `▲ +${dev} sobre mínimo`}</span>
-          </div>`;
-        }
-      });
     }
+    rows.forEach(({ s, adj, target, val, noTarget }) => {
+      const badge = adj ? tipoBadge(adj.tipo) : '';
+      if (noTarget) {
+        html += `<div class="diag-row">
+          <span class="diag-name">${s.asesor}${badge}</span>
+          <span class="diag-val">${val} conv. vál.</span>
+          <span style="font-size:.7rem;color:#AAA;font-style:italic">sin objetivo asignado</span>
+        </div>`;
+      } else {
+        const dev = val - target;
+        const isBelow = dev < 0;
+        html += `<div class="diag-row">
+          <span class="diag-name">${s.asesor}${badge}</span>
+          <span class="diag-val">${val}<span style="font-size:.65rem;color:#AAA"> / ${target}</span></span>
+          <span class="diag-dev ${isBelow?'down':'up'}">${isBelow ? `▼ faltan ${Math.abs(dev)}` : `▲ +${dev} sobre mínimo`}</span>
+        </div>`;
+      }
+    });
     html += '</div>';
   }
 
