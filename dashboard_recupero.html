@@ -1046,6 +1046,14 @@ function getFiltered(tab) {
   const t = TAB_CFG[tab || activeTab];
   return allData.filter(r => {
     if (activePeriod !== 'all' && String(r.MES||'').trim() !== activePeriod) return false;
+    // Excluir asesores con skip:true en el cohort activo
+    const rowPeriod = String(r.MES||'').trim();
+    const adjKey = activePeriod !== 'all' ? activePeriod : rowPeriod;
+    const cohortAdj = COHORT_ADJUSTMENTS[adjKey];
+    if (cohortAdj) {
+      const adj = getAsesorAdj((r.ASESOR||'').trim(), cohortAdj);
+      if (adj?.skip) return false;
+    }
     // Filtro de tab por asesores (ej: tab Chinos)
     if (t.asesores && !t.asesores.some(a => norm(a) === norm(r.ASESOR||''))) return false;
     // Filtro multi-select de asesores del UI
