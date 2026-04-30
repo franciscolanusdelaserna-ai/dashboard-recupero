@@ -208,22 +208,25 @@
       width: 7px; height: 7px;
       border-radius: 50%;
       background: var(--tc);
-      opacity: 0;
-      transform: scale(0.4);
+      opacity: 0.22;
+      transform: scale(0.75);
       transition: opacity .18s, transform .18s;
       flex-shrink: 0;
     }
-    .itab:hover::before  { opacity: .55; transform: scale(1); }
+    .itab:hover::before  { opacity: .6;  transform: scale(1); }
     .itab.active::before { opacity: 1;   transform: scale(1); }
+    .itab {
+      background: color-mix(in srgb, var(--tc) 4%, transparent);
+    }
     .itab:hover {
       color: var(--tc);
-      background: color-mix(in srgb, var(--tc) 9%, transparent);
+      background: color-mix(in srgb, var(--tc) 10%, transparent);
       transform: translateY(-1px);
     }
     .itab.active {
       color: var(--tc);
       border-bottom-color: var(--tc);
-      background: color-mix(in srgb, var(--tc) 12%, transparent);
+      background: color-mix(in srgb, var(--tc) 13%, transparent);
       font-weight: 700;
       transform: translateY(-1px);
       box-shadow: 0 -2px 8px color-mix(in srgb, var(--tc) 15%, transparent);
