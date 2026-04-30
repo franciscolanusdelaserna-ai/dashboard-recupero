@@ -1058,11 +1058,17 @@ function render() {
   const tpvMoM = (prevTpvM1 !== null && prevTpvM1 > 0) ? (tpvM1Disp - prevTpvM1) / prevTpvM1 * 100 : null;
   const vcMoM  = (prevVcM1  !== null && prevVcM1  > 0) ? (vcM1Disp  - prevVcM1)  / prevVcM1  * 100 : null;
 
+  // MoM: M0 del cohort actual vs M0 del cohort anterior
+  const prevTpvM0 = getPrevPeriodSum('TPV_M0');
+  const prevVcM0  = getPrevPeriodSum('VC_M0');
+  const tpvM0MoM  = (prevTpvM0 !== null && prevTpvM0 > 0) ? (tpvM0 - prevTpvM0) / prevTpvM0 * 100 : null;
+  const vcM0MoM   = (prevVcM0  !== null && prevVcM0  > 0) ? (vcM0  - prevVcM0)  / prevVcM0  * 100 : null;
+
   renderTargetBar(tpvM1Disp, isFcst, openCohort);
   renderKPIs({ asign, reals, gest, cont, cvdcl, cvval, tpvM0, tpvM1:tpvM1Disp, vcM0, vcM1:vcM1Disp,
                tpvM1Real: isFcst ? tpvM1 : null,
                vcM1Real:  isFcst ? vcM1  : null,
-               tpvD0, tpvD1, vcD0, vcD1, tpvMoM, vcMoM, isFcst,
+               tpvD0, tpvD1, vcD0, vcD1, tpvMoM, vcMoM, tpvM0MoM, vcM0MoM, isFcst,
                fcstInfo: openCohort, color, vrows: vrows.length });
   renderFunnel({ asign, reals, gest, cont, cvval, color });
   renderEstado(data);
@@ -1133,7 +1139,7 @@ function renderTargetBar(tpvM1Disp, isFcst, openCohort) {
 }
 
 // ─── KPIs ─────────────────────────────────────────────────────────────────────
-function renderKPIs({ asign, reals, gest, cont, cvdcl, cvval, tpvM0, tpvM1, vcM0, vcM1, tpvM1Real, vcM1Real, tpvD0, tpvD1, vcD0, vcD1, tpvMoM, vcMoM, isFcst, fcstInfo, color, vrows }) {
+function renderKPIs({ asign, reals, gest, cont, cvdcl, cvval, tpvM0, tpvM1, vcM0, vcM1, tpvM1Real, vcM1Real, tpvD0, tpvD1, vcD0, vcD1, tpvMoM, vcMoM, tpvM0MoM, vcM0MoM, isFcst, fcstInfo, color, vrows }) {
   console.log('[DEBUG] isFcst:', isFcst, 'tpvM1Real:', tpvM1Real, 'tpvM1:', tpvM1);
   const c2 = '#FF7733', c3 = '#8C4DFF', c4 = '#00A650';
 
@@ -1149,9 +1155,9 @@ function renderKPIs({ asign, reals, gest, cont, cvdcl, cvval, tpvM0, tpvM1, vcM0
     { lbl:'Contactados',        val: fmtPct(cont,reals), sub: fmtN(cont)+' · '+fmtPct(cont,reals)+' sobre reales', color:c3, delta:null, delta2:null },
     { lbl:'Conv. declarados',   val: fmtN(cvdcl), sub: fmtPct(cvdcl,cont)+' de contactados', color:c4, delta:null, delta2:null },
     { lbl:'Conv. válidos',      val: fmtN(cvval), sub: fmtPct(cvval,cvdcl)+' de declarados', color:c4, delta:null, delta2:null },
-    { lbl:'TPV M0',  val: fmtM(tpvM0), sub:'convertidos válidos', color, delta:null, delta2:null },
+    { lbl:'TPV M0',  val: fmtM(tpvM0), sub:'convertidos válidos', color, delta:tpvM0MoM, delta2:null, dlbl1:'MoM' },
     { lbl:'TPV M1',  val: fmtM(tpvM1), fcstTag, sub:'', realVal: tpvM1Real, color:'#0075BE', delta:tpvD1, delta2:tpvMoM, dlbl1:'vs M0', dlbl2:'MoM' },
-    { lbl:'VC M0',   val: fmtM(vcM0),  sub:'convertidos válidos', color:c4, delta:null, delta2:null },
+    { lbl:'VC M0',   val: fmtM(vcM0),  sub:'convertidos válidos', color:c4, delta:vcM0MoM, delta2:null, dlbl1:'MoM' },
     { lbl:'VC M1',   val: fmtM(vcM1),  fcstTag, sub:'', realVal: vcM1Real, color:'#00854A', delta:vcD1, delta2:vcMoM, dlbl1:'vs M0', dlbl2:'MoM' },
   ];
   document.getElementById('kpiGrid').innerHTML = cards.map(k => {
