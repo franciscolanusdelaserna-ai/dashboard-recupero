@@ -474,14 +474,15 @@
             <tr>
               <th onclick="srt('asesor')">Asesor</th>
               <th onclick="srt('asignados')"   style="text-align:right">Asignados</th>
-              <th onclick="srt('reales')"       style="text-align:right">Leads Reales</th>
+              <th onclick="srt('reales')"      style="text-align:right">Leads Reales</th>
               <th onclick="srt('gestionados')">Gestionados</th>
               <th onclick="srt('contactados')">Contactados</th>
-              <th onclick="srt('convDecl')">Conv. Decl.</th>
-              <th onclick="srt('convVal')">Conv. Válidos</th>
+              <th onclick="srt('convDecl')"    style="text-align:right">Conv. Decl.</th>
+              <th onclick="srt('convVal')"     style="text-align:right">Conv. Válidos</th>
               <th onclick="srt('tpvM0')">TPV M0</th>
+              <th onclick="srt('tpvM1')">TPV M1</th>
               <th onclick="srt('vcM0')">VC M0</th>
-              <th onclick="srt('tpvDelta')">Δ TPV</th>
+              <th onclick="srt('vcM1')">VC M1</th>
             </tr>
           </thead>
           <tbody id="tbody"></tbody>
@@ -1519,44 +1520,63 @@ function renderTable(stats) {
     if (sortCol==='asesor') { av=a.asesor; bv=b.asesor; }
     return (av>bv?1:av<bv?-1:0)*sortDir;
   });
-  const map = {asesor:0,asignados:1,reales:2,gestionados:3,contactados:4,convDecl:5,convVal:6,tpvM0:7,vcM0:8,tpvDelta:9};
+  const map = {asesor:0,asignados:1,reales:2,gestionados:3,contactados:4,convDecl:5,convVal:6,tpvM0:7,tpvM1:8,vcM0:9,vcM1:10};
   document.querySelectorAll('#thead th').forEach(th=>th.classList.remove('sorted'));
   const idx = map[sortCol];
   if(idx!==undefined) document.querySelectorAll('#thead th')[idx]?.classList.add('sorted');
 
-  const color = TAB_CFG[activeTab].color;
-  const maxT = Math.max(...sorted.map(r=>r.tpvM0), 1);
-  const maxV = Math.max(...sorted.map(r=>r.vcM0),  1);
+  const color  = TAB_CFG[activeTab].color;
+  const maxT0  = Math.max(...sorted.map(r=>r.tpvM0), 1);
+  const maxT1  = Math.max(...sorted.map(r=>r.tpvM1), 1);
+  const maxV0  = Math.max(...sorted.map(r=>r.vcM0),  1);
+  const maxV1  = Math.max(...sorted.map(r=>r.vcM1),  1);
+
+  const sub = (v, lbl) => v ? `<span style="font-size:.65rem;color:#999;display:block;margin-top:1px">${v}% ${lbl}</span>` : '';
 
   document.getElementById('tbody').innerHTML = sorted.map(r => {
-    const gPct = r.reales    ? Math.round(r.gestionados/r.reales*100)  : 0;
-    const cPct = r.reales    ? Math.round(r.contactados/r.reales*100)  : 0;
-    const tD   = r.tpvM1     ? (r.tpvM0-r.tpvM1)/r.tpvM1*100         : null;
+    const rPct = r.asignados ? Math.round(r.reales/r.asignados*100)       : 0;
+    const gPct = r.reales    ? Math.round(r.gestionados/r.reales*100)     : 0;
+    const cPct = r.reales    ? Math.round(r.contactados/r.reales*100)     : 0;
+    const dPct = r.reales    ? Math.round(r.convDecl/r.reales*100)        : 0;
+    const vPct = r.convDecl  ? Math.round(r.convVal/r.convDecl*100)       : 0;
     return `<tr>
       <td><strong>${r.asesor}</strong></td>
       <td style="text-align:right">${fmtN(r.asignados)}</td>
-      <td style="text-align:right">${fmtN(r.reales)}</td>
+      <td style="text-align:right">
+        <strong>${fmtN(r.reales)}</strong>${sub(rPct,'de asig.')}
+      </td>
       <td><div class="mbar">
         <span class="plbl" style="color:#FF7733">${gPct}%</span>
         <div class="mbar-bg"><div class="mbar-fg" style="width:${gPct}%;background:#FF7733"></div></div>
-        <span style="font-size:.7rem;color:#AAA">${fmtN(r.gestionados)}</span>
+        <span style="font-size:.68rem;color:#AAA">${fmtN(r.gestionados)}</span>
       </div></td>
       <td><div class="mbar">
         <span class="plbl" style="color:#8C4DFF">${cPct}%</span>
         <div class="mbar-bg"><div class="mbar-fg" style="width:${cPct}%;background:#8C4DFF"></div></div>
-        <span style="font-size:.7rem;color:#AAA">${fmtN(r.contactados)}</span>
+        <span style="font-size:.68rem;color:#AAA">${fmtN(r.contactados)}</span>
       </div></td>
-      <td><strong>${fmtN(r.convDecl)}</strong></td>
-      <td><strong style="color:#00A650">${fmtN(r.convVal)}</strong></td>
+      <td style="text-align:right">
+        <strong>${fmtN(r.convDecl)}</strong>${sub(dPct,'de reales')}
+      </td>
+      <td style="text-align:right">
+        <strong style="color:#00A650">${fmtN(r.convVal)}</strong>${sub(vPct,'de decl.')}
+      </td>
       <td><div class="mbar">
         <span class="nlbl" style="color:${color};min-width:52px">${fmtM(r.tpvM0)}</span>
-        <div class="mbar-bg"><div class="mbar-fg" style="width:${Math.round(r.tpvM0/maxT*100)}%;background:${color}"></div></div>
+        <div class="mbar-bg"><div class="mbar-fg" style="width:${Math.round(r.tpvM0/maxT0*100)}%;background:${color}"></div></div>
+      </div></td>
+      <td><div class="mbar">
+        <span class="nlbl" style="color:${color};min-width:52px">${fmtM(r.tpvM1)}</span>
+        <div class="mbar-bg"><div class="mbar-fg" style="width:${Math.round(r.tpvM1/maxT1*100)}%;background:${color}"></div></div>
       </div></td>
       <td><div class="mbar">
         <span class="nlbl" style="color:#00A650;min-width:52px">${fmtM(r.vcM0)}</span>
-        <div class="mbar-bg"><div class="mbar-fg" style="width:${Math.round(r.vcM0/maxV*100)}%;background:#00A650"></div></div>
+        <div class="mbar-bg"><div class="mbar-fg" style="width:${Math.round(r.vcM0/maxV0*100)}%;background:#00A650"></div></div>
       </div></td>
-      <td><span class="kpi-delta ${dClass(tD)}" style="font-size:.68rem">${dLabel(tD)}</span></td>
+      <td><div class="mbar">
+        <span class="nlbl" style="color:#00A650;min-width:52px">${fmtM(r.vcM1)}</span>
+        <div class="mbar-bg"><div class="mbar-fg" style="width:${Math.round(r.vcM1/maxV1*100)}%;background:#00A650"></div></div>
+      </div></td>
     </tr>`;
   }).join('');
 }
