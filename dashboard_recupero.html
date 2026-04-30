@@ -1230,7 +1230,7 @@ function renderFunnel({ asign, reals, gest, cont, cvval, color }) {
   const mx = asign || 1;
   document.getElementById('funnelSteps').innerHTML = steps.map((s,i) => {
     const w   = Math.max(Math.round(s.n/mx*100), 3);
-    const pct = i===0 ? '100%' : (steps[i-1].n ? Math.round(s.n/steps[i-1].n*100)+'%' : '—');
+    const pct = i===0 ? '100%' : i===1 ? (asign ? Math.round(s.n/asign*100)+'%' : '—') : (reals ? Math.round(s.n/reals*100)+'%' : '—');
     return `<div class="fstep">
       <div class="fstep-lbl">${s.lbl}</div>
       <div class="fbar-wrap">
