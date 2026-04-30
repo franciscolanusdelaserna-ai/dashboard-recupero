@@ -1069,9 +1069,9 @@ document.getElementById('itabs').addEventListener('click', e => {
 
   if (allAsesores.length > 0) {
     if (activeTab === 'chinos') {
-      // Guardar estado anterior y seleccionar solo las dos asesoras de Chinos
+      // Guardar estado anterior; chinos usa null para que el target use cfg.total (120M fijo)
       savedAsesoresBeforeChinos = activeAsesores ? new Set(activeAsesores) : null;
-      activeAsesores = new Set(allAsesores.filter(a => isChinoAsesor(a)));
+      activeAsesores = null;
     } else if (prevTab === 'chinos' && savedAsesoresBeforeChinos !== null) {
       // Restaurar estado previo al salir de Chinos
       activeAsesores = savedAsesoresBeforeChinos;
