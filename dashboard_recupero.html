@@ -332,6 +332,10 @@
     .diag-dev.up   { color:#00A650; background:#F0FBF5; }
     .diag-btn { display:inline-flex; align-items:center; gap:8px; padding:7px 18px; border:none; border-radius:22px; background:linear-gradient(135deg,#FF7733,#E53935); color:white; cursor:pointer; font-size:.76rem; font-weight:700; font-family:var(--font); box-shadow:0 3px 12px rgba(229,57,53,.35); transition:all .2s ease; letter-spacing:.1px; }
     .diag-btn:hover { transform:translateY(-2px); box-shadow:0 5px 18px rgba(229,57,53,.45); }
+    #monitoreoBtn:hover { background:var(--mp-navy); color:white; }
+    #monitoreoBtn.active { background:var(--mp-navy); color:white; }
+    #monitoreoPanel table thead th { padding:6px 8px; font-size:.62rem; text-transform:uppercase; color:#555; font-weight:700; border-bottom:2px solid #E0E0E0; }
+    #monitoreoPanel table tbody td { padding:5px 8px; border-bottom:1px solid rgba(0,0,0,.04); vertical-align:middle; }
     .diag-btn.open  { background:#555; box-shadow:none; transform:none; }
 
     /* ── LOADING / ERROR ── */
@@ -397,6 +401,9 @@
   <div class="header-badge" id="headerBadge">— registros</div>
 </div>
 
+<!-- MONITOREO PANEL -->
+<div id="monitoreoPanel" style="display:none;min-height:400px;background:white;border-bottom:1px solid var(--border)"></div>
+
 <!-- FILTERS -->
 <div class="filters">
   <span class="flabel">Cohort</span>
@@ -419,6 +426,10 @@
       <div id="asesorCheckboxes"></div>
     </div>
   </div>
+  <div class="fsep"></div>
+  <button id="monitoreoBtn" onclick="toggleMonitoreo()" style="display:inline-flex;align-items:center;gap:6px;padding:6px 16px;border:1.5px solid var(--mp-navy);border-radius:20px;background:white;color:var(--mp-navy);font-size:.75rem;font-weight:700;cursor:pointer;font-family:var(--font);transition:all .2s">
+    📋 Monitoreo Convertidos
+  </button>
 </div>
 
 <!-- INITIATIVE TABS -->
@@ -1827,6 +1838,174 @@ function srt(col) {
 
 // ─── BOOT ─────────────────────────────────────────────────────────────────────
 loadData();
+
+// ─── MONITOREO CONVERTIDOS ────────────────────────────────────────────────────
+let monitoreoData = null;
+let monitoreoActive = false;
+
+function toggleMonitoreo() {
+  monitoreoActive = !monitoreoActive;
+  const btn = document.getElementById('monitoreoBtn');
+  const panel = document.getElementById('monitoreoPanel');
+  const filters = document.querySelector('.filters');
+  const itabs = document.getElementById('itabs');
+  const dash = document.getElementById('dash');
+  const loading = document.getElementById('loadingDiv');
+
+  if (monitoreoActive) {
+    btn.classList.add('active');
+    filters.style.display = 'none';
+    itabs.style.display = 'none';
+    dash.style.display = 'none';
+    loading.style.display = 'none';
+    panel.style.display = 'block';
+    if (!monitoreoData) loadMonitoreo();
+  } else {
+    btn.classList.remove('active');
+    filters.style.display = '';
+    itabs.style.display = '';
+    panel.style.display = 'none';
+    // Restaurar dash si ya tenía datos
+    if (document.getElementById('dash').children.length > 0) {
+      dash.style.display = 'block';
+    } else {
+      loading.style.display = 'flex';
+    }
+  }
+}
+
+async function loadMonitoreo() {
+  const panel = document.getElementById('monitoreoPanel');
+  panel.innerHTML = '<div style="text-align:center;padding:40px;color:#888"><div class="spin" style="margin:0 auto 12px"></div><span>Cargando convertidos activos…</span></div>';
+  try {
+    const urls = ['data_activa.json', 'http://127.0.0.1:8082/data_activa.json'];
+    let data = null;
+    for (const url of urls) {
+      try {
+        const res = await fetch(url);
+        if (res.ok) { data = await res.json(); if (data && data.length) break; }
+      } catch(e) {}
+    }
+    if (!data || !data.length) throw new Error('No se pudo cargar data_activa.json');
+    monitoreoData = data;
+    renderMonitoreo(data);
+  } catch(e) {
+    panel.innerHTML = `<div style="text-align:center;padding:40px;color:#E53935">Error cargando datos: ${e.message}<br><small>Corré actualizar_dashboard.py para generar data_activa.json</small></div>`;
+  }
+}
+
+function monitoreoColor(r) {
+  const m0 = parseFloat(r.TPV_M0) || 0;
+  const m1 = parseFloat(r.TPV_M1) || 0;
+  const dias = parseInt(r.DIAS_SIN_COBRAR) || 0;
+  if (m0 === 0 && m1 === 0) return 'red';
+  if (dias >= 8)  return 'red';
+  if (dias >= 4)  return 'yellow';
+  return 'green';
+}
+
+let monSortCol = 'DIAS_SIN_COBRAR', monSortDir = -1;
+
+function monSort(col) {
+  monSortDir = (monSortCol === col) ? monSortDir * -1 : -1;
+  monSortCol = col;
+  if (monitoreoData) renderMonitoreo(monitoreoData);
+}
+
+function renderMonitoreo(data) {
+  const panel = document.getElementById('monitoreoPanel');
+
+  // Contar por color
+  let nRed = 0, nYellow = 0, nGreen = 0;
+  data.forEach(r => {
+    const c = monitoreoColor(r);
+    if (c === 'red') nRed++;
+    else if (c === 'yellow') nYellow++;
+    else nGreen++;
+  });
+
+  // Ordenar
+  const sorted = [...data].sort((a, b) => {
+    let va = a[monSortCol] ?? '';
+    let vb = b[monSortCol] ?? '';
+    const na = parseFloat(va), nb = parseFloat(vb);
+    if (!isNaN(na) && !isNaN(nb)) return (na - nb) * monSortDir;
+    return String(va).localeCompare(String(vb), 'es') * monSortDir;
+  });
+
+  const cols = [
+    { key:'CUST_ID',          label:'Cust ID' },
+    { key:'SEGMENTO',         label:'Segmento' },
+    { key:'RECUPERO_TIPO',    label:'Tipo' },
+    { key:'FORMULARIO',       label:'Formulario' },
+    { key:'MES',              label:'Mes' },
+    { key:'ASESOR',           label:'Asesor' },
+    { key:'DIAS_SIN_COBRAR',  label:'Días sin cobrar' },
+    { key:'TPV_M0',           label:'TPV M0' },
+    { key:'TPV_M1',           label:'TPV M1' },
+    { key:'VC_M0',            label:'VC M0' },
+    { key:'VC_M1',            label:'VC M1' },
+    { key:'MOTIVO_ABANDONO',  label:'Motivo abandono' },
+    { key:'SUBMOTIVO_ABANDONO', label:'Submotivo' },
+  ];
+
+  const colorStyle = { red: '#FFF5F5', yellow: '#FFFDE7', green: '#F1FFF6' };
+  const dotColor   = { red: '#E53935', yellow: '#F9A825', green: '#00A650' };
+
+  const ths = cols.map(c => {
+    const arrow = c.key === monSortCol ? (monSortDir === -1 ? ' ▼' : ' ▲') : '';
+    return `<th onclick="monSort('${c.key}')" style="cursor:pointer;white-space:nowrap">${c.label}${arrow}</th>`;
+  }).join('');
+
+  const rows = sorted.map(r => {
+    const color = monitoreoColor(r);
+    const bg = colorStyle[color];
+    const dot = `<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${dotColor[color]};margin-right:6px;vertical-align:middle"></span>`;
+    const m0 = parseFloat(r.TPV_M0)||0, m1 = parseFloat(r.TPV_M1)||0;
+    const vc0 = parseFloat(r.VC_M0)||0, vc1 = parseFloat(r.VC_M1)||0;
+    const dias = parseInt(r.DIAS_SIN_COBRAR)||0;
+    const diasCell = color === 'red' && m0 === 0 && m1 === 0
+      ? `<span style="color:#E53935;font-weight:700">Sin TPV</span>`
+      : `<span style="font-weight:700;color:${dotColor[color]}">${dias}</span>`;
+
+    return `<tr style="background:${bg}">
+      <td>${dot}${r.CUST_ID}</td>
+      <td>${r.SEGMENTO}</td>
+      <td>${r.RECUPERO_TIPO}</td>
+      <td>${r.FORMULARIO}</td>
+      <td>${r.MES||''}</td>
+      <td>${r.ASESOR}</td>
+      <td style="text-align:center">${diasCell}</td>
+      <td style="text-align:right">${m0 ? fmtM(m0) : '—'}</td>
+      <td style="text-align:right">${m1 ? fmtM(m1) : '—'}</td>
+      <td style="text-align:right">${vc0 ? fmtM(vc0) : '—'}</td>
+      <td style="text-align:right">${vc1 ? fmtM(vc1) : '—'}</td>
+      <td>${r.MOTIVO_ABANDONO||''}</td>
+      <td>${r.SUBMOTIVO_ABANDONO||''}</td>
+    </tr>`;
+  }).join('');
+
+  panel.innerHTML = `
+    <div style="padding:16px 24px 0">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap">
+        <span style="font-size:.95rem;font-weight:700;color:var(--mp-navy)">Monitoreo Convertidos</span>
+        <span style="font-size:.75rem;color:#888">${data.length} registros</span>
+        <span style="background:#FFF5F5;border:1px solid #FFCDD2;color:#C62828;font-size:.72rem;font-weight:700;padding:3px 10px;border-radius:12px">🔴 ${nRed} en riesgo</span>
+        <span style="background:#FFFDE7;border:1px solid #FFF176;color:#F57F17;font-size:.72rem;font-weight:700;padding:3px 10px;border-radius:12px">🟡 ${nYellow} atención</span>
+        <span style="background:#F1FFF6;border:1px solid #A5D6A7;color:#2E7D32;font-size:.72rem;font-weight:700;padding:3px 10px;border-radius:12px">🟢 ${nGreen} ok</span>
+      </div>
+      <div style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse;font-size:.73rem">
+          <thead>
+            <tr style="background:#F5F5F5;position:sticky;top:0">
+              ${ths}
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    </div>`;
+}
 </script>
 </body>
 </html>
