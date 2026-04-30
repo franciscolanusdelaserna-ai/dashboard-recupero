@@ -269,9 +269,11 @@
       box-shadow: 0 4px 32px rgba(0,0,0,.08);
     }
     .card-title {
-      font-size: .66rem; font-weight: 700; color: var(--muted);
-      text-transform: uppercase; letter-spacing: .7px; margin-bottom: 14px;
+      font-size: .78rem; font-weight: 800; color: #444;
+      text-transform: uppercase; letter-spacing: .8px; margin-bottom: 14px;
       font-family: var(--font);
+      border-left: 3px solid var(--mp-cyan);
+      padding-left: 8px;
     }
 
     /* ── GRIDS ── */
@@ -1290,17 +1292,15 @@ function renderEstado(data) {
   }
   const t = document.createElement('table');
   t.className = 'mtable';
-  t.innerHTML = '<thead><tr><th>Estado</th><th style="text-align:right">N</th><th style="min-width:120px">%</th></tr></thead>';
+  t.innerHTML = '<thead><tr><th>Estado</th><th style="text-align:right">N</th><th style="text-align:right;width:36px">%</th><th></th></tr></thead>';
   const tbody = document.createElement('tbody');
   sorted.forEach(([k,v]) => {
     const pct = Math.round(v/total*100);
     const col = stateColor(k);
     const tr = document.createElement('tr');
     tr.innerHTML = `<td>${k}</td><td style="text-align:right;font-weight:700">${fmtN(v)}</td>
-      <td><div class="mpct-bar">
-        <span style="font-size:.72rem;font-weight:700;min-width:30px;color:${col}">${pct}%</span>
-        <div class="mpct-bg"><div class="mpct-fg" style="width:${pct}%;background:${col}"></div></div>
-      </div></td>`;
+      <td style="text-align:right;font-size:.72rem;font-weight:700;color:${col};width:36px">${pct}%</td>
+      <td><div class="mpct-bg" style="min-width:80px"><div class="mpct-fg" style="width:${pct}%;background:${col}"></div></div></td>`;
     tbody.appendChild(tr);
   });
   t.appendChild(tbody);
