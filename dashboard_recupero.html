@@ -330,9 +330,9 @@
     .diag-dev  { font-size:.75rem; font-weight:700; padding:2px 8px; border-radius:6px; white-space:nowrap; }
     .diag-dev.down { color:#D32F2F; background:#FFF0F0; }
     .diag-dev.up   { color:#00A650; background:#F0FBF5; }
-    .diag-btn { display:inline-flex; align-items:center; gap:6px; margin-top:10px; padding:5px 14px; border:1.5px solid var(--border); border-radius:20px; background:white; cursor:pointer; font-size:.72rem; font-weight:700; color:#555; font-family:var(--font); transition:all .15s; }
-    .diag-btn:hover { border-color:var(--mp-navy); color:var(--mp-navy); background:var(--highlight); }
-    .diag-btn.open  { border-color:var(--mp-navy); color:var(--mp-navy); background:var(--highlight); }
+    .diag-btn { display:inline-flex; align-items:center; gap:8px; padding:7px 18px; border:none; border-radius:22px; background:linear-gradient(135deg,#FF7733,#E53935); color:white; cursor:pointer; font-size:.76rem; font-weight:700; font-family:var(--font); box-shadow:0 3px 12px rgba(229,57,53,.35); transition:all .2s ease; letter-spacing:.1px; }
+    .diag-btn:hover { transform:translateY(-2px); box-shadow:0 5px 18px rgba(229,57,53,.45); }
+    .diag-btn.open  { background:#555; box-shadow:none; transform:none; }
 
     /* ── LOADING / ERROR ── */
     .loading { display:flex; flex-direction:column; align-items:center; justify-content:center; height:300px; color:var(--muted); font-family:var(--font); }
@@ -518,6 +518,33 @@
 const MIN_PERIOD = '2025-12-01';
 
 const MONTH_NAMES = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+
+// Ajustes individuales por cohort: vacaciones, nuevos ingresos, vacantes
+// tpvTarget/cvTarget: null = sin objetivo asignado en ese cohort
+const COHORT_ADJUSTMENTS = {
+  '2026-04-01': {
+    asesores: {
+      'Ada Ruiz':      { tipo:'vacaciones', tpvTarget: 60e6,  cvTarget: 10 },
+      'Franco':        { tipo:'vacaciones', tpvTarget: 90e6,  cvTarget:  8 },
+      'Mariana Gomez': { tipo:'nuevo',      tpvTarget: 72e6,  cvTarget:  6 },
+      'Melina Selci':  { tipo:'nuevo',      tpvTarget: 60e6,  cvTarget:  5 },
+      'Ema Du Chen':   { tipo:'nuevo',      tpvTarget: 60e6,  cvTarget:  6 },
+    },
+    vacantes: { tardio: 1, reactivacion: 3 },
+  },
+  '2026-03-01': {
+    asesores: {
+      'Tomas Herold':  { tipo:'vacaciones', tpvTarget: 60e6,  cvTarget:  5 },
+      'Fatima Sueldo': { tipo:'vacaciones', tpvTarget: 90e6,  cvTarget:  8 },
+      'Mariana Gomez': { tipo:'nuevo',      tpvTarget: null,  cvTarget: null },
+      'Melina Selci':  { tipo:'nuevo',      tpvTarget: null,  cvTarget: null },
+      'Ema Du Chen':   { tipo:'nuevo',      tpvTarget: null,  cvTarget: null },
+      'Abril':         { tipo:'nuevo',      tpvTarget: 72e6,  cvTarget:  6 },
+      'Shirley':       { tipo:'nuevo',      tpvTarget: 72e6,  cvTarget:  6 },
+    },
+    vacantes: { reactivacion: 4, tardio: 2, temprano: 1 },
+  },
+};
 
 const TAB_CFG = {
   total:        { color:'#009EE3', match: null,      asesores: null },
@@ -1241,54 +1268,90 @@ function toggleDiagnostic() {
   if (!panel || !btn) return;
   if (diagOpen) {
     panel.style.display = 'block';
-    btn.textContent = '✕ Cerrar';
+    btn.innerHTML = '✕ Cerrar';
     btn.classList.add('open');
     renderDiagnosticPanel();
   } else {
     panel.style.display = 'none';
-    btn.textContent = '🔍 ¿Por qué?';
+    btn.innerHTML = '🔍 ¿Por qué estamos lejos del target?';
     btn.classList.remove('open');
   }
 }
 
+// Busca ajuste individual de un asesor en el cohort activo (match flexible)
+function getAsesorAdj(asesorName, cohortAdj) {
+  if (!cohortAdj?.asesores) return null;
+  const n = norm(asesorName);
+  for (const [key, val] of Object.entries(cohortAdj.asesores)) {
+    const k = norm(key);
+    if (n.includes(k) || k.includes(n)) return { ...val, keyName: key };
+  }
+  return null;
+}
+
 function renderDiagnosticPanel() {
-  const panel      = document.getElementById('diagPanel');
-  const perAsesor  = TARGETS[activeTab]?.perAsesor;
-  const cvMin      = CV_TARGETS[activeTab];
-  const color      = TAB_CFG[activeTab].color;
-  const stats      = lastStats.filter(s => s.asesor !== 'Sin asignar' && s.asignados > 0);
+  const panel     = document.getElementById('diagPanel');
+  const perAsesor = TARGETS[activeTab]?.perAsesor;
+  const cvMin     = CV_TARGETS[activeTab];
+  const stats     = lastStats.filter(s => s.asesor !== 'Sin asignar' && s.asignados > 0);
+  const cohortAdj = activePeriod !== 'all' ? COHORT_ADJUSTMENTS[activePeriod] : null;
+
+  if (activePeriod === 'all') {
+    panel.innerHTML = `<div class="diag-panel" style="text-align:center;color:#888;font-size:.8rem;padding:16px">
+      Seleccioná un cohort específico para ver el análisis detallado por asesor.
+    </div>`;
+    return;
+  }
+
+  const tipoBadge = tipo =>
+    tipo === 'vacaciones'
+      ? `<span style="font-size:.58rem;font-weight:700;background:#FFF8E1;color:#E65100;padding:2px 7px;border-radius:10px;margin-left:6px;vertical-align:middle">🏖 VACACIONES</span>`
+      : tipo === 'nuevo'
+      ? `<span style="font-size:.58rem;font-weight:700;background:#E8F5E9;color:#2E7D32;padding:2px 7px;border-radius:10px;margin-left:6px;vertical-align:middle">🌱 NUEVO</span>`
+      : '';
+
+  // Construye filas enriquecidas
+  const buildRows = (targetFn, valFn) => stats.map(s => {
+    const adj = getAsesorAdj(s.asesor, cohortAdj);
+    const target = adj ? targetFn(adj) : (perAsesor || null);
+    return { s, adj, target, val: valFn(s), noTarget: adj ? target === null : false };
+  });
 
   let html = '<div class="diag-panel">';
 
-  // ── Sección 1: TPV M1 por asesor ──────────────────────────────────────────
+  // ── Sección 1: TPV M1 ─────────────────────────────────────────────────────
   if (perAsesor) {
-    const sorted = [...stats].sort((a,b) => a.tpvM1 - b.tpvM1);
-    const below  = sorted.filter(s => s.tpvM1 < perAsesor);
-    const above  = sorted.filter(s => s.tpvM1 >= perAsesor).reverse();
-
-    html += `<div class="diag-section">
-      <div class="diag-section-title">📊 TPV M1 por asesor — target: ${fmtM(perAsesor)} c/u</div>`;
-
-    if (below.length === 0) {
-      html += `<div class="diag-ok">✓ Todos los asesores por encima del target TPV M1</div>`;
-    } else {
-      below.forEach(s => {
-        const dev    = s.tpvM1 - perAsesor;
-        const devPct = Math.abs(Math.round(dev / perAsesor * 100));
-        html += `<div class="diag-row">
-          <span class="diag-name">${s.asesor}</span>
-          <span class="diag-val">${fmtM(s.tpvM1)}</span>
-          <span class="diag-dev down">▼ ${fmtM(Math.abs(dev))} (−${devPct}%)</span>
-        </div>`;
+    const rows = buildRows(a => a.tpvTarget, s => s.tpvM1)
+      .sort((a,b) => {
+        if (a.noTarget && !b.noTarget) return 1;
+        if (!a.noTarget && b.noTarget) return -1;
+        return (a.val - (a.target||0)) - (b.val - (b.target||0));
       });
-      above.forEach(s => {
-        const dev    = s.tpvM1 - perAsesor;
-        const devPct = Math.round(dev / perAsesor * 100);
-        html += `<div class="diag-row">
-          <span class="diag-name">${s.asesor}</span>
-          <span class="diag-val">${fmtM(s.tpvM1)}</span>
-          <span class="diag-dev up">▲ +${fmtM(dev)} (+${devPct}%)</span>
-        </div>`;
+
+    html += `<div class="diag-section"><div class="diag-section-title">📊 TPV M1 — target individual por asesor</div>`;
+    const allOk = rows.filter(r=>!r.noTarget).every(r => r.val >= r.target);
+    if (allOk && rows.every(r=>!r.noTarget)) {
+      html += `<div class="diag-ok">✓ Todos los asesores por encima de su target TPV M1</div>`;
+    } else {
+      rows.forEach(({ s, adj, target, val, noTarget }) => {
+        const badge = adj ? tipoBadge(adj.tipo) : '';
+        if (noTarget) {
+          html += `<div class="diag-row">
+            <span class="diag-name">${s.asesor}${badge}</span>
+            <span class="diag-val">${fmtM(val)}</span>
+            <span style="font-size:.7rem;color:#AAA;font-style:italic">sin objetivo asignado</span>
+          </div>`;
+        } else {
+          const dev = val - target;
+          const devPct = Math.abs(Math.round(dev / target * 100));
+          const isBelow = dev < 0;
+          const targetNote = adj ? `<span style="font-size:.65rem;color:#AAA"> / ${fmtM(target)}</span>` : `<span style="font-size:.65rem;color:#AAA"> / ${fmtM(target)}</span>`;
+          html += `<div class="diag-row">
+            <span class="diag-name">${s.asesor}${badge}</span>
+            <span class="diag-val">${fmtM(val)}${targetNote}</span>
+            <span class="diag-dev ${isBelow?'down':'up'}">${isBelow?'▼ −':'▲ +'}${fmtM(Math.abs(dev))} (${isBelow?'−':'+'}${devPct}%)</span>
+          </div>`;
+        }
       });
     }
     html += '</div>';
@@ -1296,34 +1359,52 @@ function renderDiagnosticPanel() {
 
   // ── Sección 2: Convertidos válidos ───────────────────────────────────────
   if (cvMin) {
-    const sorted = [...stats].sort((a,b) => a.convVal - b.convVal);
-    const below  = sorted.filter(s => s.convVal < cvMin);
-    const above  = sorted.filter(s => s.convVal >= cvMin).reverse();
-
-    html += `<div class="diag-section">
-      <div class="diag-section-title">🎯 Convertidos válidos — mínimo: ${cvMin} por asesor</div>`;
-
-    if (below.length === 0) {
-      html += `<div class="diag-ok">✓ Convertidos válidos OK — todos por encima del mínimo</div>`;
-    } else {
-      below.forEach(s => {
-        const dev = s.convVal - cvMin;
-        html += `<div class="diag-row">
-          <span class="diag-name">${s.asesor}</span>
-          <span class="diag-val">${s.convVal} conv. vál.</span>
-          <span class="diag-dev down">▼ faltan ${Math.abs(dev)}</span>
-        </div>`;
+    const rows = buildRows(a => a.cvTarget, s => s.convVal)
+      .sort((a,b) => {
+        if (a.noTarget && !b.noTarget) return 1;
+        if (!a.noTarget && b.noTarget) return -1;
+        return (a.val - (a.target||0)) - (b.val - (b.target||0));
       });
-      above.forEach(s => {
-        const dev = s.convVal - cvMin;
-        html += `<div class="diag-row">
-          <span class="diag-name">${s.asesor}</span>
-          <span class="diag-val">${s.convVal} conv. vál.</span>
-          <span class="diag-dev up">▲ +${dev} sobre mínimo</span>
-        </div>`;
+
+    html += `<div class="diag-section"><div class="diag-section-title">🎯 Convertidos válidos — target individual por asesor</div>`;
+    const allOk = rows.filter(r=>!r.noTarget).every(r => r.val >= r.target);
+    if (allOk && rows.every(r=>!r.noTarget)) {
+      html += `<div class="diag-ok">✓ Convertidos válidos OK — todos por encima de su target individual</div>`;
+    } else {
+      rows.forEach(({ s, adj, target, val, noTarget }) => {
+        const badge = adj ? tipoBadge(adj.tipo) : '';
+        if (noTarget) {
+          html += `<div class="diag-row">
+            <span class="diag-name">${s.asesor}${badge}</span>
+            <span class="diag-val">${val} conv. vál.</span>
+            <span style="font-size:.7rem;color:#AAA;font-style:italic">sin objetivo asignado</span>
+          </div>`;
+        } else {
+          const dev = val - target;
+          const isBelow = dev < 0;
+          html += `<div class="diag-row">
+            <span class="diag-name">${s.asesor}${badge}</span>
+            <span class="diag-val">${val}<span style="font-size:.65rem;color:#AAA"> / ${target}</span></span>
+            <span class="diag-dev ${isBelow?'down':'up'}">${isBelow ? `▼ faltan ${Math.abs(dev)}` : `▲ +${dev} sobre mínimo`}</span>
+          </div>`;
+        }
       });
     }
     html += '</div>';
+  }
+
+  // ── Sección 3: Vacantes ──────────────────────────────────────────────────
+  const vacantes = cohortAdj?.vacantes?.[activeTab];
+  if (vacantes > 0) {
+    const impactoTpv  = perAsesor ? perAsesor * vacantes : null;
+    const impactoCv   = cvMin    ? cvMin    * vacantes : null;
+    html += `<div class="diag-section"><div class="diag-section-title">👥 Vacantes</div>
+      <div class="diag-row" style="background:#FFF5F5;border-radius:8px;padding:10px 12px;border:1px solid #FFCDD2">
+        <span class="diag-name" style="color:#C62828">⚠ ${vacantes} puesto${vacantes>1?'s':''} sin cubrir en ${activeTab}</span>
+        <span class="diag-val" style="color:#C62828">${impactoTpv ? fmtM(impactoTpv)+' TPV M1 sin cobertura' : ''}</span>
+        ${impactoCv ? `<span class="diag-dev down">−${impactoCv} conv. vál. potenciales</span>` : ''}
+      </div>
+    </div>`;
   }
 
   html += '</div>';
