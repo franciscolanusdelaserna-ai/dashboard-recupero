@@ -1981,10 +1981,15 @@ function renderMonitoreo(data) {
 
   panel.innerHTML = `
     <div style="padding:16px 24px 0">
-      <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap">
-        <button onclick="toggleMonitoreo()" style="display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border:1.5px solid #DDD;border-radius:20px;background:white;color:#555;font-size:.75rem;font-weight:700;cursor:pointer;font-family:var(--font);transition:all .2s" onmouseover="this.style.borderColor='var(--mp-navy)';this.style.color='var(--mp-navy)'" onmouseout="this.style.borderColor='#DDD';this.style.color='#555'">← Volver al dashboard</button>
-        <span style="font-size:.95rem;font-weight:700;color:var(--mp-navy)">Monitoreo Convertidos</span>
-        <span style="font-size:.75rem;color:#888">${data.length} registros</span>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px">
+        <div style="display:flex;align-items:center;gap:14px">
+          <button onclick="toggleMonitoreo()" style="display:inline-flex;align-items:center;gap:5px;padding:7px 16px;border:none;border-radius:8px;background:var(--mp-navy);color:var(--mp-yellow);font-size:.76rem;font-weight:700;cursor:pointer;font-family:var(--font);transition:all .2s;box-shadow:0 2px 6px rgba(10,0,128,.2)">← Dashboard</button>
+          <div>
+            <div style="font-size:1rem;font-weight:800;color:var(--mp-navy);letter-spacing:-.2px">Monitoreo Convertidos</div>
+            <div style="font-size:.68rem;color:#999;margin-top:1px">${data.length} registros totales</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
         ${[
           { n: nGreen,  bg:'#F1FFF6', border:'#A5D6A7', color:'#2E7D32',  dot:'#00A650', label:'activos' },
           { n: nGray,   bg:'#F7F7F7', border:'#E0E0E0', color:'#777',     dot:'#AAAAAA', label:'todavía no activaron' },
@@ -1993,6 +1998,7 @@ function renderMonitoreo(data) {
         ].sort((a,b) => b.n - a.n).map(b =>
           `<span style="display:inline-flex;align-items:center;gap:6px;background:${b.bg};border:1.5px solid ${b.border};color:${b.color};font-size:.75rem;font-weight:700;padding:5px 14px;border-radius:20px"><span style="width:9px;height:9px;border-radius:50%;background:${b.dot};display:inline-block;flex-shrink:0"></span>${b.n} ${b.label}</span>`
         ).join('')}
+        </div>
       </div>
       <div style="overflow-x:auto">
         <table style="width:100%;border-collapse:collapse;font-size:.73rem">
