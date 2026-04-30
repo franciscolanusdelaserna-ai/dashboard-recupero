@@ -1934,19 +1934,16 @@ function renderMonitoreo(data) {
   });
 
   const cols = [
-    { key:'CUST_ID',          label:'Cust ID' },
-    { key:'SEGMENTO',         label:'Segmento' },
-    { key:'RECUPERO_TIPO',    label:'Tipo' },
-    { key:'FORMULARIO',       label:'Formulario' },
-    { key:'MES',              label:'Mes' },
-    { key:'ASESOR',           label:'Asesor' },
-    { key:'DIAS_SIN_COBRAR',  label:'Días sin cobrar' },
-    { key:'TPV_M0',           label:'TPV M0' },
-    { key:'TPV_M1',           label:'TPV M1' },
-    { key:'VC_M0',            label:'VC M0' },
-    { key:'VC_M1',            label:'VC M1' },
-    { key:'MOTIVO_ABANDONO',  label:'Motivo abandono' },
-    { key:'SUBMOTIVO_ABANDONO', label:'Submotivo' },
+    { key:'CUST_ID',         label:'Cust ID' },
+    { key:'SEGMENTO',        label:'Segmento' },
+    { key:'RECUPERO_TIPO',   label:'Tipo' },
+    { key:'DIAS_SIN_COBRAR', label:'Días sin cobrar' },
+    { key:'MES',             label:'Mes' },
+    { key:'ASESOR',          label:'Asesor' },
+    { key:'ESTADO',          label:'Estado' },
+    { key:'MOTIVO_ABANDONO', label:'Motivo abandono' },
+    { key:'TPV_M0',          label:'TPV M0' },
+    { key:'TPV_M1',          label:'TPV M1' },
   ];
 
   const colorStyle = { red: '#FFF5F5', yellow: '#FFFDE7', green: '#F1FFF6' };
@@ -1972,16 +1969,13 @@ function renderMonitoreo(data) {
       <td>${dot}${r.CUST_ID}</td>
       <td>${r.SEGMENTO}</td>
       <td>${r.RECUPERO_TIPO}</td>
-      <td>${r.FORMULARIO}</td>
+      <td style="text-align:center">${diasCell}</td>
       <td>${r.MES||''}</td>
       <td>${r.ASESOR}</td>
-      <td style="text-align:center">${diasCell}</td>
+      <td>${r.ESTADO||''}</td>
+      <td>${r.MOTIVO_ABANDONO||''}</td>
       <td style="text-align:right">${m0 ? fmtM(m0) : '—'}</td>
       <td style="text-align:right">${m1 ? fmtM(m1) : '—'}</td>
-      <td style="text-align:right">${vc0 ? fmtM(vc0) : '—'}</td>
-      <td style="text-align:right">${vc1 ? fmtM(vc1) : '—'}</td>
-      <td>${r.MOTIVO_ABANDONO||''}</td>
-      <td>${r.SUBMOTIVO_ABANDONO||''}</td>
     </tr>`;
   }).join('');
 
