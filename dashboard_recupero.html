@@ -941,14 +941,28 @@ function updatePills() {
 }
 
 // ─── TAB SWITCH ───────────────────────────────────────────────────────────────
+let savedAsesoresBeforeChinos = null;  // guarda el estado al entrar a Chinos
+
 document.getElementById('itabs').addEventListener('click', e => {
   const b = e.target.closest('.itab'); if (!b) return;
+  const prevTab = activeTab;
   document.querySelectorAll('.itab').forEach(x => x.classList.remove('active'));
   b.classList.add('active');
   activeTab = b.dataset.tab;
-  // Resetear filtro de asesores al default del tab nuevo
+
   if (allAsesores.length > 0) {
-    activeAsesores = getDefaultAsesores();
+    if (activeTab === 'chinos') {
+      // Guardar estado anterior y seleccionar solo las dos asesoras de Chinos
+      savedAsesoresBeforeChinos = activeAsesores ? new Set(activeAsesores) : null;
+      activeAsesores = new Set(allAsesores.filter(a => isChinoAsesor(a)));
+    } else if (prevTab === 'chinos' && savedAsesoresBeforeChinos !== null) {
+      // Restaurar estado previo al salir de Chinos
+      activeAsesores = savedAsesoresBeforeChinos;
+      savedAsesoresBeforeChinos = null;
+    } else {
+      // Cambio entre tabs normales: aplicar default del tab nuevo
+      activeAsesores = getDefaultAsesores();
+    }
     buildAsesorCheckboxes();
   }
   render();
