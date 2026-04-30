@@ -570,8 +570,9 @@ function isTrue(v) {
 }
 function fmtN(n)  { return n.toLocaleString('es-AR'); }
 function fmtM(n)  {
-  if(n>=1e9) return '$'+(n/1e9).toFixed(1).replace('.',',')+' B';
-  if(n>=1e6) return '$'+(n/1e6).toFixed(1).replace('.',',')+' M';
+  function fmt1(v) { const s = v.toFixed(1); return s.endsWith('.0') ? s.slice(0,-2) : s.replace('.',','); }
+  if(n>=1e9) return '$'+fmt1(n/1e9)+' B';
+  if(n>=1e6) return '$'+fmt1(n/1e6)+' M';
   if(n>=1e3) return '$'+(n/1e3).toFixed(0)+' K';
   return '$'+Math.round(n).toLocaleString('es-AR');
 }
