@@ -1982,6 +1982,7 @@ function renderMonitoreo(data) {
   panel.innerHTML = `
     <div style="padding:16px 24px 0">
       <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap">
+        <button onclick="toggleMonitoreo()" style="display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border:1.5px solid #DDD;border-radius:20px;background:white;color:#555;font-size:.75rem;font-weight:700;cursor:pointer;font-family:var(--font);transition:all .2s" onmouseover="this.style.borderColor='var(--mp-navy)';this.style.color='var(--mp-navy)'" onmouseout="this.style.borderColor='#DDD';this.style.color='#555'">← Volver al dashboard</button>
         <span style="font-size:.95rem;font-weight:700;color:var(--mp-navy)">Monitoreo Convertidos</span>
         <span style="font-size:.75rem;color:#888">${data.length} registros</span>
         ${[
