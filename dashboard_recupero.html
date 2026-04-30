@@ -1505,7 +1505,7 @@ function renderAsesorChart(id, stats, field, color, label, perAsesorTarget) {
       },
       scales: {
         x: { grid:{display:false}, ticks:{font:{size:10,family:'MELI Proxima Nova A, Helvetica Neue, Arial, sans-serif'}} },
-        y: { grid:{color:'#f0f0f0'}, ticks:{callback:v=>fmtM(v),font:{size:10,family:'MELI Proxima Nova A, Helvetica Neue, Arial, sans-serif'}} }
+        y: { grid:{color:'#f0f0f0'}, suggestedMax: perAsesorTarget ? perAsesorTarget * 1.15 : undefined, ticks:{callback:v=>fmtM(v),font:{size:10,family:'MELI Proxima Nova A, Helvetica Neue, Arial, sans-serif'}} }
       }
     },
     plugins: targetLinePlugin ? [targetLinePlugin] : []
