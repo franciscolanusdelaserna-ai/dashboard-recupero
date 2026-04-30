@@ -177,13 +177,13 @@
     .itabs {
       background: white;
       border-bottom: 2px solid var(--border);
-      padding: 0 32px;
+      padding: 0 24px;
       display: flex;
-      gap: 0;
+      gap: 4px;
       overflow-x: auto;
     }
     .itab {
-      padding: 11px 22px;
+      padding: 10px 18px;
       border: none;
       background: none;
       cursor: pointer;
@@ -195,16 +195,33 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      transition: color .15s;
+      transition: all .18s;
       white-space: nowrap;
       font-family: var(--font);
+      border-radius: 8px 8px 0 0;
     }
-    .itab:hover { color: #444; }
-    .itab.active { color: var(--tc); border-bottom-color: var(--tc); }
+    .itab:hover {
+      color: var(--tc);
+      background: color-mix(in srgb, var(--tc) 8%, transparent);
+    }
+    .itab.active {
+      color: var(--tc);
+      border-bottom-color: var(--tc);
+      background: color-mix(in srgb, var(--tc) 10%, transparent);
+      font-weight: 700;
+    }
     .tpill {
       font-size: .65rem; font-weight: 700;
-      padding: 2px 7px; border-radius: 10px;
-      background: var(--tc); color: white;
+      padding: 2px 8px; border-radius: 20px;
+      background: color-mix(in srgb, var(--tc) 15%, transparent);
+      color: var(--tc);
+      border: 1.5px solid color-mix(in srgb, var(--tc) 35%, transparent);
+      transition: all .18s;
+    }
+    .itab.active .tpill {
+      background: var(--tc);
+      color: white;
+      border-color: var(--tc);
     }
 
     /* ── MAIN ── */
@@ -376,11 +393,11 @@
 
 <!-- INITIATIVE TABS -->
 <div class="itabs" id="itabs">
-  <button class="itab active" data-tab="total"        style="--tc:#009EE3">Total iniciativas       <span class="tpill" id="pill-total">—</span></button>
-  <button class="itab"        data-tab="temprano"     style="--tc:#00A650">Recupero Temprano       <span class="tpill" id="pill-temprano">—</span></button>
-  <button class="itab"        data-tab="tardio"       style="--tc:#FF7733">Recupero Tardío         <span class="tpill" id="pill-tardio">—</span></button>
-  <button class="itab"        data-tab="reactivacion" style="--tc:#8C4DFF">Reactivación            <span class="tpill" id="pill-reactivacion">—</span></button>
-  <button class="itab"        data-tab="chinos"       style="--tc:#E53935">Chinos                  <span class="tpill" id="pill-chinos">—</span></button>
+  <button class="itab active" data-tab="total"        style="--tc:#009EE3">Total iniciativas       <span class="tpill" id="pill-total" title="Convertidos válidos">—</span></button>
+  <button class="itab"        data-tab="temprano"     style="--tc:#00A650">Recupero Temprano       <span class="tpill" id="pill-temprano" title="Convertidos válidos">—</span></button>
+  <button class="itab"        data-tab="tardio"       style="--tc:#FF7733">Recupero Tardío         <span class="tpill" id="pill-tardio" title="Convertidos válidos">—</span></button>
+  <button class="itab"        data-tab="reactivacion" style="--tc:#8C4DFF">Reactivación            <span class="tpill" id="pill-reactivacion" title="Convertidos válidos">—</span></button>
+  <button class="itab"        data-tab="chinos"       style="--tc:#E53935">Chinos                  <span class="tpill" id="pill-chinos" title="Convertidos válidos">—</span></button>
 </div>
 
 <!-- MAIN -->
@@ -936,7 +953,11 @@ function getFiltered(tab) {
 function updatePills() {
   Object.keys(TAB_CFG).forEach(k => {
     const el = document.getElementById('pill-'+k);
-    if (el) el.textContent = getFiltered(k).length.toLocaleString('es-AR');
+    if (el) {
+      const rows = getFiltered(k);
+      const cvval = rows.filter(isConvVal).length;
+      el.textContent = cvval.toLocaleString('es-AR');
+    }
   });
 }
 
