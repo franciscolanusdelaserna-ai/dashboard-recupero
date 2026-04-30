@@ -488,6 +488,20 @@ const TARGETS = {
   total:        { total: 2010e6, perAsesor: null  },  // 550+960+500
 };
 
+// Asesoras exclusivas del tab Chinos — excluidas por defecto en otros tabs
+const CHINOS_ASESORES = ['Ema Du Chen', 'Sofia Zhuang'];
+function isChinoAsesor(a) {
+  return CHINOS_ASESORES.some(c => norm(c) === norm(a));
+}
+
+// Devuelve el Set de asesores por defecto para el tab activo
+// — tabs normales: todos excepto los dos de Chinos
+// — tab chinos: null (sin filtro UI, ya filtrado por t.asesores)
+function getDefaultAsesores() {
+  if (activeTab === 'chinos') return null;
+  return new Set(allAsesores.filter(a => !isChinoAsesor(a)));
+}
+
 // Devuelve el target efectivo según cuántos asesores estén filtrados
 function getEffectiveTarget(tab) {
   const cfg = TARGETS[tab];
@@ -791,6 +805,7 @@ function buildFilters() {
 
   // Multi-select de asesores
   allAsesores = [...new Set(allData.map(r => (r.ASESOR||'').trim()).filter(Boolean))].sort();
+  activeAsesores = getDefaultAsesores();
   buildAsesorCheckboxes();
 }
 
@@ -815,7 +830,7 @@ function buildAsesorCheckboxes() {
 function onAsesorChange() {
   const checkboxes = document.querySelectorAll('#asesorCheckboxes input[type=checkbox]');
   const checked = [...checkboxes].filter(c => c.checked).map(c => c.dataset.asesor);
-  activeAsesores = (checked.length === allAsesores.length) ? null : new Set(checked);
+  activeAsesores = new Set(checked);
   updateAsesorTrigger();
   updatePills();
   render();
@@ -824,13 +839,17 @@ function onAsesorChange() {
 function updateAsesorTrigger() {
   const lbl = document.getElementById('asesorTriggerLbl');
   const btn = document.getElementById('asesorTrigger');
-  if (!activeAsesores) {
+  const def = getDefaultAsesores();
+  // ¿Está en estado "por defecto"?
+  const isDefault = !activeAsesores ||
+    (def && activeAsesores.size === def.size && [...def].every(a => activeAsesores.has(a)));
+  if (isDefault) {
     lbl.textContent = 'Todos';
     btn.classList.remove('active');
-  } else if (activeAsesores.size === 1) {
+  } else if (activeAsesores && activeAsesores.size === 1) {
     lbl.textContent = [...activeAsesores][0];
     btn.classList.add('active');
-  } else if (activeAsesores.size === 0) {
+  } else if (!activeAsesores || activeAsesores.size === 0) {
     lbl.textContent = 'Ninguno';
     btn.classList.add('active');
   } else {
@@ -866,8 +885,10 @@ function filterAsesorList() {
 }
 
 function selAllAsesores() {
-  activeAsesores = null;
-  document.querySelectorAll('#asesorCheckboxes input[type=checkbox]').forEach(c => c.checked = true);
+  activeAsesores = getDefaultAsesores();
+  document.querySelectorAll('#asesorCheckboxes input[type=checkbox]').forEach(c => {
+    c.checked = !activeAsesores || activeAsesores.has(c.dataset.asesor);
+  });
   updateAsesorTrigger(); updatePills(); render();
 }
 
@@ -901,7 +922,7 @@ function getFiltered(tab) {
     // Filtro de tab por asesores (ej: tab Chinos)
     if (t.asesores && !t.asesores.some(a => norm(a) === norm(r.ASESOR||''))) return false;
     // Filtro multi-select de asesores del UI
-    if (activeAsesores && !activeAsesores.has((r.ASESOR||'').trim())) return false;
+    if (activeAsesores !== null && activeAsesores !== undefined && !activeAsesores.has((r.ASESOR||'').trim())) return false;
     // Filtro por tipo de recupero
     if (t.match && !norm(r.RECUPERO_TIPO||'').includes(t.match)) return false;
     return true;
@@ -921,6 +942,11 @@ document.getElementById('itabs').addEventListener('click', e => {
   document.querySelectorAll('.itab').forEach(x => x.classList.remove('active'));
   b.classList.add('active');
   activeTab = b.dataset.tab;
+  // Resetear filtro de asesores al default del tab nuevo
+  if (allAsesores.length > 0) {
+    activeAsesores = getDefaultAsesores();
+    buildAsesorCheckboxes();
+  }
   render();
 });
 
