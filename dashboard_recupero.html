@@ -1311,9 +1311,10 @@ function renderDiagnosticPanel() {
       : '';
 
   // Construye filas enriquecidas
-  const buildRows = (targetFn, valFn) => stats.map(s => {
+  // defaultTarget: valor a usar cuando el asesor no tiene ajuste de cohort (null = sin objetivo)
+  const buildRows = (targetFn, valFn, defaultTarget) => stats.map(s => {
     const adj = getAsesorAdj(s.asesor, cohortAdj);
-    const target = adj ? targetFn(adj) : (perAsesor || null);
+    const target = adj ? targetFn(adj) : (defaultTarget != null ? defaultTarget : null);
     return { s, adj, target, val: valFn(s), noTarget: adj ? target === null : false };
   });
 
@@ -1321,7 +1322,7 @@ function renderDiagnosticPanel() {
 
   // ── Sección 1: TPV M1 ─────────────────────────────────────────────────────
   if (perAsesor) {
-    const rows = buildRows(a => a.tpvTarget, s => s.tpvM1)
+    const rows = buildRows(a => a.tpvTarget, s => s.tpvM1, perAsesor)
       .sort((a,b) => {
         if (a.noTarget && !b.noTarget) return 1;
         if (!a.noTarget && b.noTarget) return -1;
@@ -1359,7 +1360,7 @@ function renderDiagnosticPanel() {
 
   // ── Sección 2: Convertidos válidos ───────────────────────────────────────
   if (cvMin) {
-    const rows = buildRows(a => a.cvTarget, s => s.convVal)
+    const rows = buildRows(a => a.cvTarget, s => s.convVal, cvMin)
       .sort((a,b) => {
         if (a.noTarget && !b.noTarget) return 1;
         if (!a.noTarget && b.noTarget) return -1;
