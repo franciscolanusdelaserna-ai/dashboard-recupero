@@ -480,9 +480,9 @@
               <th onclick="srt('convDecl')"    style="text-align:right">Conv. Decl.</th>
               <th onclick="srt('convVal')"     style="text-align:right">Conv. Válidos</th>
               <th onclick="srt('tpvM0')">TPV M0</th>
-              <th onclick="srt('tpvM1')">TPV M1</th>
+              <th onclick="srt('tpvM1')" id="thTpvM1">TPV M1</th>
               <th onclick="srt('vcM0')">VC M0</th>
-              <th onclick="srt('vcM1')">VC M1</th>
+              <th onclick="srt('vcM1')" id="thVcM1">VC M1</th>
             </tr>
           </thead>
           <tbody id="tbody"></tbody>
@@ -1145,7 +1145,7 @@ function render() {
   renderAsesorChart('vcChart',  stats, 'tpvM1', color, 'TPV M1' + (isFcst ? ' (fcst)' : ''), perAsesorTarget);
   const t = document.getElementById('tpvM1ChartTitle');
   if (t) t.innerHTML = 'TPV M1 por asesor (convertidos válidos)' + (isFcst && openCohort ? ` <span style="font-size:.6rem;font-weight:700;color:#FF8C00;background:#FFF3E0;padding:1px 5px;border-radius:6px;margin-left:4px">fcst</span>` : '');
-  renderTable(stats);
+  renderTable(stats, isFcst);
 }
 
 // ─── TARGET BAR ───────────────────────────────────────────────────────────────
@@ -1514,7 +1514,7 @@ function renderAsesorChart(id, stats, field, color, label, perAsesorTarget) {
 }
 
 // ─── ASESOR TABLE ─────────────────────────────────────────────────────────────
-function renderTable(stats) {
+function renderTable(stats, isFcst) {
   const sorted = [...stats].sort((a,b) => {
     let av = a[sortCol]??0, bv = b[sortCol]??0;
     if (sortCol==='asesor') { av=a.asesor; bv=b.asesor; }
@@ -1524,6 +1524,10 @@ function renderTable(stats) {
   document.querySelectorAll('#thead th').forEach(th=>th.classList.remove('sorted'));
   const idx = map[sortCol];
   if(idx!==undefined) document.querySelectorAll('#thead th')[idx]?.classList.add('sorted');
+
+  const fcstBadge = `<span style="font-size:.55rem;font-weight:700;color:#FF8C00;background:#FFF3E0;padding:1px 4px;border-radius:4px;margin-left:4px;vertical-align:middle">FCST</span>`;
+  document.getElementById('thTpvM1').innerHTML = `<span onclick="srt('tpvM1')">TPV M1${isFcst ? fcstBadge : ''}</span>`;
+  document.getElementById('thVcM1').innerHTML  = `<span onclick="srt('vcM1')">VC M1${isFcst ? fcstBadge : ''}</span>`;
 
   const color  = TAB_CFG[activeTab].color;
   const maxT0  = Math.max(...sorted.map(r=>r.tpvM0), 1);
