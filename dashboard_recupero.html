@@ -1120,9 +1120,7 @@ function renderTargetBar(tpvM1Disp, isFcst, openCohort) {
     : '';
   const tabNames = { total:'Total Recupero', temprano:'Recupero Temprano', tardio:'Recupero Tardío', reactivacion:'Reactivación', chinos:'Chinos' };
   const isIndividual = activeAsesores && activeAsesores.size > 0 && TARGETS[activeTab]?.perAsesor;
-  const targetLbl = isIndividual
-    ? (activeAsesores.size === 1 ? 'Target individual' : `Target × ${activeAsesores.size} asesores`)
-    : 'Target total';
+  const targetLbl = 'Target';
 
   document.getElementById('targetBar').innerHTML = `
     <div style="background:white;border-radius:16px;padding:18px 24px;box-shadow:0 4px 32px rgba(0,0,0,.08);border-left:4px solid #00bcff">
