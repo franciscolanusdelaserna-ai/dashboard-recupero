@@ -541,6 +541,7 @@ const COHORT_ADJUSTMENTS = {
       'Ema Du Chen':   { tipo:'nuevo',      tpvTarget: null,  cvTarget: null },
       'Abril Trinastic':   { tipo:'nuevo', tpvTarget: 72e6, cvTarget: 6 },
       'Shirley Gonzales':  { tipo:'nuevo', tpvTarget: 72e6, cvTarget: 6 },
+      'Marisol Borda':     { skip: true },
     },
     vacantes: { reactivacion: 4, tardio: 2, temprano: 1 },
   },
@@ -1312,11 +1313,13 @@ function renderDiagnosticPanel() {
 
   // Construye filas enriquecidas
   // defaultTarget: valor a usar cuando el asesor no tiene ajuste de cohort (null = sin objetivo)
-  const buildRows = (targetFn, valFn, defaultTarget) => stats.map(s => {
-    const adj = getAsesorAdj(s.asesor, cohortAdj);
-    const target = adj ? targetFn(adj) : (defaultTarget != null ? defaultTarget : null);
-    return { s, adj, target, val: valFn(s), noTarget: adj ? target === null : false };
-  });
+  const buildRows = (targetFn, valFn, defaultTarget) => stats
+    .filter(s => { const adj = getAsesorAdj(s.asesor, cohortAdj); return !adj?.skip; })
+    .map(s => {
+      const adj = getAsesorAdj(s.asesor, cohortAdj);
+      const target = adj ? targetFn(adj) : (defaultTarget != null ? defaultTarget : null);
+      return { s, adj, target, val: valFn(s), noTarget: adj ? target === null : false };
+    });
 
   let html = '<div class="diag-panel">';
 
