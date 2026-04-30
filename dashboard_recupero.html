@@ -1130,7 +1130,7 @@ function render() {
                vcM1Real:  isFcst ? vcM1  : null,
                tpvD0, tpvD1, vcD0, vcD1, tpvMoM, vcMoM, tpvM0MoM, vcM0MoM, cvValMoM, isFcst,
                fcstInfo: openCohort, color, vrows: vrows.length });
-  renderFunnel({ asign, reals, gest, cont, cvval, color });
+  renderFunnel({ asign, reals, gest, cont, cvdcl, cvval, color });
   renderEstado(data);
   renderMotivos(data, color);
   renderConvMotivo(data, color);
@@ -1239,13 +1239,14 @@ function renderKPIs({ asign, reals, gest, cont, cvdcl, cvval, tpvM0, tpvM1, vcM0
 }
 
 // ─── FUNNEL ───────────────────────────────────────────────────────────────────
-function renderFunnel({ asign, reals, gest, cont, cvval, color }) {
+function renderFunnel({ asign, reals, gest, cont, cvdcl, cvval, color }) {
   const steps = [
-    { lbl:'Leads asignados',       n:asign, c:color,     denom:asign, denomLbl:'asignados'  },
-    { lbl:'Leads reales (pre-g.)', n:reals, c:'#0075BE', denom:asign, denomLbl:'asignados'  },
-    { lbl:'Gestionados',           n:gest,  c:'#FF7733', denom:reals, denomLbl:'reales'     },
-    { lbl:'Contactados',           n:cont,  c:'#8C4DFF', denom:reals, denomLbl:'reales'     },
-    { lbl:'Convertidos válidos',   n:cvval, c:'#00A650', denom:cont,  denomLbl:'contactados'},
+    { lbl:'Leads asignados',         n:asign, c:color,     denom:asign, denomLbl:'asignados'  },
+    { lbl:'Leads reales (pre-g.)',   n:reals, c:'#0075BE', denom:asign, denomLbl:'asignados'  },
+    { lbl:'Gestionados',             n:gest,  c:'#FF7733', denom:reals, denomLbl:'reales'     },
+    { lbl:'Contactados',             n:cont,  c:'#8C4DFF', denom:reals, denomLbl:'reales'     },
+    { lbl:'Convertidos declarados',  n:cvdcl, c:'#00A650', denom:cont,  denomLbl:'contactados'},
+    { lbl:'Convertidos válidos',     n:cvval, c:'#00854A', denom:cont,  denomLbl:'contactados'},
   ];
   const mx = asign || 1;
   document.getElementById('funnelSteps').innerHTML = steps.map((s,i) => {
