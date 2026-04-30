@@ -1898,10 +1898,11 @@ function monitoreoColor(r) {
   const m0 = parseFloat(r.TPV_M0) || 0;
   const m1 = parseFloat(r.TPV_M1) || 0;
   const dias = parseInt(r.DIAS_SIN_COBRAR) || 0;
-  if (m0 === 0 && m1 === 0) return 'red';
-  if (dias >= 8)  return 'red';
-  if (dias >= 4)  return 'yellow';
-  return 'green';
+  const hasTPV = m0 > 0 || m1 > 0;
+  if (!hasTPV)    return 'gray';    // Todavía no activaron
+  if (dias >= 8)  return 'red';     // Volvieron a abandonar
+  if (dias >= 4)  return 'yellow';  // En Riesgo
+  return 'green';                   // Activos
 }
 
 let monSortCol = 'DIAS_SIN_COBRAR', monSortDir = -1;
@@ -1915,13 +1916,14 @@ function monSort(col) {
 function renderMonitoreo(data) {
   const panel = document.getElementById('monitoreoPanel');
 
-  // Contar por color
-  let nRed = 0, nYellow = 0, nGreen = 0;
+  // Contar por categoría
+  let nRed = 0, nYellow = 0, nGreen = 0, nGray = 0;
   data.forEach(r => {
     const c = monitoreoColor(r);
     if (c === 'red') nRed++;
     else if (c === 'yellow') nYellow++;
-    else nGreen++;
+    else if (c === 'green') nGreen++;
+    else nGray++;
   });
 
   // Ordenar
@@ -1946,8 +1948,8 @@ function renderMonitoreo(data) {
     { key:'TPV_M1',          label:'TPV M1' },
   ];
 
-  const colorStyle = { red: '#FFF5F5', yellow: '#FFFDE7', green: '#F1FFF6' };
-  const dotColor   = { red: '#E53935', yellow: '#F9A825', green: '#00A650' };
+  const colorStyle = { red: '#FFF5F5', yellow: '#FFFDE7', green: '#F1FFF6', gray: '#F7F7F7' };
+  const dotColor   = { red: '#E53935', yellow: '#F9A825', green: '#00A650', gray: '#AAAAAA' };
 
   const ths = cols.map(c => {
     const arrow = c.key === monSortCol ? (monSortDir === -1 ? ' ▼' : ' ▲') : '';
@@ -1982,9 +1984,10 @@ function renderMonitoreo(data) {
       <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap">
         <span style="font-size:.95rem;font-weight:700;color:var(--mp-navy)">Monitoreo Convertidos</span>
         <span style="font-size:.75rem;color:#888">${data.length} registros</span>
-        <span style="display:inline-flex;align-items:center;gap:6px;background:#FFF5F5;border:1.5px solid #FFCDD2;color:#C62828;font-size:.75rem;font-weight:700;padding:5px 14px;border-radius:20px"><span style="width:9px;height:9px;border-radius:50%;background:#E53935;display:inline-block;flex-shrink:0"></span>${nRed} en riesgo</span>
-        <span style="display:inline-flex;align-items:center;gap:6px;background:#FFFDE7;border:1.5px solid #FFE082;color:#E65100;font-size:.75rem;font-weight:700;padding:5px 14px;border-radius:20px"><span style="width:9px;height:9px;border-radius:50%;background:#F9A825;display:inline-block;flex-shrink:0"></span>${nYellow} atención</span>
-        <span style="display:inline-flex;align-items:center;gap:6px;background:#F1FFF6;border:1.5px solid #A5D6A7;color:#2E7D32;font-size:.75rem;font-weight:700;padding:5px 14px;border-radius:20px"><span style="width:9px;height:9px;border-radius:50%;background:#00A650;display:inline-block;flex-shrink:0"></span>${nGreen} ok</span>
+        <span style="display:inline-flex;align-items:center;gap:6px;background:#FFF5F5;border:1.5px solid #FFCDD2;color:#C62828;font-size:.75rem;font-weight:700;padding:5px 14px;border-radius:20px"><span style="width:9px;height:9px;border-radius:50%;background:#E53935;display:inline-block;flex-shrink:0"></span>${nRed} volvieron a abandonar</span>
+        <span style="display:inline-flex;align-items:center;gap:6px;background:#FFFDE7;border:1.5px solid #FFE082;color:#E65100;font-size:.75rem;font-weight:700;padding:5px 14px;border-radius:20px"><span style="width:9px;height:9px;border-radius:50%;background:#F9A825;display:inline-block;flex-shrink:0"></span>${nYellow} en riesgo</span>
+        <span style="display:inline-flex;align-items:center;gap:6px;background:#F1FFF6;border:1.5px solid #A5D6A7;color:#2E7D32;font-size:.75rem;font-weight:700;padding:5px 14px;border-radius:20px"><span style="width:9px;height:9px;border-radius:50%;background:#00A650;display:inline-block;flex-shrink:0"></span>${nGreen} activos</span>
+        <span style="display:inline-flex;align-items:center;gap:6px;background:#F7F7F7;border:1.5px solid #E0E0E0;color:#777;font-size:.75rem;font-weight:700;padding:5px 14px;border-radius:20px"><span style="width:9px;height:9px;border-radius:50%;background:#AAAAAA;display:inline-block;flex-shrink:0"></span>${nGray} todavía no activaron</span>
       </div>
       <div style="overflow-x:auto">
         <table style="width:100%;border-collapse:collapse;font-size:.73rem">
