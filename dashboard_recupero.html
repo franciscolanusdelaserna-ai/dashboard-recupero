@@ -2096,13 +2096,15 @@ function renderMonitoreo(data) {
         }).join('')}
         </div>
       </div>
-      <div style="display:flex;align-items:center;gap:6px;margin-bottom:14px">
-        <span style="font-size:.72rem;color:#999;font-weight:600">Mes:</span>
-        ${['Corriente','Anterior'].map(m => {
-          const active = monMesFilter === m;
-          return `<button onclick="setMonMes('${m}')" style="padding:4px 14px;border-radius:16px;border:1.5px solid ${active ? 'var(--mp-navy)' : '#DDD'};background:${active ? 'var(--mp-navy)' : 'white'};color:${active ? 'white' : '#555'};font-size:.72rem;font-weight:700;cursor:pointer;font-family:var(--font);transition:all .15s">${m}</button>`;
-        }).join('')}
-        ${monMesFilter ? `<button onclick="setMonMes(null)" style="padding:4px 10px;border-radius:16px;border:1px solid #EEE;background:#F5F5F5;color:#999;font-size:.68rem;cursor:pointer;font-family:var(--font)">✕ ver todos</button>` : ''}
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
+        <div style="display:inline-flex;align-items:center;gap:10px;background:${monMesFilter ? 'var(--mp-navy)' : '#F0F4FF'};border:2px solid ${monMesFilter ? 'var(--mp-navy)' : '#C5CAE9'};border-radius:10px;padding:7px 16px;transition:all .2s">
+          <span style="font-size:.72rem;color:${monMesFilter ? 'var(--mp-yellow)' : 'var(--mp-navy)'};font-weight:800;letter-spacing:.5px;text-transform:uppercase;white-space:nowrap;pointer-events:none">📅 Mes</span>
+          <select onchange="setMonMes(this.value || null)" style="border:none;background:transparent;color:${monMesFilter ? 'white' : 'var(--mp-navy)'};font-size:.78rem;font-weight:700;cursor:pointer;font-family:var(--font);outline:none;min-width:110px;-webkit-appearance:auto">
+            <option value="" style="color:#333;background:white;font-weight:600">— Todos —</option>
+            ${['Corriente','Anterior'].map(m => `<option value="${m}" style="color:#333;background:white" ${monMesFilter === m ? 'selected' : ''}>${m}</option>`).join('')}
+          </select>
+        </div>
+        ${monMesFilter ? `<button onclick="setMonMes(null)" style="padding:5px 12px;border-radius:8px;border:1.5px solid #DDD;background:white;color:#888;font-size:.72rem;font-weight:600;cursor:pointer;font-family:var(--font);transition:all .15s">✕ Limpiar</button>` : ''}
       </div>
       ${buildMonitoreoSummary(byMes)}
 
