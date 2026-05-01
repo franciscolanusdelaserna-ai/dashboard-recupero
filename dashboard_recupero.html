@@ -1917,7 +1917,7 @@ function buildMonitoreoSummary(data) {
 
   // Normaliza claves para agrupar variantes (ej: mayúsculas/minúsculas)
   function normalizeKey(field, val) {
-    if (field === 'RECUPERO_TIPO') return (val||'—').trim().toLowerCase().replace(/\s+/g,' ').replace(/\b\w/g, c => c.toUpperCase());
+    if (field === 'RECUPERO_TIPO') return (val||'—').trim().toLowerCase().replace(/\s+/g,' ').split(' ').map(w => w ? w.charAt(0).toUpperCase() + w.slice(1) : w).join(' ');
     return (val||'—').trim();
   }
 
