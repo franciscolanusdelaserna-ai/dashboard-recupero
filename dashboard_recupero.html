@@ -1976,8 +1976,9 @@ function buildMonitoreoSummary(data) {
       <div style="display:flex;gap:10px;flex-wrap:wrap">${asesorCards}</div>
     </div>`;
 }
-let monFilter  = null;  // null = todos; 'green'|'yellow'|'red'|'gray'
-let monMesFilter = null; // null = todos; 'Corriente'|'Anterior'
+let monFilter    = null;  // null = todos; 'green'|'yellow'|'red'|'gray'
+let monMesFilter = null;  // null = todos; 'Corriente'|'Anterior'
+let monAsesor    = null;  // null = todos; nombre del asesor
 
 function setMonFilter(color) {
   monFilter = (monFilter === color) ? null : color;
@@ -1988,6 +1989,11 @@ function setMonMes(mes) {
   monMesFilter = (monMesFilter === mes) ? null : mes;
   if (monitoreoData) renderMonitoreo(monitoreoData);
 }
+
+window._setMonAsesor = function(a) {
+  monAsesor = a;
+  if (monitoreoData) renderMonitoreo(monitoreoData);
+};
 
 function monSort(col) {
   monSortDir = (monSortCol === col) ? monSortDir * -1 : -1;
@@ -2008,9 +2014,10 @@ function renderMonitoreo(data) {
     else nGray++;
   });
 
-  // Filtrar por mes y categoría
+  // Filtrar por mes, asesor y categoría
   const byMes    = monMesFilter ? data.filter(r => (r.MES||'').trim() === monMesFilter) : data;
-  const filtered = monFilter ? byMes.filter(r => monitoreoColor(r) === monFilter) : byMes;
+  const byAsesorF = monAsesor  ? byMes.filter(r => (r.ASESOR||'').trim() === monAsesor) : byMes;
+  const filtered  = monFilter  ? byAsesorF.filter(r => monitoreoColor(r) === monFilter) : byAsesorF;
 
   // Ordenar
   const sorted = [...filtered].sort((a, b) => {
@@ -2099,6 +2106,17 @@ function renderMonitoreo(data) {
       ${buildMonitoreoSummary(byMes)}
 
       <div style="height:1px;background:#EBEBEB;margin:18px 0 14px"></div>
+
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap">
+        <span style="font-size:.72rem;color:#999;font-weight:600">Asesor:</span>
+        ${(() => {
+          const asesores = [...new Set(data.map(r => (r.ASESOR||'').trim()).filter(Boolean))].sort();
+          return asesores.map(a => {
+            const active = monAsesor === a;
+            return `<button onclick="window._setMonAsesor('${a.replace(/'/g,"\\\'")}')" style="padding:4px 14px;border-radius:16px;border:1.5px solid ${active ? 'var(--mp-navy)' : '#DDD'};background:${active ? 'var(--mp-navy)' : 'white'};color:${active ? 'white' : '#555'};font-size:.72rem;font-weight:700;cursor:pointer;font-family:var(--font);transition:all .15s">${a}</button>`;
+          }).join('') + (monAsesor ? `<button onclick="window._setMonAsesor(null)" style="padding:4px 10px;border-radius:16px;border:1px solid #EEE;background:#F5F5F5;color:#999;font-size:.68rem;cursor:pointer;font-family:var(--font)">✕ todos</button>` : '');
+        })()}
+      </div>
 
       <div style="overflow-x:auto">
         <table style="width:100%;border-collapse:collapse;font-size:.73rem">
