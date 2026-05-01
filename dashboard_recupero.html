@@ -1953,7 +1953,7 @@ function buildMonitoreoSummary(data) {
     }).filter(Boolean).join('<span style="color:#DDD;margin:0 3px">·</span>');
     return `
       <div style="background:white;border:1px solid #EBEBEB;border-radius:10px;padding:10px 14px;min-width:160px;flex:1">
-        <div style="font-size:.72rem;font-weight:700;color:var(--mp-navy);margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${name}</div>
+        <div style="font-size:.72rem;font-weight:700;color:var(--mp-navy);margin-bottom:6px">${name}</div>
         <div style="height:6px;border-radius:4px;overflow:hidden;background:#F0F0F0;display:flex;margin-bottom:7px">${bar}</div>
         <div style="display:flex;flex-wrap:wrap;gap:4px 8px">${pills}</div>
         <div style="font-size:.6rem;color:#BBB;margin-top:4px">${total} casos</div>
