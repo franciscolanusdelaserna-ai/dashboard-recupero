@@ -1942,29 +1942,42 @@ function buildMonitoreoSummary(data) {
     }).join('');
   }
 
-  function buildCard(name, counts) {
+  function buildCard(name, counts, large) {
     const total = counts.total;
     const bar = miniBar(counts, total);
     const pills = CAT.map(c => {
       const n = counts[c.key] || 0;
       if (!n) return '';
       const pct = Math.round(n / total * 100);
+      if (large) {
+        return `<div style="display:flex;flex-direction:column;align-items:center;background:${c.bg};border-radius:8px;padding:6px 12px;min-width:54px"><span style="font-size:1.1rem;font-weight:800;color:${c.color};line-height:1">${n}</span><span style="font-size:.6rem;color:#AAA;font-weight:600;margin-top:2px">${pct}%</span></div>`;
+      }
       return `<span style="font-size:.65rem;font-weight:700;color:${c.color};white-space:nowrap">${n} <span style="font-weight:400;color:#AAA">(${pct}%)</span></span>`;
-    }).filter(Boolean).join('<span style="color:#DDD;margin:0 3px">·</span>');
+    }).filter(Boolean).join(large ? '' : '<span style="color:#DDD;margin:0 3px">·</span>');
+
+    if (large) {
+      return `
+        <div style="background:white;border:1.5px solid #DDE0F0;border-radius:14px;padding:16px 20px;min-width:220px;max-width:340px;flex:1;box-shadow:0 1px 4px rgba(0,0,128,.06)">
+          <div style="font-size:.9rem;font-weight:800;color:var(--mp-navy);margin-bottom:10px;letter-spacing:-.2px">${name}</div>
+          <div style="height:8px;border-radius:5px;overflow:hidden;background:#F0F0F0;display:flex;margin-bottom:12px">${bar}</div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px">${pills}</div>
+          <div style="font-size:.65rem;color:#BBB;margin-top:10px;font-weight:600">${total} casos</div>
+        </div>`;
+    }
     return `
-      <div style="background:white;border:1px solid #EBEBEB;border-radius:10px;padding:10px 14px;min-width:160px;max-width:220px;flex:1">
-        <div style="font-size:.72rem;font-weight:700;color:var(--mp-navy);margin-bottom:6px">${name}</div>
-        <div style="height:6px;border-radius:4px;overflow:hidden;background:#F0F0F0;display:flex;margin-bottom:7px">${bar}</div>
+      <div style="background:white;border:1px solid #EBEBEB;border-radius:10px;padding:10px 14px;min-width:140px;max-width:200px;flex:1">
+        <div style="font-size:.7rem;font-weight:700;color:var(--mp-navy);margin-bottom:6px">${name}</div>
+        <div style="height:5px;border-radius:4px;overflow:hidden;background:#F0F0F0;display:flex;margin-bottom:7px">${bar}</div>
         <div style="display:flex;flex-wrap:wrap;gap:4px 8px">${pills}</div>
-        <div style="font-size:.6rem;color:#BBB;margin-top:4px">${total} casos</div>
+        <div style="font-size:.58rem;color:#BBB;margin-top:4px">${total} casos</div>
       </div>`;
   }
 
   const byInit   = groupBy('RECUPERO_TIPO');
   const byAsesor = groupBy('ASESOR');
 
-  const initCards   = byInit.map(([name, counts]) => buildCard(name, counts)).join('');
-  const asesorCards = byAsesor.map(([name, counts]) => buildCard(name, counts)).join('');
+  const initCards   = byInit.map(([name, counts]) => buildCard(name, counts, true)).join('');
+  const asesorCards = byAsesor.map(([name, counts]) => buildCard(name, counts, false)).join('');
 
   return `
     <div style="background:#F8F9FF;border:1px solid #E0E4F5;border-radius:12px;padding:14px 16px;margin-bottom:12px">
