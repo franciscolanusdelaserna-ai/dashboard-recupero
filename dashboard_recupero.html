@@ -1906,6 +1906,12 @@ function monitoreoColor(r) {
 }
 
 let monSortCol = 'DIAS_SIN_COBRAR', monSortDir = -1;
+let monFilter  = null; // null = todos; 'green'|'yellow'|'red'|'gray'
+
+function setMonFilter(color) {
+  monFilter = (monFilter === color) ? null : color;
+  if (monitoreoData) renderMonitoreo(monitoreoData);
+}
 
 function monSort(col) {
   monSortDir = (monSortCol === col) ? monSortDir * -1 : -1;
@@ -1926,8 +1932,11 @@ function renderMonitoreo(data) {
     else nGray++;
   });
 
+  // Filtrar por categoría si hay filtro activo
+  const filtered = monFilter ? data.filter(r => monitoreoColor(r) === monFilter) : data;
+
   // Ordenar
-  const sorted = [...data].sort((a, b) => {
+  const sorted = [...filtered].sort((a, b) => {
     let va = a[monSortCol] ?? '';
     let vb = b[monSortCol] ?? '';
     const na = parseFloat(va), nb = parseFloat(vb);
@@ -1990,13 +1999,16 @@ function renderMonitoreo(data) {
         </div>
         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
         ${[
-          { n: nGreen,  bg:'#F1FFF6', border:'#A5D6A7', color:'#2E7D32',  dot:'#00A650', label:'activos' },
-          { n: nGray,   bg:'#F7F7F7', border:'#E0E0E0', color:'#777',     dot:'#AAAAAA', label:'todavía no activaron' },
-          { n: nYellow, bg:'#FFFDE7', border:'#FFE082', color:'#E65100',  dot:'#F9A825', label:'en riesgo' },
-          { n: nRed,    bg:'#FFF5F5', border:'#FFCDD2', color:'#C62828',  dot:'#E53935', label:'volvieron a abandonar' },
-        ].sort((a,b) => b.n - a.n).map(b =>
-          `<span style="display:inline-flex;align-items:center;gap:6px;background:${b.bg};border:1.5px solid ${b.border};color:${b.color};font-size:.75rem;font-weight:700;padding:5px 14px;border-radius:20px"><span style="width:9px;height:9px;border-radius:50%;background:${b.dot};display:inline-block;flex-shrink:0"></span>${b.n} ${b.label}</span>`
-        ).join('')}
+          { key:'green',  n: nGreen,  bg:'#F1FFF6', border:'#A5D6A7', color:'#2E7D32',  dot:'#00A650', label:'activos' },
+          { key:'gray',   n: nGray,   bg:'#F7F7F7', border:'#E0E0E0', color:'#777',     dot:'#AAAAAA', label:'todavía no activaron' },
+          { key:'yellow', n: nYellow, bg:'#FFFDE7', border:'#FFE082', color:'#E65100',  dot:'#F9A825', label:'en riesgo' },
+          { key:'red',    n: nRed,    bg:'#FFF5F5', border:'#FFCDD2', color:'#C62828',  dot:'#E53935', label:'volvieron a abandonar' },
+        ].sort((a,b) => b.n - a.n).map(b => {
+          const isActive = monFilter === b.key;
+          const activeStyle = isActive ? `box-shadow:0 0 0 2.5px ${b.dot};transform:translateY(-1px);` : '';
+          const cursor = 'cursor:pointer;';
+          return `<button onclick="setMonFilter('${b.key}')" style="display:inline-flex;align-items:center;gap:6px;background:${b.bg};border:1.5px solid ${isActive ? b.dot : b.border};color:${b.color};font-size:.75rem;font-weight:700;padding:5px 14px;border-radius:20px;${cursor}font-family:var(--font);transition:all .15s;${activeStyle}"><span style="width:9px;height:9px;border-radius:50%;background:${b.dot};display:inline-block;flex-shrink:0"></span>${b.n} ${b.label}</button>`;
+        }).join('')}
         </div>
       </div>
       <div style="overflow-x:auto">
