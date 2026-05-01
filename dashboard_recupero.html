@@ -1970,10 +1970,16 @@ function buildMonitoreoSummary(data) {
       <div style="display:flex;gap:10px;flex-wrap:wrap">${asesorCards}</div>
     </div>`;
 }
-let monFilter  = null; // null = todos; 'green'|'yellow'|'red'|'gray'
+let monFilter  = null;  // null = todos; 'green'|'yellow'|'red'|'gray'
+let monMesFilter = null; // null = todos; 'Corriente'|'Anterior'
 
 function setMonFilter(color) {
   monFilter = (monFilter === color) ? null : color;
+  if (monitoreoData) renderMonitoreo(monitoreoData);
+}
+
+function setMonMes(mes) {
+  monMesFilter = (monMesFilter === mes) ? null : mes;
   if (monitoreoData) renderMonitoreo(monitoreoData);
 }
 
@@ -1996,8 +2002,9 @@ function renderMonitoreo(data) {
     else nGray++;
   });
 
-  // Filtrar por categoría si hay filtro activo
-  const filtered = monFilter ? data.filter(r => monitoreoColor(r) === monFilter) : data;
+  // Filtrar por mes y categoría
+  const byMes    = monMesFilter ? data.filter(r => (r.MES||'').trim() === monMesFilter) : data;
+  const filtered = monFilter ? byMes.filter(r => monitoreoColor(r) === monFilter) : byMes;
 
   // Ordenar
   const sorted = [...filtered].sort((a, b) => {
@@ -2075,7 +2082,15 @@ function renderMonitoreo(data) {
         }).join('')}
         </div>
       </div>
-      ${buildMonitoreoSummary(data)}
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:14px">
+        <span style="font-size:.72rem;color:#999;font-weight:600">Mes:</span>
+        ${['Corriente','Anterior'].map(m => {
+          const active = monMesFilter === m;
+          return `<button onclick="setMonMes('${m}')" style="padding:4px 14px;border-radius:16px;border:1.5px solid ${active ? 'var(--mp-navy)' : '#DDD'};background:${active ? 'var(--mp-navy)' : 'white'};color:${active ? 'white' : '#555'};font-size:.72rem;font-weight:700;cursor:pointer;font-family:var(--font);transition:all .15s">${m}</button>`;
+        }).join('')}
+        ${monMesFilter ? `<button onclick="setMonMes(null)" style="padding:4px 10px;border-radius:16px;border:1px solid #EEE;background:#F5F5F5;color:#999;font-size:.68rem;cursor:pointer;font-family:var(--font)">✕ ver todos</button>` : ''}
+      </div>
+      ${buildMonitoreoSummary(byMes)}
 
       <div style="height:1px;background:#EBEBEB;margin:18px 0 14px"></div>
 
