@@ -2090,8 +2090,9 @@ function renderMonitoreo(data) {
         ].sort((a,b) => b.n - a.n).map(b => {
           const isActive = monFilter === b.key;
           const activeStyle = isActive ? `box-shadow:0 0 0 2.5px ${b.dot};transform:translateY(-1px);` : '';
-          const cursor = 'cursor:pointer;';
-          return `<button onclick="setMonFilter('${b.key}')" style="display:inline-flex;align-items:center;gap:6px;background:${b.bg};border:1.5px solid ${isActive ? b.dot : b.border};color:${b.color};font-size:.75rem;font-weight:700;padding:5px 14px;border-radius:20px;${cursor}font-family:var(--font);transition:all .15s;${activeStyle}"><span style="width:9px;height:9px;border-radius:50%;background:${b.dot};display:inline-block;flex-shrink:0"></span>${b.n} ${b.label}</button>`;
+          const total = nGreen + nGray + nYellow + nRed;
+          const pct = total ? Math.round(b.n / total * 100) : 0;
+          return `<button onclick="setMonFilter('${b.key}')" style="display:inline-flex;align-items:center;gap:6px;background:${b.bg};border:1.5px solid ${isActive ? b.dot : b.border};color:${b.color};font-size:.75rem;font-weight:700;padding:5px 14px;border-radius:20px;cursor:pointer;font-family:var(--font);transition:all .15s;${activeStyle}"><span style="width:9px;height:9px;border-radius:50%;background:${b.dot};display:inline-block;flex-shrink:0"></span>${b.n} ${b.label}<span style="font-size:.68rem;font-weight:600;opacity:.65;margin-left:1px">${pct}%</span></button>`;
         }).join('')}
         </div>
       </div>
