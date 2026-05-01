@@ -1906,6 +1906,70 @@ function monitoreoColor(r) {
 }
 
 let monSortCol = 'DIAS_SIN_COBRAR', monSortDir = -1;
+
+function buildMonitoreoSummary(data) {
+  const CAT = [
+    { key:'green',  label:'Activos',              color:'#00A650', bg:'#F1FFF6' },
+    { key:'yellow', label:'En Riesgo',             color:'#F9A825', bg:'#FFFDE7' },
+    { key:'red',    label:'Volvieron a abandonar', color:'#E53935', bg:'#FFF5F5' },
+    { key:'gray',   label:'No activaron',          color:'#AAAAAA', bg:'#F7F7F7' },
+  ];
+
+  // Agrupar por dimensión
+  function groupBy(field) {
+    const map = {};
+    data.forEach(r => {
+      const key = r[field] || '—';
+      if (!map[key]) map[key] = { green:0, yellow:0, red:0, gray:0, total:0 };
+      const c = monitoreoColor(r);
+      map[key][c]++;
+      map[key].total++;
+    });
+    return Object.entries(map).sort((a,b) => b[1].total - a[1].total);
+  }
+
+  function miniBar(counts, total) {
+    return CAT.map(c => {
+      const n = counts[c.key] || 0;
+      const pct = total ? Math.round(n / total * 100) : 0;
+      return pct > 0 ? `<div title="${c.label}: ${n} (${pct}%)" style="height:100%;width:${pct}%;background:${c.color};min-width:3px;transition:width .3s"></div>` : '';
+    }).join('');
+  }
+
+  function buildCard(name, counts) {
+    const total = counts.total;
+    const bar = miniBar(counts, total);
+    const pills = CAT.map(c => {
+      const n = counts[c.key] || 0;
+      if (!n) return '';
+      const pct = Math.round(n / total * 100);
+      return `<span style="font-size:.65rem;font-weight:700;color:${c.color};white-space:nowrap">${n} <span style="font-weight:400;color:#AAA">(${pct}%)</span></span>`;
+    }).filter(Boolean).join('<span style="color:#DDD;margin:0 3px">·</span>');
+    return `
+      <div style="background:white;border:1px solid #EBEBEB;border-radius:10px;padding:10px 14px;min-width:160px;flex:1">
+        <div style="font-size:.72rem;font-weight:700;color:var(--mp-navy);margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${name}</div>
+        <div style="height:6px;border-radius:4px;overflow:hidden;background:#F0F0F0;display:flex;margin-bottom:7px">${bar}</div>
+        <div style="display:flex;flex-wrap:wrap;gap:4px 8px">${pills}</div>
+        <div style="font-size:.6rem;color:#BBB;margin-top:4px">${total} casos</div>
+      </div>`;
+  }
+
+  const byInit   = groupBy('RECUPERO_TIPO');
+  const byAsesor = groupBy('ASESOR');
+
+  const initCards   = byInit.map(([name, counts]) => buildCard(name, counts)).join('');
+  const asesorCards = byAsesor.map(([name, counts]) => buildCard(name, counts)).join('');
+
+  return `
+    <div style="margin-bottom:10px">
+      <div style="font-size:.68rem;font-weight:700;color:#999;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Por iniciativa</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">${initCards}</div>
+    </div>
+    <div>
+      <div style="font-size:.68rem;font-weight:700;color:#999;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Por asesor</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">${asesorCards}</div>
+    </div>`;
+}
 let monFilter  = null; // null = todos; 'green'|'yellow'|'red'|'gray'
 
 function setMonFilter(color) {
@@ -2011,6 +2075,10 @@ function renderMonitoreo(data) {
         }).join('')}
         </div>
       </div>
+      ${buildMonitoreoSummary(data)}
+
+      <div style="height:1px;background:#EBEBEB;margin:18px 0 14px"></div>
+
       <div style="overflow-x:auto">
         <table style="width:100%;border-collapse:collapse;font-size:.73rem">
           <thead>
