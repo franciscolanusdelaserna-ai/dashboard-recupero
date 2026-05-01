@@ -2107,16 +2107,20 @@ function renderMonitoreo(data) {
 
       <div style="height:1px;background:#EBEBEB;margin:18px 0 14px"></div>
 
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap">
-        <span style="font-size:.72rem;color:#999;font-weight:600">Asesor:</span>
-        ${(() => {
+      ${(() => {
           const asesores = [...new Set(data.map(r => (r.ASESOR||'').trim()).filter(Boolean))].sort();
-          return asesores.map(a => {
-            const active = monAsesor === a;
-            return `<button onclick="window._setMonAsesor('${a.replace(/'/g,"\\\'")}')" style="padding:4px 14px;border-radius:16px;border:1.5px solid ${active ? 'var(--mp-navy)' : '#DDD'};background:${active ? 'var(--mp-navy)' : 'white'};color:${active ? 'white' : '#555'};font-size:.72rem;font-weight:700;cursor:pointer;font-family:var(--font);transition:all .15s">${a}</button>`;
-          }).join('') + (monAsesor ? `<button onclick="window._setMonAsesor(null)" style="padding:4px 10px;border-radius:16px;border:1px solid #EEE;background:#F5F5F5;color:#999;font-size:.68rem;cursor:pointer;font-family:var(--font)">✕ todos</button>` : '');
+          const hasActive = !!monAsesor;
+          return `<div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
+            <div style="display:inline-flex;align-items:center;gap:10px;background:${hasActive ? 'var(--mp-navy)' : '#F0F4FF'};border:2px solid ${hasActive ? 'var(--mp-navy)' : '#C5CAE9'};border-radius:10px;padding:7px 16px;cursor:pointer;transition:all .2s">
+              <span style="font-size:.72rem;color:${hasActive ? 'var(--mp-yellow)' : 'var(--mp-navy)'};font-weight:800;letter-spacing:.5px;text-transform:uppercase;white-space:nowrap;pointer-events:none">👤 Asesor</span>
+              <select onchange="window._setMonAsesor(this.value || null)" style="border:none;background:transparent;color:${hasActive ? 'white' : 'var(--mp-navy)'};font-size:.78rem;font-weight:700;cursor:pointer;font-family:var(--font);outline:none;min-width:160px;-webkit-appearance:auto">
+                <option value="" style="color:#333;background:white;font-weight:600">— Todos —</option>
+                ${asesores.map(a => `<option value="${a.replace(/"/g,'&quot;')}" style="color:#333;background:white" ${monAsesor === a ? 'selected' : ''}>${a}</option>`).join('')}
+              </select>
+            </div>
+            ${hasActive ? `<button onclick="window._setMonAsesor(null)" style="padding:5px 12px;border-radius:8px;border:1.5px solid #DDD;background:white;color:#888;font-size:.72rem;font-weight:600;cursor:pointer;font-family:var(--font);transition:all .15s">✕ Limpiar</button>` : ''}
+          </div>`;
         })()}
-      </div>
 
       <div style="overflow-x:auto">
         <table style="width:100%;border-collapse:collapse;font-size:.73rem">
