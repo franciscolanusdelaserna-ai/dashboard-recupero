@@ -1915,11 +1915,17 @@ function buildMonitoreoSummary(data) {
     { key:'gray',   label:'No activaron',          color:'#AAAAAA', bg:'#F7F7F7' },
   ];
 
+  // Normaliza claves para agrupar variantes (ej: mayúsculas/minúsculas)
+  function normalizeKey(field, val) {
+    if (field === 'RECUPERO_TIPO') return (val||'—').trim().toLowerCase().replace(/\s+/g,' ').replace(/\b\w/g, c => c.toUpperCase());
+    return (val||'—').trim();
+  }
+
   // Agrupar por dimensión
   function groupBy(field) {
     const map = {};
     data.forEach(r => {
-      const key = r[field] || '—';
+      const key = normalizeKey(field, r[field]);
       if (!map[key]) map[key] = { green:0, yellow:0, red:0, gray:0, total:0 };
       const c = monitoreoColor(r);
       map[key][c]++;
@@ -1961,12 +1967,12 @@ function buildMonitoreoSummary(data) {
   const asesorCards = byAsesor.map(([name, counts]) => buildCard(name, counts)).join('');
 
   return `
-    <div style="margin-bottom:10px">
-      <div style="font-size:.68rem;font-weight:700;color:#999;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Por iniciativa</div>
+    <div style="background:#F8F9FF;border:1px solid #E0E4F5;border-radius:12px;padding:14px 16px;margin-bottom:12px">
+      <div style="font-size:.68rem;font-weight:800;color:var(--mp-navy);text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px">🗂 Por iniciativa</div>
       <div style="display:flex;gap:10px;flex-wrap:wrap">${initCards}</div>
     </div>
-    <div>
-      <div style="font-size:.68rem;font-weight:700;color:#999;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Por asesor</div>
+    <div style="background:#F8FFF8;border:1px solid #D6EED9;border-radius:12px;padding:14px 16px">
+      <div style="font-size:.68rem;font-weight:800;color:#1B5E20;text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px">👤 Por asesor</div>
       <div style="display:flex;gap:10px;flex-wrap:wrap">${asesorCards}</div>
     </div>`;
 }
