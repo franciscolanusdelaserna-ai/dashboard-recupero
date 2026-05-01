@@ -1981,13 +1981,12 @@ function renderMonitoreo(data) {
 
   panel.innerHTML = `
     <div style="padding:16px 24px 0">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px">
-        <div style="display:flex;align-items:center;gap:14px">
-          <button onclick="toggleMonitoreo()" style="display:inline-flex;align-items:center;gap:5px;padding:7px 16px;border:none;border-radius:8px;background:var(--mp-navy);color:var(--mp-yellow);font-size:.76rem;font-weight:700;cursor:pointer;font-family:var(--font);transition:all .2s;box-shadow:0 2px 6px rgba(10,0,128,.2)">← Dashboard</button>
-          <div>
-            <div style="font-size:1rem;font-weight:800;color:var(--mp-navy);letter-spacing:-.2px">Monitoreo Convertidos</div>
-            <div style="font-size:.68rem;color:#999;margin-top:1px">${data.length} registros totales</div>
-          </div>
+      <div style="display:flex;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:10px">
+        <button onclick="toggleMonitoreo()" style="display:inline-flex;align-items:center;gap:5px;padding:7px 16px;border:none;border-radius:8px;background:var(--mp-navy);color:var(--mp-yellow);font-size:.76rem;font-weight:700;cursor:pointer;font-family:var(--font);transition:all .2s;box-shadow:0 2px 6px rgba(10,0,128,.2);flex-shrink:0">← Dashboard</button>
+        <div style="width:32px;flex-shrink:0"></div>
+        <div style="margin-right:16px;flex-shrink:0">
+          <div style="font-size:1rem;font-weight:800;color:var(--mp-navy);letter-spacing:-.2px">Monitoreo Convertidos</div>
+          <div style="font-size:.68rem;color:#999;margin-top:1px">${data.length} registros totales</div>
         </div>
         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
         ${[
