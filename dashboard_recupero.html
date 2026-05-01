@@ -2004,20 +2004,20 @@ function monSort(col) {
 function renderMonitoreo(data) {
   const panel = document.getElementById('monitoreoPanel');
 
-  // Contar por categoría
+  // Filtrar por mes, asesor y categoría
+  const byMes     = monMesFilter ? data.filter(r => (r.MES||'').trim() === monMesFilter) : data;
+  const byAsesorF = monAsesor   ? byMes.filter(r => (r.ASESOR||'').trim() === monAsesor) : byMes;
+  const filtered  = monFilter   ? byAsesorF.filter(r => monitoreoColor(r) === monFilter) : byAsesorF;
+
+  // Contar por categoría (sobre byMes para reflejar filtro de mes)
   let nRed = 0, nYellow = 0, nGreen = 0, nGray = 0;
-  data.forEach(r => {
+  byMes.forEach(r => {
     const c = monitoreoColor(r);
     if (c === 'red') nRed++;
     else if (c === 'yellow') nYellow++;
     else if (c === 'green') nGreen++;
     else nGray++;
   });
-
-  // Filtrar por mes, asesor y categoría
-  const byMes    = monMesFilter ? data.filter(r => (r.MES||'').trim() === monMesFilter) : data;
-  const byAsesorF = monAsesor  ? byMes.filter(r => (r.ASESOR||'').trim() === monAsesor) : byMes;
-  const filtered  = monFilter  ? byAsesorF.filter(r => monitoreoColor(r) === monFilter) : byAsesorF;
 
   // Ordenar
   const sorted = [...filtered].sort((a, b) => {
