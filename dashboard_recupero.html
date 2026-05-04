@@ -495,6 +495,14 @@
       </div>
     </div>
 
+    <!-- CVR POR MOTIVO -->
+    <div class="g2" style="grid-template-columns:1fr">
+      <div class="card">
+        <div class="card-title">CVR por motivo de abandono</div>
+        <div id="cvrMotivoWrap"></div>
+      </div>
+    </div>
+
     <!-- TPV / VC POR ASESOR -->
     <div class="sdiv">Breakdown por asesor</div>
     <div class="g2">
@@ -1285,6 +1293,7 @@ function render() {
   renderEstado(data);
   renderMotivos(data, color);
   renderConvMotivo(data, color);
+  renderCVRMotivo(data, color);
 
   const stats = byAsesor(data, openCohort);
   lastStats = stats;
@@ -1694,6 +1703,66 @@ function renderConvMotivo(data, color) {
   if (!sorted.length) { wrap.innerHTML='<div class="empty">Sin convertidos válidos</div>'; return; }
   const total = sorted.reduce((s,[,v])=>s+v, 0);
   renderExpandableTable(wrap, sorted, subMap, total);
+}
+
+// ─── CVR POR MOTIVO ───────────────────────────────────────────────────────────
+function renderCVRMotivo(data, color) {
+  const wrap = document.getElementById('cvrMotivoWrap');
+  if (!wrap) return;
+
+  // Abandonos por motivo
+  const abandMap = buildMotivoSubMap(data);
+  const abandCounts = Object.fromEntries(
+    Object.entries(abandMap).map(([k, subs]) => [k, Object.values(subs).reduce((a,b)=>a+b,0)])
+  );
+
+  // Convertidos válidos por motivo
+  const convMap = buildMotivoSubMap(data.filter(isConvVal));
+  const convCounts = Object.fromEntries(
+    Object.entries(convMap).map(([k, subs]) => [k, Object.values(subs).reduce((a,b)=>a+b,0)])
+  );
+
+  // Combinar y calcular CVR — excluir NA
+  const motivos = Object.keys(abandCounts).filter(k => k !== NA_KEY);
+  const rows = motivos.map(mot => {
+    const aband = abandCounts[mot] || 0;
+    const conv  = convCounts[mot]  || 0;
+    const cvr   = aband > 0 ? conv / aband : 0;
+    return { mot, aband, conv, cvr };
+  }).filter(r => r.aband > 0).sort((a,b) => b.cvr - a.cvr);
+
+  if (!rows.length) { wrap.innerHTML = '<div class="empty">Sin datos</div>'; return; }
+
+  const maxCvr = rows[0].cvr;
+
+  const t = document.createElement('table');
+  t.className = 'mtable';
+  t.innerHTML = `<thead><tr>
+    <th>Motivo</th>
+    <th style="text-align:right">Abandonos</th>
+    <th style="text-align:right">Conv. válidos</th>
+    <th style="min-width:160px">CVR</th>
+  </tr></thead>`;
+  const tbody = document.createElement('tbody');
+
+  rows.forEach(({ mot, aband, conv, cvr }) => {
+    const pct = Math.round(cvr * 100);
+    const barW = maxCvr > 0 ? Math.round(cvr / maxCvr * 100) : 0;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td style="font-weight:600">${mot}</td>
+      <td style="text-align:right;color:var(--muted)">${aband.toLocaleString('es-AR')}</td>
+      <td style="text-align:right;color:var(--muted)">${conv.toLocaleString('es-AR')}</td>
+      <td>
+        <span style="font-weight:700;color:${color};margin-right:8px;min-width:36px;display:inline-block">${pct}%</span>
+        <span style="display:inline-block;height:7px;width:${barW}%;background:${color};border-radius:4px;vertical-align:middle;max-width:120px"></span>
+      </td>`;
+    tbody.appendChild(tr);
+  });
+
+  t.appendChild(tbody);
+  wrap.innerHTML = '';
+  wrap.appendChild(t);
 }
 
 // ─── ASESOR CHARTS ────────────────────────────────────────────────────────────
