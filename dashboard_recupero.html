@@ -1746,6 +1746,23 @@ function renderCVRMotivo(data, color) {
 
   if (!rows.length) { wrap.innerHTML = '<div class="empty">Sin datos</div>'; return; }
 
+  // ── CVR total (excluye NA) ─────────────────────────────────────────────────
+  const totalAband = rows.reduce((s,r) => s + r.aband, 0);
+  const totalConv  = rows.reduce((s,r) => s + r.conv,  0);
+  const totalCvr   = totalAband > 0 ? Math.round(totalConv / totalAband * 100) : 0;
+
+  const summary = document.createElement('div');
+  summary.style.cssText = 'display:flex;align-items:center;gap:24px;background:var(--highlight);border:1.5px solid var(--mp-blue);border-radius:10px;padding:12px 20px;margin-bottom:16px';
+  summary.innerHTML = `
+    <div style="font-size:.7rem;font-weight:800;color:var(--mp-navy);text-transform:uppercase;letter-spacing:.5px;white-space:nowrap">CVR Total</div>
+    <div style="font-size:2rem;font-weight:900;color:${color};line-height:1">${totalCvr}%</div>
+    <div style="font-size:.75rem;color:var(--muted);line-height:1.5">
+      <span style="font-weight:700;color:var(--text)">${totalConv.toLocaleString('es-AR')}</span> conv. válidos
+      <span style="margin:0 6px;color:#CCC">/</span>
+      <span style="font-weight:700;color:var(--text)">${totalAband.toLocaleString('es-AR')}</span> abandonos gestionables
+    </div>`;
+  wrap.appendChild(summary);
+
   const maxCvr = rows[0].cvr;
 
   const t = document.createElement('table');
