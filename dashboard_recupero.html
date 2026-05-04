@@ -1711,6 +1711,7 @@ let _cvrExpanded = null;  // motivo actualmente expandido
 function renderCVRMotivo(data, color) {
   const wrap = document.getElementById('cvrMotivoWrap');
   if (!wrap) return;
+  wrap.innerHTML = '';
 
   // Abandonos por motivo y submotivo
   const abandMap = buildMotivoSubMap(data);
@@ -1836,7 +1837,6 @@ function renderCVRMotivo(data, color) {
   });
 
   t.appendChild(tbody);
-  wrap.innerHTML = '';
   wrap.appendChild(t);
 }
 
