@@ -1450,42 +1450,7 @@ function renderDiagnosticPanel() {
     html += '</div>';
   }
 
-  // ── Sección 2: Convertidos válidos ───────────────────────────────────────
-  if (cvMin) {
-    const rows = buildRows(a => a.cvTarget, s => s.convVal, cvMin)
-      .sort((a,b) => {
-        if (a.noTarget && !b.noTarget) return 1;
-        if (!a.noTarget && b.noTarget) return -1;
-        return (a.val - (a.target||0)) - (b.val - (b.target||0));
-      });
-
-    html += `<div class="diag-section"><div class="diag-section-title">🎯 Convertidos válidos — target individual por asesor</div>`;
-    const allOk = rows.filter(r=>!r.noTarget).every(r => r.val >= r.target);
-    if (allOk && rows.every(r=>!r.noTarget)) {
-      html += `<div class="diag-ok">✓ Convertidos válidos OK — todos por encima de su target individual</div>`;
-    }
-    rows.forEach(({ s, adj, target, val, noTarget }) => {
-      const badge = adj ? tipoBadge(adj.tipo) : '';
-      if (noTarget) {
-        html += `<div class="diag-row">
-          <span class="diag-name">${s.asesor}${badge}</span>
-          <span class="diag-val">${val} conv. vál.</span>
-          <span style="font-size:.7rem;color:#AAA;font-style:italic">sin objetivo asignado</span>
-        </div>`;
-      } else {
-        const dev = val - target;
-        const isBelow = dev < 0;
-        html += `<div class="diag-row">
-          <span class="diag-name">${s.asesor}${badge}</span>
-          <span class="diag-val">${val}<span style="font-size:.65rem;color:#AAA"> / ${target}</span></span>
-          <span class="diag-dev ${isBelow?'down':'up'}">${isBelow ? `▼ faltan ${Math.abs(dev)}` : `▲ +${dev} sobre mínimo`}</span>
-        </div>`;
-      }
-    });
-    html += '</div>';
-  }
-
-  // ── Sección 3: Vacantes ──────────────────────────────────────────────────
+  // ── Sección 2: Vacantes ──────────────────────────────────────────────────
   const vacantes = cohortAdj?.vacantes?.[activeTab];
   if (vacantes > 0) {
     const impactoTpv  = perAsesor ? perAsesor * vacantes : null;
