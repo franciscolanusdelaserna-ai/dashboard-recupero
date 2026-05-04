@@ -1991,11 +1991,11 @@ function buildMonitoreoSummary(data) {
       return `<span style="font-size:.65rem;font-weight:700;color:${c.color};white-space:nowrap">${n} <span style="font-weight:400;color:#AAA">(${pct}%)</span></span>`;
     }).filter(Boolean).join(large ? '' : '<span style="color:#DDD;margin:0 3px">·</span>');
 
-    const clickAttr = clickable ? `onclick="window._setMonAsesor(${isActive ? 'null' : `'${name.replace(/'/g,"\\'")}'`})" style="cursor:pointer;"` : '';
+    const clickAttr = clickable ? `onclick="window._setMonAsesor(${isActive ? 'null' : `'${name.replace(/'/g,"\\'")}'`})"` : '';
 
     if (large) {
       return `
-        <div ${clickAttr} style="background:white;border:1.5px solid #DDE0F0;border-radius:14px;padding:16px 20px;min-width:220px;max-width:340px;flex:1;box-shadow:0 1px 4px rgba(0,0,128,.06)">
+        <div ${clickAttr} style="background:white;border:1.5px solid #DDE0F0;border-radius:14px;padding:16px 20px;min-width:220px;max-width:340px;flex:1;box-shadow:0 1px 4px rgba(0,0,128,.06)${clickable ? ';cursor:pointer' : ''}">
           <div style="font-size:.9rem;font-weight:800;color:var(--mp-navy);margin-bottom:10px;letter-spacing:-.2px">${name}</div>
           <div style="height:8px;border-radius:5px;overflow:hidden;background:#F0F0F0;display:flex;margin-bottom:12px">${bar}</div>
           <div style="display:flex;flex-wrap:wrap;gap:6px">${pills}</div>
@@ -2003,8 +2003,8 @@ function buildMonitoreoSummary(data) {
         </div>`;
     }
     return `
-      <div ${clickAttr} style="background:${isActive ? 'var(--highlight)' : 'white'};border:${isActive ? '2px solid var(--mp-blue)' : '1px solid #EBEBEB'};border-radius:10px;padding:10px 14px;min-width:140px;max-width:200px;flex:1;transition:all .15s">
-        <div style="font-size:.7rem;font-weight:700;color:${isActive ? 'var(--mp-blue)' : 'var(--mp-navy)'};margin-bottom:6px">${name}${isActive ? ' ✕' : ''}</div>
+      <div ${clickAttr} style="background:white;border:1px solid #EBEBEB;border-radius:10px;padding:10px 14px;min-width:140px;max-width:200px;flex:1${clickable ? ';cursor:pointer' : ''}">
+        <div style="font-size:.7rem;font-weight:700;color:var(--mp-navy);margin-bottom:6px">${name}</div>
         <div style="height:5px;border-radius:4px;overflow:hidden;background:#F0F0F0;display:flex;margin-bottom:7px">${bar}</div>
         <div style="display:flex;flex-wrap:wrap;gap:4px 8px">${pills}</div>
         <div style="font-size:.58rem;color:#BBB;margin-top:4px">${total} casos</div>
@@ -2157,7 +2157,7 @@ function renderMonitoreo(data) {
         </div>
         ${monMesFilter ? `<button onclick="setMonMes(null)" style="padding:5px 12px;border-radius:8px;border:1.5px solid #DDD;background:white;color:#888;font-size:.72rem;font-weight:600;cursor:pointer;font-family:var(--font);transition:all .15s">✕ Limpiar</button>` : ''}
       </div>
-      ${buildMonitoreoSummary(byMes)}
+      ${buildMonitoreoSummary(byAsesorF)}
 
       <div style="height:1px;background:#EBEBEB;margin:18px 0 14px"></div>
 
