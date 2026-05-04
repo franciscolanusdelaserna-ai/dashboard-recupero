@@ -2032,7 +2032,7 @@ let monMesFilter = null;  // null = todos; 'Corriente'|'Anterior'
 let monAsesor    = null;  // null = todos; nombre del asesor
 
 function setMonFilter(color) {
-  monFilter = (monFilter === color) ? null : color;
+  monFilter = (color === null || monFilter === color) ? null : color;
   if (monitoreoData) renderMonitoreo(monitoreoData);
 }
 
@@ -2133,6 +2133,7 @@ function renderMonitoreo(data) {
           <div style="font-size:.68rem;color:#999;margin-top:1px">${data.length} registros totales</div>
         </div>
         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        ${(() => { const todosActive = monFilter === null; return `<button onclick="setMonFilter(null)" style="display:inline-flex;align-items:center;gap:5px;background:${todosActive ? 'var(--mp-navy)' : 'white'};border:1.5px solid ${todosActive ? 'var(--mp-navy)' : '#DDD'};color:${todosActive ? 'white' : '#888'};font-size:.75rem;font-weight:700;padding:5px 14px;border-radius:20px;cursor:pointer;font-family:var(--font);transition:all .15s">Todos</button>`; })()}
         ${[
           { key:'green',  n: nGreen,  bg:'#F1FFF6', border:'#A5D6A7', color:'#2E7D32',  dot:'#00A650', label:'activos' },
           { key:'gray',   n: nGray,   bg:'#F7F7F7', border:'#E0E0E0', color:'#777',     dot:'#AAAAAA', label:'todavía no activaron' },
