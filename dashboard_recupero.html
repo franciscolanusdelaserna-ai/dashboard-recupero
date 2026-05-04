@@ -407,7 +407,18 @@
 <!-- FILTERS -->
 <div class="filters">
   <span class="flabel">Cohort</span>
-  <div id="cohortFilters" style="display:flex;gap:5px;flex-wrap:wrap;"></div>
+  <div class="asesor-dd" id="cohortDd">
+    <button class="asesor-trigger" id="cohortTrigger" onclick="toggleCohortDd(event)">
+      <span id="cohortTriggerLbl">Todos</span>
+      <span class="arrow">▼</span>
+    </button>
+    <div class="asesor-panel" id="cohortPanel">
+      <div class="asesor-search">
+        <input type="text" id="cohortSearch" placeholder="Buscar cohort…" oninput="filterCohortList()" onclick="event.stopPropagation()">
+      </div>
+      <div id="cohortOptions"></div>
+    </div>
+  </div>
   <div class="fsep"></div>
   <span class="flabel">Asesor</span>
   <div class="asesor-dd" id="asesorDd">
@@ -930,22 +941,38 @@ function showErr(msg) {
 // ─── FILTERS ─────────────────────────────────────────────────────────────────
 function buildFilters() {
   const periods = [...new Set(allData.map(r => String(r.MES||'').trim()).filter(Boolean))].sort();
-  const cc = document.getElementById('cohortFilters');
-  cc.innerHTML = '';
-  const mkBtn = (id, lbl) => {
-    const b = document.createElement('button');
-    b.className = 'fbtn' + (id==='all' ? ' active' : '');
-    b.textContent = lbl; b.dataset.id = id;
-    b.onclick = () => { activePeriod = id; syncPeriodBtns(); updatePills(); render(); };
-    cc.appendChild(b);
-  };
-  mkBtn('all', 'Todos');
-  periods.forEach(p => mkBtn(p, fmtPeriod(p)));
+  buildCohortOptions(periods);
 
   // Multi-select de asesores
   allAsesores = [...new Set(allData.map(r => (r.ASESOR||'').trim()).filter(Boolean))].sort();
   activeAsesores = getDefaultAsesores();
   buildAsesorCheckboxes();
+}
+
+function buildCohortOptions(periods) {
+  const wrap = document.getElementById('cohortOptions');
+  wrap.innerHTML = '';
+  const allPeriods = ['all', ...periods];
+  allPeriods.forEach(p => {
+    const lbl = document.createElement('div');
+    lbl.className = 'asesor-item cohort-item';
+    lbl.dataset.period = p;
+    lbl.textContent = p === 'all' ? 'Todos' : fmtPeriod(p);
+    lbl.onclick = (e) => {
+      e.stopPropagation();
+      activePeriod = p;
+      syncPeriodBtns();
+      updatePills();
+      render();
+      // cerrar panel
+      document.getElementById('cohortPanel').classList.remove('show');
+      document.getElementById('cohortTrigger').classList.remove('open');
+      document.getElementById('cohortSearch').value = '';
+      filterCohortList();
+    };
+    wrap.appendChild(lbl);
+  });
+  syncPeriodBtns();
 }
 
 function buildAsesorCheckboxes() {
@@ -1049,10 +1076,51 @@ document.addEventListener('click', e => {
 });
 
 function syncPeriodBtns() {
-  document.querySelectorAll('#cohortFilters .fbtn').forEach(b =>
-    b.classList.toggle('active', b.dataset.id === activePeriod)
-  );
+  // Actualizar items del dropdown
+  document.querySelectorAll('#cohortOptions .cohort-item').forEach(item => {
+    const isActive = item.dataset.period === activePeriod;
+    item.style.background = isActive ? 'var(--highlight)' : '';
+    item.style.fontWeight  = isActive ? '700' : '';
+    item.style.color       = isActive ? 'var(--mp-blue)' : '';
+  });
+  // Actualizar label del trigger
+  const lbl = document.getElementById('cohortTriggerLbl');
+  const btn = document.getElementById('cohortTrigger');
+  if (lbl) lbl.textContent = activePeriod === 'all' ? 'Todos' : fmtPeriod(activePeriod);
+  if (btn) btn.classList.toggle('active', activePeriod !== 'all');
 }
+
+function toggleCohortDd(e) {
+  e.stopPropagation();
+  const panel   = document.getElementById('cohortPanel');
+  const trigger = document.getElementById('cohortTrigger');
+  const isOpen  = panel.classList.contains('show');
+  panel.classList.toggle('show', !isOpen);
+  trigger.classList.toggle('open', !isOpen);
+  if (!isOpen) setTimeout(() => document.getElementById('cohortSearch').focus(), 50);
+  else {
+    document.getElementById('cohortSearch').value = '';
+    filterCohortList();
+  }
+}
+
+function filterCohortList() {
+  const q = norm(document.getElementById('cohortSearch').value);
+  document.querySelectorAll('#cohortOptions .cohort-item').forEach(item => {
+    item.style.display = norm(item.textContent).includes(q) ? '' : 'none';
+  });
+}
+
+// Cerrar cohort panel al click fuera
+document.addEventListener('click', e => {
+  const dd = document.getElementById('cohortDd');
+  if (dd && !dd.contains(e.target)) {
+    document.getElementById('cohortPanel')?.classList.remove('show');
+    document.getElementById('cohortTrigger')?.classList.remove('open');
+    const inp = document.getElementById('cohortSearch');
+    if (inp) { inp.value = ''; filterCohortList(); }
+  }
+});
 
 function getFiltered(tab) {
   const t = TAB_CFG[tab || activeTab];
