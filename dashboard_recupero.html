@@ -2161,7 +2161,7 @@ function renderMonitoreo(data) {
         </div>
         ${monMesFilter ? `<button onclick="setMonMes(null)" style="padding:5px 12px;border-radius:8px;border:1.5px solid #DDD;background:white;color:#888;font-size:.72rem;font-weight:600;cursor:pointer;font-family:var(--font);transition:all .15s">✕ Limpiar</button>` : ''}
       </div>
-      ${buildMonitoreoSummary(byAsesorF)}
+      ${buildMonitoreoSummary(filtered)}
 
       <div style="height:1px;background:#EBEBEB;margin:18px 0 14px"></div>
 
