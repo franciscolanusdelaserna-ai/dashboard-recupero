@@ -1706,23 +1706,36 @@ function renderConvMotivo(data, color) {
 }
 
 // ─── CVR POR MOTIVO ───────────────────────────────────────────────────────────
+let _cvrExpanded = null;  // motivo actualmente expandido
+
 function renderCVRMotivo(data, color) {
   const wrap = document.getElementById('cvrMotivoWrap');
   if (!wrap) return;
 
-  // Abandonos por motivo
+  // Abandonos por motivo y submotivo
   const abandMap = buildMotivoSubMap(data);
   const abandCounts = Object.fromEntries(
     Object.entries(abandMap).map(([k, subs]) => [k, Object.values(subs).reduce((a,b)=>a+b,0)])
   );
 
-  // Convertidos válidos por motivo
+  // Convertidos válidos por motivo y submotivo
   const convMap = buildMotivoSubMap(data.filter(isConvVal));
   const convCounts = Object.fromEntries(
     Object.entries(convMap).map(([k, subs]) => [k, Object.values(subs).reduce((a,b)=>a+b,0)])
   );
 
-  // Combinar y calcular CVR — excluir NA
+  // Para "Otros": mapa de original_motivo → {aband, conv}
+  const otrosAbandOrig = {}, otrosConvOrig = {};
+  data.forEach(r => {
+    const raw = (r.MOTIVO_ABANDONO||'').trim();
+    if (!raw) return;
+    const mot = normMotivo(raw);
+    if (mot !== 'Otros') return;
+    otrosAbandOrig[raw] = (otrosAbandOrig[raw]||0) + 1;
+    if (isConvVal(r)) otrosConvOrig[raw] = (otrosConvOrig[raw]||0) + 1;
+  });
+
+  // Filas principales — excluir NA
   const motivos = Object.keys(abandCounts).filter(k => k !== NA_KEY);
   const rows = motivos.map(mot => {
     const aband = abandCounts[mot] || 0;
@@ -1748,16 +1761,61 @@ function renderCVRMotivo(data, color) {
   rows.forEach(({ mot, aband, conv, cvr }) => {
     const pct = Math.round(cvr * 100);
     const barW = maxCvr > 0 ? Math.round(cvr / maxCvr * 100) : 0;
+    const isOpen = _cvrExpanded === mot;
+
+    // Fila principal — clickeable
     const tr = document.createElement('tr');
+    tr.style.cssText = 'cursor:pointer;transition:background .12s';
+    tr.onmouseenter = () => tr.style.background = 'var(--highlight)';
+    tr.onmouseleave = () => tr.style.background = isOpen ? '#EAF6FF' : '';
+    if (isOpen) tr.style.background = 'var(--highlight)';
     tr.innerHTML = `
-      <td style="font-weight:600">${mot}</td>
+      <td style="font-weight:600">
+        <span style="font-size:.65rem;color:var(--muted);margin-right:4px">${isOpen ? '▼' : '▶'}</span>${mot}
+      </td>
       <td style="text-align:right;color:var(--muted)">${aband.toLocaleString('es-AR')}</td>
       <td style="text-align:right;color:var(--muted)">${conv.toLocaleString('es-AR')}</td>
       <td>
         <span style="font-weight:700;color:${color};margin-right:8px;min-width:36px;display:inline-block">${pct}%</span>
         <span style="display:inline-block;height:7px;width:${barW}%;background:${color};border-radius:4px;vertical-align:middle;max-width:120px"></span>
       </td>`;
+    tr.onclick = () => { _cvrExpanded = isOpen ? null : mot; renderCVRMotivo(data, color); };
     tbody.appendChild(tr);
+
+    // Fila expandida con submotivos
+    if (isOpen) {
+      // Para "Otros": desglosar por motivo original; para el resto: por submotivo
+      let subRows;
+      if (mot === 'Otros') {
+        subRows = Object.entries(otrosAbandOrig).map(([sub, a]) => ({
+          sub, aband: a, conv: otrosConvOrig[sub]||0
+        }));
+      } else {
+        const subAband = abandMap[mot] || {};
+        const subConv  = convMap[mot]  || {};
+        subRows = Object.entries(subAband).map(([sub, a]) => ({
+          sub, aband: a, conv: subConv[sub]||0
+        }));
+      }
+      subRows = subRows.filter(r => r.aband > 0).sort((a,b) => (b.conv/b.aband) - (a.conv/a.aband));
+      const maxSubCvr = subRows.reduce((m,r) => Math.max(m, r.conv/r.aband), 0);
+
+      subRows.forEach(({ sub, aband: sa, conv: sc }) => {
+        const sPct = sa > 0 ? Math.round(sc/sa*100) : 0;
+        const sBarW = maxSubCvr > 0 ? Math.round((sc/sa)/maxSubCvr*100) : 0;
+        const subTr = document.createElement('tr');
+        subTr.style.background = '#F8FAFF';
+        subTr.innerHTML = `
+          <td style="padding-left:28px;font-size:.74rem;color:#555;border-left:3px solid var(--mp-blue)">${sub}</td>
+          <td style="text-align:right;color:var(--muted);font-size:.74rem">${sa.toLocaleString('es-AR')}</td>
+          <td style="text-align:right;color:var(--muted);font-size:.74rem">${sc.toLocaleString('es-AR')}</td>
+          <td>
+            <span style="font-weight:700;color:${color};margin-right:8px;min-width:36px;display:inline-block;font-size:.74rem">${sPct}%</span>
+            <span style="display:inline-block;height:5px;width:${sBarW}%;background:${color};border-radius:4px;vertical-align:middle;max-width:100px;opacity:.7"></span>
+          </td>`;
+        tbody.appendChild(subTr);
+      });
+    }
   });
 
   t.appendChild(tbody);
