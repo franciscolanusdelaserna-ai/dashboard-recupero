@@ -864,9 +864,10 @@ async function fetchFromSheets() {
 
 async function loadData() {
   // 1. Leer data.json del repo (GitHub Pages o local)
+  const _cb = Date.now();
   const dataSources = [
-    'data.json',
-    'http://127.0.0.1:8082/data.json',
+    `data.json?v=${_cb}`,
+    `http://127.0.0.1:8082/data.json?v=${_cb}`,
   ];
   for (const url of dataSources) {
     try {
@@ -1878,7 +1879,8 @@ async function loadMonitoreo() {
   const panel = document.getElementById('monitoreoPanel');
   panel.innerHTML = '<div style="text-align:center;padding:40px;color:#888"><div class="spin" style="margin:0 auto 12px"></div><span>Cargando convertidos activos…</span></div>';
   try {
-    const urls = ['data_activa.json', 'http://127.0.0.1:8082/data_activa.json'];
+    const _cb2 = Date.now();
+    const urls = [`data_activa.json?v=${_cb2}`, `http://127.0.0.1:8082/data_activa.json?v=${_cb2}`];
     let data = null;
     for (const url of urls) {
       try {
