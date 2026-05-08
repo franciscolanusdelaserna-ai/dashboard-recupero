@@ -2028,7 +2028,7 @@ function srt(col) {
 // ─── KPIs HISTÓRICO ───────────────────────────────────────────────────────────
 let historicoData   = null;
 let historicoActive = false;
-let histFecha       = null;
+let histDia         = null;   // día del mes seleccionado (ej: 8)
 let histInit        = 'Total';
 
 function toggleHistorico() {
@@ -2065,133 +2065,86 @@ function toggleHistorico() {
   }
 }
 
-function computeHistoricoFromData() {
+function computeTodaySnapshot() {
+  // Calcula el snapshot de HOY del cohort actual desde allData
   if (!allData || !allData.length) return [];
-
   const INIT_MAP = [
     { name:'Total',             match:null       },
     { name:'Recupero Temprano', match:'temprano' },
     { name:'Recupero Tardío',   match:'tard'     },
     { name:'Reactivación',      match:'reactiv'  },
   ];
+  const td = new Date();
+  const todayStr   = `${td.getFullYear()}-${String(td.getMonth()+1).padStart(2,'0')}-${String(td.getDate()).padStart(2,'0')}`;
+  const cohort     = `${td.getFullYear()}-${String(td.getMonth()+1).padStart(2,'0')}-01`;
+  const daysInMonth = new Date(td.getFullYear(), td.getMonth()+1, 0).getDate();
+  const fcstMult    = td.getDate() < daysInMonth ? daysInMonth / td.getDate() : 1;
 
-  const today_  = new Date();
-  const todayStr = `${today_.getFullYear()}-${String(today_.getMonth()+1).padStart(2,'0')}-${String(today_.getDate()).padStart(2,'0')}`;
-
-  // Open cohort = mes anterior (su M1 es el mes actual)
-  const ocY = today_.getMonth() === 0 ? today_.getFullYear()-1 : today_.getFullYear();
-  const ocM = today_.getMonth() === 0 ? 12 : today_.getMonth();
-  const openCohort = `${ocY}-${String(ocM).padStart(2,'0')}-01`;
-  const daysInMonth = new Date(today_.getFullYear(), today_.getMonth()+1, 0).getDate();
-  const fcstMult    = today_.getDate() < daysInMonth ? daysInMonth / today_.getDate() : 1;
-
-  // Solo mostrar el cohort del mes actual (los anteriores tienen datos completos, no comparables)
-  const currentCohort = `${today_.getFullYear()}-${String(today_.getMonth()+1).padStart(2,'0')}-01`;
-  const cohorts = [currentCohort];
   const records = [];
+  for (const { name: initName, match } of INIT_MAP) {
+    let subset = allData.filter(r => String(r.MES||'').trim() === cohort);
+    if (match) subset = subset.filter(r => norm(r.RECUPERO_TIPO||'').includes(match));
+    if (!subset.length) continue;
 
-  for (const cohort of cohorts) {
-    const prevCohort = null; // no hay mes anterior comparable aún
+    const reales      = subset.filter(isLeadReal).length;
+    const contactados = subset.filter(isContactado).length;
+    const convVal     = subset.filter(isConvVal).length;
+    const vrows       = subset.filter(isValidRow);
+    const tpvM1Real   = vrows.reduce((a,r) => a + (parseFloat(r.TPV_M1)||0), 0);
 
-    for (const { name: initName, match } of INIT_MAP) {
-      let subset = allData.filter(r => String(r.MES||'').trim() === cohort);
-      if (match) subset = subset.filter(r => norm(r.RECUPERO_TIPO||'').includes(match));
-      if (!subset.length) continue;
-
-      const asignados   = subset.length;
-      const reales      = subset.filter(isLeadReal).length;
-      const gestionados = subset.filter(isGestionado).length;
-      const contactados = subset.filter(isContactado).length;
-      const convDecl    = subset.filter(isConvDecl).length;
-      const convVal     = subset.filter(isConvVal).length;
-
-      let convValPrev = '';
-      if (prevCohort) {
-        let ps = allData.filter(r => String(r.MES||'').trim() === prevCohort);
-        if (match) ps = ps.filter(r => norm(r.RECUPERO_TIPO||'').includes(match));
-        convValPrev = ps.filter(isConvVal).length;
-      }
-
-      const vrows     = subset.filter(isValidRow);
-      const tpvM0     = vrows.reduce((a,r) => a + (parseFloat(r.TPV_M0)||0), 0);
-      const tpvM1Real = vrows.reduce((a,r) => a + (parseFloat(r.TPV_M1)||0), 0);
-      const tpvM1Fcst = cohort === openCohort ? Math.round(tpvM1Real * fcstMult) : Math.round(tpvM1Real);
-
-      records.push({
-        'Fecha': todayStr, 'Iniciativa': initName, 'Cohort (Mes)': cohort,
-        'Asignados': asignados, 'Reales pre-gestión': reales, 'Gestionados': gestionados,
-        'Contactados': contactados,
-        '% Contactados': reales ? Math.round(contactados/reales*1000)/10 : 0,
-        'Conv. Declarados': convDecl, 'Conv. Válidos': convVal,
-        'Conv. Válidos Mes Ant.': convValPrev,
-        'TPV M0': Math.round(tpvM0), 'TPV M1 Real': Math.round(tpvM1Real), 'TPV M1 Fcst': tpvM1Fcst,
-        'Δ Asignados':'', 'Δ Reales pre-gestión':'', 'Δ Gestionados':'',
-        'Δ Contactados':'', 'Δ % Contactados':'', 'Δ Conv. Declarados':'',
-        'Δ Conv. Válidos':'', 'Δ Conv. Válidos Mes Ant.':'',
-        'Δ TPV M0':'', 'Δ TPV M1 Real':'', 'Δ TPV M1 Fcst':'',
-      });
-    }
+    records.push({
+      'Fecha': todayStr, 'Iniciativa': initName, 'Cohort (Mes)': cohort,
+      'Asignados':            subset.length,
+      'Reales pre-gestión':   reales,
+      'Gestionados':          subset.filter(isGestionado).length,
+      'Contactados':          contactados,
+      '% Contactados':        reales ? Math.round(contactados/reales*1000)/10 : 0,
+      'Conv. Declarados':     subset.filter(isConvDecl).length,
+      'Conv. Válidos':        convVal,
+      'Conv. Válidos Mes Ant.': '',
+      'TPV M0':     Math.round(vrows.reduce((a,r) => a + (parseFloat(r.TPV_M0)||0), 0)),
+      'TPV M1 Real': Math.round(tpvM1Real),
+      'TPV M1 Fcst': Math.round(tpvM1Real * fcstMult),
+    });
   }
   return records;
 }
 
 async function loadHistorico() {
   const panel = document.getElementById('historicoPanel');
-  panel.innerHTML = '<div style="text-align:center;padding:40px;color:#888"><div class="spin" style="margin:0 auto 12px"></div><span>Calculando KPIs…</span></div>';
+  panel.innerHTML = '<div style="text-align:center;padding:40px;color:#888"><div class="spin" style="margin:0 auto 12px"></div><span>Cargando KPIs históricos…</span></div>';
 
-  // Calcular métricas desde allData (ya cargado)
-  const records = computeHistoricoFromData();
-  if (!records.length) {
-    panel.innerHTML = '<div style="text-align:center;padding:40px;color:#E53935">No hay datos cargados. Actualizá el dashboard primero.</div>';
-    return;
-  }
+  // 1. Snapshot de hoy desde allData
+  const todayRows = computeTodaySnapshot();
+  const todayStr  = todayRows[0]?.['Fecha'];
 
-  // Intentar enriquecer con deltas MoM desde kpis_historico.json (opcional)
+  // 2. Cargar snapshots históricos desde kpis_historico.json
+  let histRows = [];
   try {
     const _cb = Date.now();
     const urls = [`kpis_historico.json?v=${_cb}`, `http://127.0.0.1:8082/kpis_historico.json?v=${_cb}`];
     for (const url of urls) {
       try {
         const res = await fetch(url);
-        if (!res.ok) continue;
-        const hist = await res.json();
-        if (!hist || !hist.length) continue;
-
-        // Lookup por (fecha, iniciativa, cohort)
-        const lkp = {};
-        hist.forEach(row => { lkp[`${row['Fecha']}|${row['Iniciativa']}|${row['Cohort (Mes)']}`] = row; });
-
-        const MKEYS = ['Asignados','Reales pre-gestión','Gestionados','Contactados','% Contactados',
-                       'Conv. Declarados','Conv. Válidos','Conv. Válidos Mes Ant.',
-                       'TPV M0','TPV M1 Real','TPV M1 Fcst'];
-
-        records.forEach(r => {
-          const fd  = new Date(r['Fecha'] + 'T00:00:00');
-          const pm  = fd.getMonth() === 0 ? 11 : fd.getMonth()-1;
-          const py  = fd.getMonth() === 0 ? fd.getFullYear()-1 : fd.getFullYear();
-          const maxD = new Date(py, pm+1, 0).getDate();
-          const prevFecha = `${py}-${String(pm+1).padStart(2,'0')}-${String(Math.min(fd.getDate(),maxD)).padStart(2,'0')}`;
-
-          const cd = new Date(r['Cohort (Mes)'] + 'T00:00:00');
-          const cpm = cd.getMonth() === 0 ? 11 : cd.getMonth()-1;
-          const cpy = cd.getMonth() === 0 ? cd.getFullYear()-1 : cd.getFullYear();
-          const prevCohort = `${cpy}-${String(cpm+1).padStart(2,'0')}-01`;
-
-          const prev = lkp[`${prevFecha}|${r['Iniciativa']}|${prevCohort}`];
-          if (prev) {
-            MKEYS.forEach(k => {
-              const t = parseFloat(r[k]), p = parseFloat(prev[k]);
-              if (!isNaN(t) && !isNaN(p)) r['Δ '+k] = Math.round((t-p)*10)/10;
-            });
-          }
-        });
-        break;
+        if (res.ok) { histRows = await res.json(); if (histRows.length) break; }
       } catch(e) {}
     }
-  } catch(e) { /* deltas opcionales, no pasa nada */ }
+  } catch(e) {}
 
-  historicoData = records;
-  histFecha = records[0]?.['Fecha'] || null;
+  // 3. Merge: hoy desde allData (más fresco) + histórico excluyendo hoy
+  const merged = [...todayRows, ...histRows.filter(r => r['Fecha'] !== todayStr)];
+
+  // 4. Solo filas donde Cohort = mismo mes que Fecha (snapshot del cohort del mes en curso)
+  const rows = merged.filter(r => {
+    const f = String(r['Fecha']||''), c = String(r['Cohort (Mes)']||'');
+    return f.slice(0,7) === c.slice(0,7);
+  });
+
+  historicoData = rows;
+
+  // Default: día de hoy
+  if (!histDia) histDia = new Date().getDate();
+
   renderHistorico();
 }
 
@@ -2199,18 +2152,23 @@ function renderHistorico() {
   const panel = document.getElementById('historicoPanel');
   if (!historicoData) return;
 
-  const INITS  = ['Total', 'Recupero Temprano', 'Recupero Tardío', 'Reactivación'];
-  const fechas = [...new Set(historicoData.map(r => r['Fecha']))].sort().reverse();
+  const INITS = ['Total', 'Recupero Temprano', 'Recupero Tardío', 'Reactivación'];
 
-  const filtered = historicoData.filter(r => r['Fecha'] === histFecha && r['Iniciativa'] === histInit);
-  const sorted   = [...filtered].sort((a,b) => b['Cohort (Mes)'].localeCompare(a['Cohort (Mes)']));
+  // Días disponibles en los datos
+  const diasDisp = [...new Set(historicoData.map(r => {
+    const p = String(r['Fecha']||'').split('-');
+    return p.length === 3 ? parseInt(p[2]) : null;
+  }).filter(Boolean))].sort((a,b) => a-b);
 
-  function fmtCohort(s) {
-    const MESES = ['','ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
-    const m = String(s||'').match(/(\d{4})-(\d{2})-/);
-    if (!m) return s;
-    return MESES[parseInt(m[2])] + '-' + m[1].slice(2);
-  }
+  if (!histDia || !diasDisp.includes(histDia)) histDia = diasDisp[diasDisp.length - 1] || new Date().getDate();
+
+  // Filas: fechas que coincidan con el día seleccionado + iniciativa seleccionada
+  const rows = historicoData
+    .filter(r => {
+      const p = String(r['Fecha']||'').split('-');
+      return r['Iniciativa'] === histInit && p.length === 3 && parseInt(p[2]) === histDia;
+    })
+    .sort((a,b) => a['Fecha'].localeCompare(b['Fecha']));
 
   function fmtFecha(s) {
     const p = String(s||'').split('-');
@@ -2218,44 +2176,19 @@ function renderHistorico() {
     return `${parseInt(p[2])}/${parseInt(p[1])}/${p[0]}`;
   }
 
-  function numVal(v) {
-    if (v === '' || v === null || v === undefined) return null;
-    const n = parseFloat(v);
-    return isNaN(n) ? null : n;
+  function fmtMes(s) {
+    const MESES = ['','ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+    const m = String(s||'').match(/(\d{4})-(\d{2})-/);
+    if (!m) return s;
+    return MESES[parseInt(m[2])] + '-' + m[1].slice(2);
   }
 
-  function cellHtml(mainVal, deltaVal, isTPV, isPct) {
-    const n = numVal(mainVal);
-    const d = numVal(deltaVal);
-
-    let valStr;
-    if (n === null)  valStr = '—';
-    else if (isTPV)  valStr = fmtM(n);
-    else if (isPct)  valStr = n.toFixed(1).replace('.',',') + '%';
-    else             valStr = fmtN(Math.round(n));
-
-    let deltaStr = '';
-    if (d !== null && d !== 0) {
-      const color = d > 0 ? '#00A650' : '#E53935';
-      const sign  = d > 0 ? '+' : '';
-      let ds;
-      if (isTPV) {
-        const abs = Math.abs(d);
-        let s;
-        if      (abs >= 1e9) s = (abs/1e9).toFixed(1).replace('.',',') + 'B';
-        else if (abs >= 1e6) s = (abs/1e6).toFixed(1).replace('.',',') + 'M';
-        else if (abs >= 1e3) s = Math.round(abs/1e3) + 'K';
-        else                 s = Math.round(abs).toLocaleString('es-AR');
-        ds = (d > 0 ? '+' : '-') + '$' + s;
-      } else if (isPct) {
-        ds = sign + d.toFixed(1).replace('.',',') + 'pp';
-      } else {
-        ds = sign + Math.round(d).toLocaleString('es-AR');
-      }
-      deltaStr = `<div style="color:${color};font-size:.62rem;font-weight:700;margin-top:1px">${ds}</div>`;
-    }
-
-    return `<td style="text-align:right;padding:6px 10px;vertical-align:top;white-space:nowrap"><div style="font-weight:600;font-size:.76rem">${valStr}</div>${deltaStr}</td>`;
+  function cellVal(v, isTPV, isPct) {
+    const n = (v === '' || v === null || v === undefined) ? null : parseFloat(v);
+    if (n === null || isNaN(n)) return '—';
+    if (isTPV) return fmtM(n);
+    if (isPct) return n.toFixed(1).replace('.',',') + '%';
+    return fmtN(Math.round(n));
   }
 
   const COLS = [
@@ -2266,24 +2199,33 @@ function renderHistorico() {
     { key:'% Contactados',          lbl:'% Cont.',      tpv:false, pct:true  },
     { key:'Conv. Declarados',       lbl:'Conv. Decl.',  tpv:false, pct:false },
     { key:'Conv. Válidos',          lbl:'Conv. Vál.',   tpv:false, pct:false },
-    { key:'Conv. Válidos Mes Ant.', lbl:'Conv. M-1',    tpv:false, pct:false },
     { key:'TPV M0',                 lbl:'TPV M0',       tpv:true,  pct:false },
     { key:'TPV M1 Real',            lbl:'TPV M1 Real',  tpv:true,  pct:false },
     { key:'TPV M1 Fcst',            lbl:'TPV M1 Fcst',  tpv:true,  pct:false },
   ];
 
-  const thStyle  = 'padding:6px 10px;text-align:right;font-size:.62rem;text-transform:uppercase;color:#555;font-weight:700;border-bottom:2px solid #E0E0E0;white-space:nowrap';
-  const th0Style = 'padding:6px 10px;text-align:left;font-size:.62rem;text-transform:uppercase;color:#555;font-weight:700;border-bottom:2px solid #E0E0E0;white-space:nowrap;position:sticky;left:0;background:#F5F5F5';
+  const thS  = 'padding:6px 10px;text-align:right;font-size:.62rem;text-transform:uppercase;color:#555;font-weight:700;border-bottom:2px solid #E0E0E0;white-space:nowrap';
+  const th0S = 'padding:6px 10px;text-align:left;font-size:.62rem;text-transform:uppercase;color:#555;font-weight:700;border-bottom:2px solid #E0E0E0;white-space:nowrap;position:sticky;left:0;background:#F5F5F5';
 
-  const ths = `<th style="${th0Style}">Cohort</th>` + COLS.map(c => `<th style="${thStyle}">${c.lbl}</th>`).join('');
+  const ths = `<th style="${th0S}">Fecha</th><th style="${th0S.replace('left:0;','').replace('sticky','')};text-align:left">Mes</th>` +
+              COLS.map(c => `<th style="${thS}">${c.lbl}</th>`).join('');
 
-  const bodyRows = sorted.map((r, i) => {
+  const bodyRows = rows.map((r, i) => {
     const bg    = i % 2 === 0 ? '#fff' : '#FAFAFA';
-    const cells = COLS.map(c => cellHtml(r[c.key], r['Δ ' + c.key], c.tpv, c.pct)).join('');
+    const isHoy = r['Fecha'] === (() => { const t=new Date(); return `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`; })();
+    const cells = COLS.map(c => `<td style="text-align:right;padding:6px 10px;font-weight:600;font-size:.76rem;white-space:nowrap">${cellVal(r[c.key], c.tpv, c.pct)}</td>`).join('');
     return `<tr style="background:${bg};border-bottom:1px solid rgba(0,0,0,.04)">
-      <td style="padding:6px 10px;font-weight:700;font-size:.76rem;color:var(--mp-navy);white-space:nowrap;position:sticky;left:0;background:${bg}">${fmtCohort(r['Cohort (Mes)'])}</td>
+      <td style="padding:6px 10px;font-weight:700;font-size:.76rem;color:var(--mp-navy);white-space:nowrap;position:sticky;left:0;background:${bg}">
+        ${fmtFecha(r['Fecha'])}${isHoy ? ' <span style="font-size:.6rem;background:#E8F5E9;color:#2E7D32;border-radius:4px;padding:1px 5px;font-weight:700">hoy</span>' : ''}
+      </td>
+      <td style="padding:6px 10px;font-size:.76rem;color:#666;white-space:nowrap">${fmtMes(r['Cohort (Mes)'])}</td>
       ${cells}
     </tr>`;
+  }).join('');
+
+  const diaBtns = diasDisp.map(d => {
+    const on = histDia === d;
+    return `<button onclick="histDia=${d};renderHistorico()" style="padding:5px 12px;border-radius:20px;border:1.5px solid ${on ? 'var(--mp-navy)' : '#DDD'};background:${on ? 'var(--mp-navy)' : 'white'};color:${on ? 'white' : '#666'};font-size:.75rem;font-weight:700;cursor:pointer;font-family:var(--font);transition:all .15s">día ${d}</button>`;
   }).join('');
 
   const initBtns = INITS.map(init => {
@@ -2291,24 +2233,25 @@ function renderHistorico() {
     return `<button onclick="histInit='${init.replace(/'/g,"\\'")}';renderHistorico()" style="padding:6px 14px;border-radius:20px;border:1.5px solid ${on ? 'var(--mp-navy)' : '#DDD'};background:${on ? 'var(--mp-navy)' : 'white'};color:${on ? 'white' : '#666'};font-size:.75rem;font-weight:700;cursor:pointer;font-family:var(--font);transition:all .15s">${init}</button>`;
   }).join('');
 
-  const tableHtml = sorted.length
+  const tableHtml = rows.length
     ? `<table style="width:100%;border-collapse:collapse;font-size:.73rem"><thead><tr style="background:#F5F5F5">${ths}</tr></thead><tbody>${bodyRows}</tbody></table>`
-    : '<div style="text-align:center;padding:24px;color:#999;font-size:.82rem">No hay datos para esta selección.</div>';
+    : `<div style="text-align:center;padding:24px;color:#999;font-size:.82rem">No hay snapshots para el día ${histDia} — los datos se acumulan a medida que se actualiza el dashboard cada día.</div>`;
 
   panel.innerHTML = `
     <div style="padding:16px 24px 20px">
       <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px;flex-wrap:wrap">
         <button onclick="toggleHistorico()" style="display:inline-flex;align-items:center;gap:5px;padding:7px 16px;border:none;border-radius:8px;background:var(--mp-navy);color:var(--mp-yellow);font-size:.76rem;font-weight:700;cursor:pointer;font-family:var(--font);box-shadow:0 2px 6px rgba(10,0,128,.2)">← Dashboard</button>
         <div>
-          <div style="font-size:1rem;font-weight:800;color:var(--mp-navy);letter-spacing:-.2px">KPIs Histórico Diario</div>
-          <div style="font-size:.67rem;color:#999;margin-top:1px">${filtered.length} cohorts · Calculado en tiempo real desde los datos del dashboard · Los valores en verde/rojo son variación MoM (se activan a partir del mes que viene)</div>
+          <div style="font-size:1rem;font-weight:800;color:var(--mp-navy);letter-spacing:-.2px">KPIs Histórico — días comparables</div>
+          <div style="font-size:.67rem;color:#999;margin-top:1px">Cada fila = snapshot del día seleccionado en distintos meses · Se acumula con cada actualización diaria</div>
         </div>
       </div>
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap">
-        <div style="display:inline-flex;align-items:center;gap:8px;background:#F0F4FF;border:2px solid #C5CAE9;border-radius:10px;padding:6px 14px">
-          <span style="font-size:.72rem;color:var(--mp-navy);font-weight:800;letter-spacing:.5px;text-transform:uppercase;white-space:nowrap">📅</span>
-          <span style="color:var(--mp-navy);font-size:.78rem;font-weight:700">${fmtFecha(histFecha||'')}</span>
-        </div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap">
+        <span style="font-size:.7rem;font-weight:800;color:var(--mp-navy);text-transform:uppercase;letter-spacing:.5px">📅 Día</span>
+        ${diaBtns}
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;flex-wrap:wrap">
+        <span style="font-size:.7rem;font-weight:800;color:var(--mp-navy);text-transform:uppercase;letter-spacing:.5px">📋 Iniciativa</span>
         ${initBtns}
       </div>
       <div style="overflow-x:auto">${tableHtml}</div>
