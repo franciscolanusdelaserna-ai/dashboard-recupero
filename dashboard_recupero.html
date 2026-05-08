@@ -2114,11 +2114,7 @@ async function loadHistorico() {
   const panel = document.getElementById('historicoPanel');
   panel.innerHTML = '<div style="text-align:center;padding:40px;color:#888"><div class="spin" style="margin:0 auto 12px"></div><span>Cargando KPIs históricos…</span></div>';
 
-  // 1. Snapshot de hoy desde allData
-  const todayRows = computeTodaySnapshot();
-  const todayStr  = todayRows[0]?.['Fecha'];
-
-  // 2. Cargar snapshots históricos desde kpis_historico.json
+  // Leer snapshots desde kpis_historico.json (generado por snapshot_kpis.py al actualizar el tablero)
   let histRows = [];
   try {
     const _cb = Date.now();
@@ -2131,11 +2127,8 @@ async function loadHistorico() {
     }
   } catch(e) {}
 
-  // 3. Merge: hoy desde allData (más fresco) + histórico excluyendo hoy
-  const merged = [...todayRows, ...histRows.filter(r => r['Fecha'] !== todayStr)];
-
-  // 4. Solo filas donde Cohort = mismo mes que Fecha (snapshot del cohort del mes en curso)
-  const rows = merged.filter(r => {
+  // Solo filas donde Cohort = mismo mes que Fecha (snapshot del cohort del mes en curso)
+  const rows = histRows.filter(r => {
     const f = String(r['Fecha']||''), c = String(r['Cohort (Mes)']||'');
     return f.slice(0,7) === c.slice(0,7);
   });
