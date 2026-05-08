@@ -335,8 +335,10 @@
     .diag-dev.up   { color:#00A650; background:#F0FBF5; }
     .diag-btn { display:inline-flex; align-items:center; gap:8px; padding:7px 18px; border:none; border-radius:22px; background:linear-gradient(135deg,#FF7733,#E53935); color:white; cursor:pointer; font-size:.76rem; font-weight:700; font-family:var(--font); box-shadow:0 3px 12px rgba(229,57,53,.35); transition:all .2s ease; letter-spacing:.1px; }
     .diag-btn:hover { transform:translateY(-2px); box-shadow:0 5px 18px rgba(229,57,53,.45); }
-    #monitoreoBtn:hover { transform:translateY(-1px); box-shadow:0 5px 16px rgba(10,0,128,.35); }
+    #monitoreoBtn:hover  { transform:translateY(-1px); box-shadow:0 5px 16px rgba(10,0,128,.35); }
     #monitoreoBtn.active { background:var(--mp-yellow); color:var(--mp-navy); box-shadow:0 3px 10px rgba(10,0,128,.2); }
+    #historicoBtn:hover  { transform:translateY(-1px); box-shadow:0 5px 16px rgba(10,0,128,.35); }
+    #historicoBtn.active { background:var(--mp-yellow); color:var(--mp-navy); box-shadow:0 3px 10px rgba(10,0,128,.2); }
     #monitoreoPanel table thead th { padding:6px 8px; font-size:.62rem; text-transform:uppercase; color:#555; font-weight:700; border-bottom:2px solid #E0E0E0; }
     #monitoreoPanel table tbody td { padding:5px 8px; border-bottom:1px solid rgba(0,0,0,.04); vertical-align:middle; }
     .diag-btn.open  { background:#555; box-shadow:none; transform:none; }
@@ -407,6 +409,9 @@
 <!-- MONITOREO PANEL -->
 <div id="monitoreoPanel" style="display:none;min-height:400px;background:white;border-bottom:1px solid var(--border)"></div>
 
+<!-- HISTORICO PANEL -->
+<div id="historicoPanel" style="display:none;min-height:400px;background:white;border-bottom:1px solid var(--border)"></div>
+
 <!-- FILTERS -->
 <div class="filters">
   <span class="flabel">Cohort</span>
@@ -443,6 +448,9 @@
   <div class="fsep"></div>
   <button id="monitoreoBtn" onclick="toggleMonitoreo()" style="display:inline-flex;align-items:center;gap:8px;padding:10px 22px;border:none;border-radius:8px;background:var(--mp-navy);color:var(--mp-yellow);font-size:.82rem;font-weight:700;cursor:pointer;font-family:var(--font);transition:all .2s;box-shadow:0 3px 10px rgba(10,0,128,.25);letter-spacing:.02em;margin-left:8px">
     📋 Monitoreo Convertidos
+  </button>
+  <button id="historicoBtn" onclick="toggleHistorico()" style="display:inline-flex;align-items:center;gap:8px;padding:10px 22px;border:none;border-radius:8px;background:var(--mp-navy);color:var(--mp-yellow);font-size:.82rem;font-weight:700;cursor:pointer;font-family:var(--font);transition:all .2s;box-shadow:0 3px 10px rgba(10,0,128,.25);letter-spacing:.02em;margin-left:4px">
+    📈 KPIs Histórico
   </button>
 </div>
 
@@ -2017,6 +2025,216 @@ function srt(col) {
   renderTable(byAsesor(getFiltered()), lastIsFcst);
 }
 
+// ─── KPIs HISTÓRICO ───────────────────────────────────────────────────────────
+let historicoData   = null;
+let historicoActive = false;
+let histFecha       = null;
+let histInit        = 'Total';
+
+function toggleHistorico() {
+  // Cerrar monitoreo si está activo
+  if (monitoreoActive) {
+    monitoreoActive = false;
+    document.getElementById('monitoreoBtn').classList.remove('active');
+    document.getElementById('monitoreoPanel').style.display = 'none';
+  }
+
+  historicoActive = !historicoActive;
+  const btn     = document.getElementById('historicoBtn');
+  const panel   = document.getElementById('historicoPanel');
+  const filters = document.querySelector('.filters');
+  const itabs   = document.getElementById('itabs');
+  const dash    = document.getElementById('dash');
+  const loading = document.getElementById('loadingDiv');
+
+  if (historicoActive) {
+    btn.classList.add('active');
+    filters.style.display = 'none';
+    itabs.style.display   = 'none';
+    dash.style.display    = 'none';
+    loading.style.display = 'none';
+    panel.style.display   = 'block';
+    if (!historicoData) loadHistorico();
+  } else {
+    btn.classList.remove('active');
+    panel.style.display   = 'none';
+    filters.style.display = '';
+    itabs.style.display   = '';
+    if (dash.children.length > 0) dash.style.display = 'block';
+    else loading.style.display = 'flex';
+  }
+}
+
+async function loadHistorico() {
+  const panel = document.getElementById('historicoPanel');
+  panel.innerHTML = '<div style="text-align:center;padding:40px;color:#888"><div class="spin" style="margin:0 auto 12px"></div><span>Cargando KPIs históricos…</span></div>';
+  try {
+    const SHEET_ID = '1qNWFsUQwXzDd6fj1HzIRfIsvZRDJAxjsmZNjzkWX73o';
+    const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent('KPIs claves - Histórico Diario')}`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const text = await res.text();
+    const jsonStr = text.slice(text.indexOf('{'), text.lastIndexOf('}') + 1);
+    const gviz = JSON.parse(jsonStr);
+
+    const colNames = gviz.table.cols.map(c => c.label);
+
+    function pgv(v) {
+      if (v === null || v === undefined || v === '') return '';
+      const s = String(v);
+      const dm = s.match(/^Date\((\d+),(\d+),(\d+)\)$/);
+      if (dm) return `${dm[1]}-${String(parseInt(dm[2])+1).padStart(2,'0')}-${String(dm[3]).padStart(2,'0')}`;
+      return v;
+    }
+
+    const records = [];
+    for (const row of gviz.table.rows) {
+      if (!row || !row.c) continue;
+      const obj = {};
+      colNames.forEach((name, i) => {
+        const cell = row.c[i];
+        obj[name] = (cell && cell.v !== null && cell.v !== undefined) ? pgv(cell.v) : '';
+      });
+      if (!obj['Fecha'] || String(obj['Fecha']).toLowerCase() === 'fecha') continue;
+      records.push(obj);
+    }
+
+    if (!records.length) throw new Error('No hay datos en la pestaña KPIs Histórico Diario');
+    historicoData = records;
+
+    // Default: fecha más reciente
+    const fechas = [...new Set(records.map(r => r['Fecha']))].sort().reverse();
+    if (!histFecha || !fechas.includes(histFecha)) histFecha = fechas[0];
+
+    renderHistorico();
+  } catch(e) {
+    document.getElementById('historicoPanel').innerHTML =
+      `<div style="text-align:center;padding:40px;color:#E53935">Error cargando KPIs histórico: ${e.message}</div>`;
+  }
+}
+
+function renderHistorico() {
+  const panel = document.getElementById('historicoPanel');
+  if (!historicoData) return;
+
+  const INITS  = ['Total', 'Recupero Temprano', 'Recupero Tardío', 'Reactivación'];
+  const fechas = [...new Set(historicoData.map(r => r['Fecha']))].sort().reverse();
+
+  const filtered = historicoData.filter(r => r['Fecha'] === histFecha && r['Iniciativa'] === histInit);
+  const sorted   = [...filtered].sort((a,b) => b['Cohort (Mes)'].localeCompare(a['Cohort (Mes)']));
+
+  function fmtCohort(s) {
+    const MESES = ['','ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+    const m = String(s||'').match(/(\d{4})-(\d{2})-/);
+    if (!m) return s;
+    return MESES[parseInt(m[2])] + '-' + m[1].slice(2);
+  }
+
+  function fmtFecha(s) {
+    const p = String(s||'').split('-');
+    if (p.length !== 3) return s;
+    return `${parseInt(p[2])}/${parseInt(p[1])}/${p[0]}`;
+  }
+
+  function numVal(v) {
+    if (v === '' || v === null || v === undefined) return null;
+    const n = parseFloat(v);
+    return isNaN(n) ? null : n;
+  }
+
+  function cellHtml(mainVal, deltaVal, isTPV, isPct) {
+    const n = numVal(mainVal);
+    const d = numVal(deltaVal);
+
+    let valStr;
+    if (n === null)  valStr = '—';
+    else if (isTPV)  valStr = fmtM(n);
+    else if (isPct)  valStr = n.toFixed(1).replace('.',',') + '%';
+    else             valStr = fmtN(Math.round(n));
+
+    let deltaStr = '';
+    if (d !== null && d !== 0) {
+      const color = d > 0 ? '#00A650' : '#E53935';
+      const sign  = d > 0 ? '+' : '';
+      let ds;
+      if (isTPV) {
+        const abs = Math.abs(d);
+        let s;
+        if      (abs >= 1e9) s = (abs/1e9).toFixed(1).replace('.',',') + 'B';
+        else if (abs >= 1e6) s = (abs/1e6).toFixed(1).replace('.',',') + 'M';
+        else if (abs >= 1e3) s = Math.round(abs/1e3) + 'K';
+        else                 s = Math.round(abs).toLocaleString('es-AR');
+        ds = (d > 0 ? '+' : '-') + '$' + s;
+      } else if (isPct) {
+        ds = sign + d.toFixed(1).replace('.',',') + 'pp';
+      } else {
+        ds = sign + Math.round(d).toLocaleString('es-AR');
+      }
+      deltaStr = `<div style="color:${color};font-size:.62rem;font-weight:700;margin-top:1px">${ds}</div>`;
+    }
+
+    return `<td style="text-align:right;padding:6px 10px;vertical-align:top;white-space:nowrap"><div style="font-weight:600;font-size:.76rem">${valStr}</div>${deltaStr}</td>`;
+  }
+
+  const COLS = [
+    { key:'Asignados',              lbl:'Asignados',    tpv:false, pct:false },
+    { key:'Reales pre-gestión',     lbl:'Reales',       tpv:false, pct:false },
+    { key:'Gestionados',            lbl:'Gestionados',  tpv:false, pct:false },
+    { key:'Contactados',            lbl:'Contactados',  tpv:false, pct:false },
+    { key:'% Contactados',          lbl:'% Cont.',      tpv:false, pct:true  },
+    { key:'Conv. Declarados',       lbl:'Conv. Decl.',  tpv:false, pct:false },
+    { key:'Conv. Válidos',          lbl:'Conv. Vál.',   tpv:false, pct:false },
+    { key:'Conv. Válidos Mes Ant.', lbl:'Conv. M-1',    tpv:false, pct:false },
+    { key:'TPV M0',                 lbl:'TPV M0',       tpv:true,  pct:false },
+    { key:'TPV M1 Real',            lbl:'TPV M1 Real',  tpv:true,  pct:false },
+    { key:'TPV M1 Fcst',            lbl:'TPV M1 Fcst',  tpv:true,  pct:false },
+  ];
+
+  const thStyle  = 'padding:6px 10px;text-align:right;font-size:.62rem;text-transform:uppercase;color:#555;font-weight:700;border-bottom:2px solid #E0E0E0;white-space:nowrap';
+  const th0Style = 'padding:6px 10px;text-align:left;font-size:.62rem;text-transform:uppercase;color:#555;font-weight:700;border-bottom:2px solid #E0E0E0;white-space:nowrap;position:sticky;left:0;background:#F5F5F5';
+
+  const ths = `<th style="${th0Style}">Cohort</th>` + COLS.map(c => `<th style="${thStyle}">${c.lbl}</th>`).join('');
+
+  const bodyRows = sorted.map((r, i) => {
+    const bg    = i % 2 === 0 ? '#fff' : '#FAFAFA';
+    const cells = COLS.map(c => cellHtml(r[c.key], r['Δ ' + c.key], c.tpv, c.pct)).join('');
+    return `<tr style="background:${bg};border-bottom:1px solid rgba(0,0,0,.04)">
+      <td style="padding:6px 10px;font-weight:700;font-size:.76rem;color:var(--mp-navy);white-space:nowrap;position:sticky;left:0;background:${bg}">${fmtCohort(r['Cohort (Mes)'])}</td>
+      ${cells}
+    </tr>`;
+  }).join('');
+
+  const initBtns = INITS.map(init => {
+    const on = histInit === init;
+    return `<button onclick="histInit='${init.replace(/'/g,"\\'")}';renderHistorico()" style="padding:6px 14px;border-radius:20px;border:1.5px solid ${on ? 'var(--mp-navy)' : '#DDD'};background:${on ? 'var(--mp-navy)' : 'white'};color:${on ? 'white' : '#666'};font-size:.75rem;font-weight:700;cursor:pointer;font-family:var(--font);transition:all .15s">${init}</button>`;
+  }).join('');
+
+  const tableHtml = sorted.length
+    ? `<table style="width:100%;border-collapse:collapse;font-size:.73rem"><thead><tr style="background:#F5F5F5">${ths}</tr></thead><tbody>${bodyRows}</tbody></table>`
+    : '<div style="text-align:center;padding:24px;color:#999;font-size:.82rem">No hay datos para esta selección.</div>';
+
+  panel.innerHTML = `
+    <div style="padding:16px 24px 20px">
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px;flex-wrap:wrap">
+        <button onclick="toggleHistorico()" style="display:inline-flex;align-items:center;gap:5px;padding:7px 16px;border:none;border-radius:8px;background:var(--mp-navy);color:var(--mp-yellow);font-size:.76rem;font-weight:700;cursor:pointer;font-family:var(--font);box-shadow:0 2px 6px rgba(10,0,128,.2)">← Dashboard</button>
+        <div>
+          <div style="font-size:1rem;font-weight:800;color:var(--mp-navy);letter-spacing:-.2px">KPIs Histórico Diario</div>
+          <div style="font-size:.67rem;color:#999;margin-top:1px">${filtered.length} cohorts · Los valores en verde/rojo son variación MoM vs el mismo día del mes anterior</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap">
+        <div style="display:inline-flex;align-items:center;gap:8px;background:#F0F4FF;border:2px solid #C5CAE9;border-radius:10px;padding:6px 14px">
+          <span style="font-size:.72rem;color:var(--mp-navy);font-weight:800;letter-spacing:.5px;text-transform:uppercase;white-space:nowrap">📅 Fecha</span>
+          <select onchange="histFecha=this.value;renderHistorico()" style="border:none;background:transparent;color:var(--mp-navy);font-size:.78rem;font-weight:700;cursor:pointer;font-family:var(--font);outline:none">
+            ${fechas.map(f => `<option value="${f}" ${histFecha===f?'selected':''}>${fmtFecha(f)}</option>`).join('')}
+          </select>
+        </div>
+        ${initBtns}
+      </div>
+      <div style="overflow-x:auto">${tableHtml}</div>
+    </div>`;
+}
+
 // ─── BOOT ─────────────────────────────────────────────────────────────────────
 loadData();
 
@@ -2025,6 +2243,14 @@ let monitoreoData = null;
 let monitoreoActive = false;
 
 function toggleMonitoreo() {
+  // Cerrar histórico si está activo
+  if (typeof historicoActive !== 'undefined' && historicoActive) {
+    historicoActive = false;
+    const hBtn = document.getElementById('historicoBtn');
+    if (hBtn) hBtn.classList.remove('active');
+    document.getElementById('historicoPanel').style.display = 'none';
+    monitoreoActive = false; // forzar apertura de monitoreo
+  }
   monitoreoActive = !monitoreoActive;
   const btn = document.getElementById('monitoreoBtn');
   const panel = document.getElementById('monitoreoPanel');
