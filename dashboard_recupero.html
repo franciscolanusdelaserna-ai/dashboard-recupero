@@ -2069,37 +2069,17 @@ async function loadHistorico() {
   const panel = document.getElementById('historicoPanel');
   panel.innerHTML = '<div style="text-align:center;padding:40px;color:#888"><div class="spin" style="margin:0 auto 12px"></div><span>Cargando KPIs históricos…</span></div>';
   try {
-    const SHEET_ID = '1qNWFsUQwXzDd6fj1HzIRfIsvZRDJAxjsmZNjzkWX73o';
-    const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent('KPIs claves - Histórico Diario')}`;
-    const res = await fetch(url);
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const text = await res.text();
-    const jsonStr = text.slice(text.indexOf('{'), text.lastIndexOf('}') + 1);
-    const gviz = JSON.parse(jsonStr);
-
-    const colNames = gviz.table.cols.map(c => c.label);
-
-    function pgv(v) {
-      if (v === null || v === undefined || v === '') return '';
-      const s = String(v);
-      const dm = s.match(/^Date\((\d+),(\d+),(\d+)\)$/);
-      if (dm) return `${dm[1]}-${String(parseInt(dm[2])+1).padStart(2,'0')}-${String(dm[3]).padStart(2,'0')}`;
-      return v;
+    const _cb = Date.now();
+    const urls = [`kpis_historico.json?v=${_cb}`, `http://127.0.0.1:8082/kpis_historico.json?v=${_cb}`];
+    let records = null;
+    for (const url of urls) {
+      try {
+        const res = await fetch(url);
+        if (res.ok) { records = await res.json(); if (records && records.length) break; }
+      } catch(e) {}
     }
+    if (!records || !records.length) throw new Error('No se pudo cargar kpis_historico.json — corré snapshot_kpis.py para generarlo');
 
-    const records = [];
-    for (const row of gviz.table.rows) {
-      if (!row || !row.c) continue;
-      const obj = {};
-      colNames.forEach((name, i) => {
-        const cell = row.c[i];
-        obj[name] = (cell && cell.v !== null && cell.v !== undefined) ? pgv(cell.v) : '';
-      });
-      if (!obj['Fecha'] || String(obj['Fecha']).toLowerCase() === 'fecha') continue;
-      records.push(obj);
-    }
-
-    if (!records.length) throw new Error('No hay datos en la pestaña KPIs Histórico Diario');
     historicoData = records;
 
     // Default: fecha más reciente
