@@ -2085,12 +2085,13 @@ function computeHistoricoFromData() {
   const daysInMonth = new Date(today_.getFullYear(), today_.getMonth()+1, 0).getDate();
   const fcstMult    = today_.getDate() < daysInMonth ? daysInMonth / today_.getDate() : 1;
 
-  const cohorts = [...new Set(allData.map(r => String(r.MES||'').trim()).filter(Boolean))].sort();
+  // Solo mostrar el cohort del mes actual (los anteriores tienen datos completos, no comparables)
+  const currentCohort = `${today_.getFullYear()}-${String(today_.getMonth()+1).padStart(2,'0')}-01`;
+  const cohorts = [currentCohort];
   const records = [];
 
   for (const cohort of cohorts) {
-    const cohortIdx  = cohorts.indexOf(cohort);
-    const prevCohort = cohortIdx > 0 ? cohorts[cohortIdx - 1] : null;
+    const prevCohort = null; // no hay mes anterior comparable aún
 
     for (const { name: initName, match } of INIT_MAP) {
       let subset = allData.filter(r => String(r.MES||'').trim() === cohort);
