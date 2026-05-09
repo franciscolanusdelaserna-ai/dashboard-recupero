@@ -1209,11 +1209,12 @@ function byAsesor(data, openCohort) {
     if (isValidRow(r)) {
       s.tpvM0 += parseNum(r.TPV_M0);
       s.vcM0  += parseNum(r.VC_M0);
-      s.vcM1  += parseNum(r.VC_M1);
       // Aplicar forecast al M1 del cohort abierto
-      const m1Raw = parseNum(r.TPV_M1);
-      const isOpen = openCohort && String(r.MES||'').trim() === openCohort.cohortPeriod;
-      s.tpvM1 += isOpen ? m1Raw * openCohort.multiplier : m1Raw;
+      const isOpen   = openCohort && String(r.MES||'').trim() === openCohort.cohortPeriod;
+      const m1Raw    = parseNum(r.TPV_M1);
+      const vcM1Raw  = parseNum(r.VC_M1);
+      s.tpvM1 += isOpen ? m1Raw   * openCohort.multiplier : m1Raw;
+      s.vcM1  += isOpen ? vcM1Raw * openCohort.multiplier : vcM1Raw;
     }
   });
   return Object.values(map);
@@ -2022,7 +2023,7 @@ function renderTable(stats, isFcst) {
 function srt(col) {
   sortDir = (sortCol===col) ? sortDir*-1 : -1;
   sortCol = col;
-  renderTable(byAsesor(getFiltered()), lastIsFcst);
+  renderTable(byAsesor(getFiltered(), getOpenCohortInfo()), lastIsFcst);
 }
 
 // ─── KPIs HISTÓRICO ───────────────────────────────────────────────────────────
