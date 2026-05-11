@@ -2031,6 +2031,7 @@ let historicoData   = null;
 let historicoActive = false;
 let histDia         = null;   // día del mes seleccionado (ej: 8)
 let histInit        = 'Total';
+let histMeses       = null;   // null = todos; Set de cohort strings seleccionados
 
 function toggleHistorico() {
   // Cerrar monitoreo si está activo
@@ -2156,11 +2157,17 @@ function renderHistorico() {
 
   if (!histDia || !diasDisp.includes(histDia)) histDia = diasDisp[diasDisp.length - 1] || new Date().getDate();
 
-  // Filas: fechas que coincidan con el día seleccionado + iniciativa seleccionada
+  // Meses disponibles (cohorts únicos, ordenados)
+  const mesesDisp = [...new Set(historicoData.map(r => String(r['Cohort (Mes)']||'')).filter(Boolean))].sort();
+
+  // Filas: fechas que coincidan con el día seleccionado + iniciativa + mes seleccionado
   const rows = historicoData
     .filter(r => {
       const p = String(r['Fecha']||'').split('-');
-      return r['Iniciativa'] === histInit && p.length === 3 && parseInt(p[2]) === histDia;
+      if (r['Iniciativa'] !== histInit) return false;
+      if (p.length !== 3 || parseInt(p[2]) !== histDia) return false;
+      if (histMeses && !histMeses.has(String(r['Cohort (Mes)']||''))) return false;
+      return true;
     })
     .sort((a,b) => a['Fecha'].localeCompare(b['Fecha']));
 
@@ -2228,6 +2235,11 @@ function renderHistorico() {
     return `<button onclick="histInit='${init.replace(/'/g,"\\'")}';renderHistorico()" style="padding:6px 14px;border-radius:20px;border:1.5px solid ${on ? 'var(--mp-navy)' : '#DDD'};background:${on ? 'var(--mp-navy)' : 'white'};color:${on ? 'white' : '#666'};font-size:.75rem;font-weight:700;cursor:pointer;font-family:var(--font);transition:all .15s">${init}</button>`;
   }).join('');
 
+  const mesBtns = mesesDisp.map(c => {
+    const on = !histMeses || histMeses.has(c);
+    return `<button onclick="toggleHistMes('${c}')" style="padding:5px 12px;border-radius:20px;border:1.5px solid ${on ? 'var(--mp-blue)' : '#DDD'};background:${on ? 'var(--mp-blue)' : 'white'};color:${on ? 'white' : '#666'};font-size:.75rem;font-weight:700;cursor:pointer;font-family:var(--font);transition:all .15s">${fmtMes(c)}</button>`;
+  }).join('');
+
   const tableHtml = rows.length
     ? `<table style="width:100%;border-collapse:collapse;font-size:.73rem"><thead><tr style="background:#F5F5F5">${ths}</tr></thead><tbody>${bodyRows}</tbody></table>`
     : `<div style="text-align:center;padding:24px;color:#999;font-size:.82rem">No hay snapshots para el día ${histDia} — los datos se acumulan a medida que se actualiza el dashboard cada día.</div>`;
@@ -2245,12 +2257,32 @@ function renderHistorico() {
         <span style="font-size:.7rem;font-weight:800;color:var(--mp-navy);text-transform:uppercase;letter-spacing:.5px">📅 Día</span>
         ${diaBtns}
       </div>
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;flex-wrap:wrap">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap">
         <span style="font-size:.7rem;font-weight:800;color:var(--mp-navy);text-transform:uppercase;letter-spacing:.5px">📋 Iniciativa</span>
         ${initBtns}
       </div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;flex-wrap:wrap">
+        <span style="font-size:.7rem;font-weight:800;color:var(--mp-navy);text-transform:uppercase;letter-spacing:.5px">🗓 Mes</span>
+        ${mesBtns}
+      </div>
       <div style="overflow-x:auto">${tableHtml}</div>
     </div>`;
+}
+
+function toggleHistMes(c) {
+  const mesesDisp = [...new Set(historicoData.map(r => String(r['Cohort (Mes)']||'')).filter(Boolean))].sort();
+  if (!histMeses) {
+    // Todos activos → deseleccionar solo este (quedan todos menos c)
+    histMeses = new Set(mesesDisp.filter(m => m !== c));
+  } else if (histMeses.has(c)) {
+    histMeses.delete(c);
+    // Si quedan 0 o todos, volver a null (todos)
+    if (histMeses.size === 0 || histMeses.size === mesesDisp.length) histMeses = null;
+  } else {
+    histMeses.add(c);
+    if (histMeses.size === mesesDisp.length) histMeses = null;
+  }
+  renderHistorico();
 }
 
 // ─── BOOT ─────────────────────────────────────────────────────────────────────
