@@ -2181,7 +2181,7 @@ function renderHistorico() {
     const n = (v === '' || v === null || v === undefined) ? null : parseFloat(v);
     if (n === null || isNaN(n)) return '—';
     if (isTPV) return fmtM(n);
-    if (isPct) return n.toFixed(1).replace('.',',') + '%';
+    if (isPct) return Math.round(n) + '%';
     return fmtN(Math.round(n));
   }
 
