@@ -2186,16 +2186,19 @@ function renderHistorico() {
   }
 
   const COLS = [
-    { key:'Asignados',              lbl:'Asignados',    tpv:false, pct:false },
-    { key:'Reales pre-gestión',     lbl:'Reales',       tpv:false, pct:false },
-    { key:'Gestionados',            lbl:'Gestionados',  tpv:false, pct:false },
-    { key:'Contactados',            lbl:'Contactados',  tpv:false, pct:false },
-    { key:'% Contactados',          lbl:'% Cont.',      tpv:false, pct:true  },
-    { key:'Conv. Declarados',       lbl:'Conv. Decl.',  tpv:false, pct:false },
-    { key:'Conv. Válidos',          lbl:'Conv. Vál.',   tpv:false, pct:false },
-    { key:'TPV M0',                 lbl:'TPV M0',       tpv:true,  pct:false },
-    { key:'TPV M1 Real',            lbl:'TPV M1 Real',  tpv:true,  pct:false },
-    { key:'TPV M1 Fcst',            lbl:'TPV M1 Fcst',  tpv:true,  pct:false },
+    { key:'Asignados',              lbl:'Asignados',       tpv:false, pct:false },
+    { key:'Reales pre-gestión',     lbl:'Reales',          tpv:false, pct:false },
+    { key:'Gestionados',            lbl:'Gestionados',     tpv:false, pct:false },
+    { key:'Contactados',            lbl:'Contactados',     tpv:false, pct:false },
+    { key:'% Contactados',          lbl:'% Cont.',         tpv:false, pct:true  },
+    { key:'Conv. Declarados',       lbl:'Conv. Decl.',     tpv:false, pct:false },
+    { key:'Conv. Válidos',          lbl:'Conv. Vál.',      tpv:false, pct:false },
+    { key:'Conv. Válidos Mes Ant.', lbl:'Conv. Vál. M1',   tpv:false, pct:false },
+    { key:'TPV M0',                 lbl:'TPV M0',          tpv:true,  pct:false },
+    { key:'TPV M1 Real',            lbl:'TPV M1 Real',     tpv:true,  pct:false },
+    { key:'TPV M1 Fcst',            lbl:'TPV M1 Fcst',     tpv:true,  pct:false },
+    { key:'TPV M1 Real M-1',        lbl:'TPV M1 Real M-1', tpv:true,  pct:false },
+    { key:'TPV M1 Fcst M-1',        lbl:'TPV M1 Fcst M-1', tpv:true,  pct:false },
   ];
 
   const thS  = 'padding:6px 10px;text-align:right;font-size:.62rem;text-transform:uppercase;color:#555;font-weight:700;border-bottom:2px solid #E0E0E0;white-space:nowrap';
