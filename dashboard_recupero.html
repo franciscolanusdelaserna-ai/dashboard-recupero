@@ -1592,6 +1592,7 @@ function renderEstado(data) {
     Object.entries(motivoSubMap).map(([k,subs]) => [k, Object.values(subs).reduce((a,b)=>a+b,0)])
   );
   const motivoSorted = Object.entries(motivoCounts).sort((a,b)=>b[1]-a[1]);
+  const motivoTotal  = motivoSorted.reduce((s,[,n])=>s+n, 0); // denominador real para %
   // Ajustar el count de sin interés en el mapa de estados (excluir NA)
   Object.keys(counts).forEach(k => { if (norm(k).includes('sin inter')) counts[k] -= naCount; });
 
@@ -1638,7 +1639,7 @@ function renderEstado(data) {
     // ── Motivo sub-rows (hidden by default) ──────────────────────────────────
     if (isSinInt) {
       motivoSorted.forEach(([mk, mv], mi) => {
-        const mpct  = Math.round(mv / v * 100);
+        const mpct  = Math.round(mv / motivoTotal * 100);
         const mcol  = PALETTE[mi % PALETTE.length];
         const mgrpId = 'mot-' + Math.random().toString(36).slice(2);
         const msubs  = motivoSubMap[mk] ? Object.entries(motivoSubMap[mk]).sort((a,b)=>b[1]-a[1]) : [];
