@@ -1583,13 +1583,17 @@ function renderEstado(data) {
   }
   const PALETTE = ['#009EE3','#00A650','#F73','#8C4DFF','#E53935','#FFD100','#0075BE','#607D8B','#555'];
 
-  // Pre-build motivo map for Sin interés/Rechazado
-  const sinInteresData = data.filter(r => norm(r.ESTADO||'').includes('sin inter'));
-  const motivoSubMap   = buildMotivoSubMap(sinInteresData);
-  const motivoCounts   = Object.fromEntries(
+  // Pre-build motivo map para Sin interés/Rechazado — excluye No Gestionable/No Aplica
+  const sinInteresData    = data.filter(r => norm(r.ESTADO||'').includes('sin inter'));
+  const sinInteresFilt    = sinInteresData.filter(r => normMotivo((r.MOTIVO_ABANDONO||'').trim()) !== NA_KEY);
+  const naCount           = sinInteresData.length - sinInteresFilt.length;
+  const motivoSubMap      = buildMotivoSubMap(sinInteresFilt);
+  const motivoCounts      = Object.fromEntries(
     Object.entries(motivoSubMap).map(([k,subs]) => [k, Object.values(subs).reduce((a,b)=>a+b,0)])
   );
   const motivoSorted = Object.entries(motivoCounts).sort((a,b)=>b[1]-a[1]);
+  // Ajustar el count de sin interés en el mapa de estados (excluir NA)
+  Object.keys(counts).forEach(k => { if (norm(k).includes('sin inter')) counts[k] -= naCount; });
 
   const t = document.createElement('table');
   t.className = 'mtable';
@@ -1607,7 +1611,10 @@ function renderEstado(data) {
     const arrow = isSinInt
       ? `<span id="arr-${grpId}" style="margin-right:6px;font-size:.68rem;color:${col}">▶</span>`
       : '';
-    tr.innerHTML = `<td>${arrow}${k}</td>
+    const naNote = isSinInt && naCount > 0
+      ? ` <span style="font-size:.62rem;color:#AAA;font-weight:400">(excl. ${fmtN(naCount)} no gest.)</span>`
+      : '';
+    tr.innerHTML = `<td>${arrow}${k}${naNote}</td>
       <td class="r" style="font-weight:700">${fmtN(v)}</td>
       <td class="r" style="font-size:.72rem;font-weight:700;color:${col};width:36px">${pct}%</td>
       <td><div class="mpct-bg" style="min-width:80px"><div class="mpct-fg" style="width:${pct}%;background:${col}"></div></div></td>`;
