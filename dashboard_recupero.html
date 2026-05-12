@@ -1581,19 +1581,105 @@ function renderEstado(data) {
     for (const [key,col] of Object.entries(STATE_COLORS)) { if (n2.includes(key)) return col; }
     return '#AAA';
   }
+  const PALETTE = ['#009EE3','#00A650','#F73','#8C4DFF','#E53935','#FFD100','#0075BE','#607D8B','#555'];
+
+  // Pre-build motivo map for Sin interés/Rechazado
+  const sinInteresData = data.filter(r => norm(r.ESTADO||'').includes('sin inter'));
+  const motivoSubMap   = buildMotivoSubMap(sinInteresData);
+  const motivoCounts   = Object.fromEntries(
+    Object.entries(motivoSubMap).map(([k,subs]) => [k, Object.values(subs).reduce((a,b)=>a+b,0)])
+  );
+  const motivoSorted = Object.entries(motivoCounts).sort((a,b)=>b[1]-a[1]);
+
   const t = document.createElement('table');
   t.className = 'mtable';
   t.innerHTML = '<thead><tr><th>Estado</th><th class="r">N</th><th class="r">%</th><th></th></tr></thead>';
   const tbody = document.createElement('tbody');
+
   sorted.forEach(([k,v]) => {
     const pct = Math.round(v/total*100);
     const col = stateColor(k);
+    const isSinInt = norm(k).includes('sin inter');
+    const grpId = 'sinint-' + Math.random().toString(36).slice(2);
+
     const tr = document.createElement('tr');
-    tr.innerHTML = `<td>${k}</td><td class="r" style="font-weight:700">${fmtN(v)}</td>
+    tr.style.cursor = isSinInt ? 'pointer' : 'default';
+    const arrow = isSinInt
+      ? `<span id="arr-${grpId}" style="margin-right:6px;font-size:.68rem;color:${col}">▶</span>`
+      : '';
+    tr.innerHTML = `<td>${arrow}${k}</td>
+      <td class="r" style="font-weight:700">${fmtN(v)}</td>
       <td class="r" style="font-size:.72rem;font-weight:700;color:${col};width:36px">${pct}%</td>
       <td><div class="mpct-bg" style="min-width:80px"><div class="mpct-fg" style="width:${pct}%;background:${col}"></div></div></td>`;
+
+    if (isSinInt) {
+      tr.onclick = () => {
+        const rows = document.querySelectorAll('.sinint-sub-' + grpId);
+        const btn  = document.getElementById('arr-' + grpId);
+        const open = btn.textContent === '▼';
+        rows.forEach(r => { r.style.display = open ? 'none' : ''; });
+        // collapse all submotivo rows too when closing
+        if (!open) {
+          document.querySelectorAll('[data-sinint="' + grpId + '"]').forEach(r => r.style.display = 'none');
+          document.querySelectorAll('[data-motarr][data-sinint="' + grpId + '"]').forEach(el => el.textContent = '▶');
+        }
+        btn.textContent = open ? '▶' : '▼';
+      };
+    }
     tbody.appendChild(tr);
+
+    // ── Motivo sub-rows (hidden by default) ──────────────────────────────────
+    if (isSinInt) {
+      motivoSorted.forEach(([mk, mv], mi) => {
+        const mpct  = Math.round(mv / v * 100);
+        const mcol  = PALETTE[mi % PALETTE.length];
+        const mgrpId = 'mot-' + Math.random().toString(36).slice(2);
+        const msubs  = motivoSubMap[mk] ? Object.entries(motivoSubMap[mk]).sort((a,b)=>b[1]-a[1]) : [];
+
+        const mtr = document.createElement('tr');
+        mtr.className = 'sinint-sub-' + grpId;
+        mtr.style.cssText = 'display:none;background:rgba(255,119,51,.04)';
+        mtr.style.cursor  = msubs.length ? 'pointer' : 'default';
+
+        const marrow = msubs.length
+          ? `<span id="arr-${mgrpId}" data-motarr data-sinint="${grpId}" style="margin-right:6px;font-size:.65rem;color:${mcol}">▶</span>`
+          : `<span style="margin-right:14px"></span>`;
+        mtr.innerHTML = `
+          <td style="padding-left:22px;font-size:.74rem">${marrow}<strong>${mk}</strong></td>
+          <td class="r" style="font-size:.74rem;font-weight:700">${fmtN(mv)}</td>
+          <td class="r" style="font-size:.72rem;font-weight:700;color:${mcol};width:36px">${mpct}%</td>
+          <td><div class="mpct-bg" style="min-width:80px"><div class="mpct-fg" style="width:${mpct}%;background:${mcol}"></div></div></td>`;
+
+        if (msubs.length) {
+          mtr.onclick = (e) => {
+            e.stopPropagation();
+            const srows = document.querySelectorAll('.mot-sub-' + mgrpId);
+            const mbtn  = document.getElementById('arr-' + mgrpId);
+            const mopen = mbtn.textContent === '▼';
+            srows.forEach(r => { r.style.display = mopen ? 'none' : ''; });
+            mbtn.textContent = mopen ? '▶' : '▼';
+          };
+        }
+        tbody.appendChild(mtr);
+
+        // ── Submotivo rows ────────────────────────────────────────────────────
+        msubs.forEach(([sk, sv]) => {
+          const spct = Math.round(sv / mv * 100);
+          const str  = document.createElement('tr');
+          str.className = 'sinint-sub-' + grpId + ' mot-sub-' + mgrpId;
+          str.setAttribute('data-sinint', grpId);
+          str.style.cssText = 'display:none;background:rgba(255,119,51,.02)';
+          str.innerHTML = `
+            <td style="padding-left:40px;font-size:.72rem;color:#666">↳ ${sk}</td>
+            <td class="r" style="font-size:.72rem;font-weight:600">${fmtN(sv)}</td>
+            <td class="r" style="font-size:.7rem;font-weight:600;color:${mcol};width:36px">${spct}%</td>
+            <td><div class="mpct-bg" style="min-width:80px"><div class="mpct-fg" style="width:${spct}%;background:${mcol}88"></div></div></td>`;
+          tbody.appendChild(str);
+        });
+      });
+    }
   });
+
   t.appendChild(tbody);
   wrap.appendChild(t);
 }
