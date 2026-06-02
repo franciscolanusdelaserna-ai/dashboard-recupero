@@ -563,6 +563,12 @@ const MONTH_NAMES = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct'
 // Ajustes individuales por cohort: vacaciones, nuevos ingresos, vacantes
 // tpvTarget/cvTarget: null = sin objetivo asignado en ese cohort
 const COHORT_ADJUSTMENTS = {
+  '2026-05-01': {
+    asesores: {
+      'Juan Franco Muller': { tipo:'vacaciones', tpvTarget: 75e6, cvTarget: 8 },
+    },
+    vacantes: { tardio: 1, reactivacion: 3 },
+  },
   '2026-04-01': {
     asesores: {
       'Ada Ruiz':      { tipo:'vacaciones', tpvTarget: 60e6,  cvTarget: 10 },
@@ -601,10 +607,10 @@ const TAB_CFG = {
 // Targets TPV M1 por iniciativa { total, perAsesor }
 const TARGETS = {
   temprano:     { total: 550e6,  perAsesor: 110e6 },
-  tardio:       { total: 960e6,  perAsesor: 120e6 },
-  reactivacion: { total: 500e6,  perAsesor: 100e6 },
-  chinos:       { total: 120e6,  perAsesor: 120e6, multiplyCohorts: false },
-  total:        { total: 2010e6, perAsesor: null  },
+  tardio:       { total: 800e6,  perAsesor: 100e6 },
+  reactivacion: { total: 400e6,  perAsesor:  80e6 },
+  chinos:       { total: 100e6,  perAsesor: 100e6, multiplyCohorts: false },
+  total:        { total: 1750e6, perAsesor: null  },
 };
 
 // Mínimo de Convertidos Válidos por asesor por iniciativa
