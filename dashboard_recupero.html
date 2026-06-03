@@ -2820,12 +2820,18 @@ const CMP_INIT = {
   chinos:       { label: 'Chinos',            color: '#E53935' },
 };
 
+// Lista local hardcodeada para garantizar exclusión correcta
+const CMP_CHINOS_LIST = ['ema du chen', 'sofia zhuang'];
+function cmpIsChino(asesor) {
+  return CMP_CHINOS_LIST.includes(String(asesor || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').trim());
+}
+
 function cmpMatch(initKey, r) {
   const asesor  = r.ASESOR || '';
-  const isChino = CHINOS_ASESORES.some(a => norm(a) === norm(asesor));
+  const isChino = cmpIsChino(asesor);
   if (initKey === 'chinos')       return isChino;
-  if (isChino)                    return false;
-  const tag = norm(r.RECUPERO_TIPO || r.FORMULARIO || '');
+  if (isChino)                    return false;   // excluir de todas las demás
+  const tag = norm(r.RECUPERO_TIPO || '');
   if (initKey === 'temprano')     return tag.includes('temprano');
   if (initKey === 'tardio')       return tag.includes('tard');
   if (initKey === 'reactivacion') return tag.includes('reactiv');
@@ -2849,13 +2855,13 @@ function cmpPeriods(initKey, asesor) {
 
 function cmpAsesores(initKey) {
   if (initKey === 'chinos') {
-    const present = new Set(cmpRows('chinos', null).map(r => norm(r.ASESOR || '')));
-    return CHINOS_ASESORES.filter(a => present.has(norm(a)));
+    const present = new Set(cmpRows('chinos', null).map(r => (r.ASESOR||'').trim()).filter(Boolean));
+    return [...present].filter(a => cmpIsChino(a)).sort();
   }
   const set = new Set();
   cmpRows(initKey, null).forEach(r => {
     const a = (r.ASESOR || '').trim();
-    if (a && !CHINOS_ASESORES.some(c => norm(c) === norm(a))) set.add(a);
+    if (a && !cmpIsChino(a)) set.add(a);
   });
   return [...set].sort((a, b) => a.localeCompare(b, 'es'));
 }
