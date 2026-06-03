@@ -369,6 +369,68 @@
     .mpct-bar { display:flex; align-items:center; gap:6px; }
     .mpct-bg  { flex:1; height:5px; background:#f0f0f0; border-radius:3px; }
     .mpct-fg  { height:100%; border-radius:3px; }
+
+  /* ═══ COMPARATIVA HISTÓRICA ═══ */
+  #comparativaPanel { min-height: 400px; }
+  .cmp-wrap { padding: 20px 32px 40px; }
+  .cmp-top { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; flex-wrap: wrap; }
+  .cmp-back { display: inline-flex; align-items: center; gap: 5px; padding: 7px 16px; border: none; border-radius: 8px; background: var(--mp-navy); color: var(--mp-yellow); font-size: .76rem; font-weight: 700; cursor: pointer; font-family: var(--font); box-shadow: 0 2px 6px rgba(10,0,128,.2); flex-shrink: 0; }
+  .cmp-title { font-size: 1rem; font-weight: 800; color: var(--mp-navy); letter-spacing: -.2px; }
+  .cmp-sub   { font-size: .72rem; color: var(--muted); margin-top: 2px; }
+  .cmp-itabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+  .cmp-itab  { padding: 7px 18px; border: 2px solid var(--border); border-radius: 8px; background: white; cursor: pointer; font-size: .8rem; font-weight: 700; color: #555; font-family: var(--font); transition: all .15s; white-space: nowrap; }
+  .cmp-itab:hover  { border-color: var(--tc, var(--mp-cyan)); color: var(--tc, var(--mp-navy)); }
+  .cmp-itab.active { background: var(--tc, var(--mp-blue)); border-color: var(--tc, var(--mp-blue)); color: white; box-shadow: 0 2px 8px rgba(0,0,0,.15); }
+  .cmp-controls { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-bottom: 16px; padding-bottom: 14px; border-bottom: 2px solid var(--border); }
+  .cmp-controls label { font-size: .72rem; font-weight: 800; color: var(--mp-navy); text-transform: uppercase; letter-spacing: .5px; }
+  .cmp-sel { padding: 7px 14px; border: 2px solid var(--border); border-radius: 8px; font-size: .82rem; font-weight: 600; color: #444; background: white; outline: none; cursor: pointer; font-family: var(--font); min-width: 220px; }
+  .cmp-sel:focus { border-color: var(--mp-cyan); }
+  .cmp-subtabs { display: flex; gap: 6px; flex-wrap: wrap; margin-left: auto; }
+  .cmp-subtab  { padding: 6px 14px; border: 2px solid var(--border); border-radius: 7px; background: white; cursor: pointer; font-size: .76rem; font-weight: 700; color: #666; font-family: var(--font); transition: all .15s; }
+  .cmp-subtab:hover  { background: var(--highlight); border-color: var(--mp-cyan); }
+  .cmp-subtab.active { background: var(--mp-navy); border-color: var(--mp-navy); color: var(--mp-yellow); }
+  .cmp-tw { overflow-x: auto; border: 1px solid var(--border); border-radius: 10px; background: white; }
+  .ctable { width: 100%; border-collapse: collapse; font-size: .78rem; white-space: nowrap; }
+  .ctable th, .ctable td { padding: 7px 12px; border-bottom: 1px solid #F0F0F0; text-align: right; }
+  .ctable th { font-size: .64rem; font-weight: 700; color: var(--muted); text-transform: uppercase; border-bottom: 2px solid var(--border); position: sticky; top: 0; background: white; z-index: 2; }
+  .ctable th.lbl, .ctable td.lbl { text-align: left; font-weight: 700; color: var(--text); position: sticky; left: 0; background: white; z-index: 1; min-width: 200px; box-shadow: 1px 0 0 var(--border); }
+  .ctable th.lbl { z-index: 3; }
+  .ctable tr.sec td { background: #F7F8FC; font-size: .64rem; font-weight: 800; color: var(--mp-navy); text-transform: uppercase; letter-spacing: .8px; padding: 5px 12px; }
+  .ctable tr.sec td.lbl { background: #F7F8FC; }
+  .ctable tr:hover td:not(.lbl) { background: #FAFBFE; }
+  .ctable tr.result td { font-weight: 800; border-top: 2px solid var(--border); }
+  .ctable th.mo-latest { background: #E8F5E9 !important; color: #2e7d32; font-weight: 700; }
+  .ctable th.mo-anomaly { background: #FFF8E1 !important; color: #b08400; }
+  .ctable td.col-anomaly { background: #FFFDF5; }
+  .v-good { color: var(--mp-green); font-weight: 700; }
+  .v-bad  { color: #E53935; font-weight: 700; }
+  .v-near { color: var(--mp-orange); font-weight: 700; }
+  .v-mut  { color: var(--muted); }
+  .cmp-chart-card { background: white; border: 1px solid var(--border); border-radius: 10px; padding: 16px; margin-top: 18px; }
+  .cmp-chart-card .cct { font-size: .82rem; font-weight: 800; color: var(--mp-navy); margin-bottom: 12px; }
+  .cmp-chart-box { position: relative; height: 300px; }
+  .cmp-profile { display: flex; align-items: center; gap: 18px; background: white; border: 1px solid var(--border); border-radius: 12px; padding: 20px 24px; margin-bottom: 18px; box-shadow: 0 2px 8px rgba(0,0,0,.04); }
+  .cmp-avatar  { width: 64px; height: 64px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5rem; font-weight: 800; font-family: var(--font); box-shadow: 0 3px 10px rgba(0,0,0,.18); }
+  .cmp-profile-name { font-size: 1.25rem; font-weight: 800; color: var(--mp-navy); letter-spacing: -.3px; }
+  .cmp-profile-meta { font-size: .8rem; color: var(--muted); margin-top: 3px; }
+  .cmp-profile-pill { display: inline-block; padding: 3px 12px; border-radius: 20px; font-size: .72rem; font-weight: 700; color: white; margin-top: 6px; }
+  .cmp-kpis { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 18px; }
+  @media (max-width: 900px) { .cmp-kpis { grid-template-columns: repeat(2, 1fr); } }
+  .cmp-kpi { background: white; border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; box-shadow: 0 2px 6px rgba(0,0,0,.04); }
+  .cmp-kpi .k-label { font-size: .68rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; }
+  .cmp-kpi .k-value { font-size: 1.5rem; font-weight: 800; color: var(--mp-navy); margin-top: 4px; letter-spacing: -.5px; }
+  .cmp-kpi .k-sub   { font-size: .72rem; color: var(--muted); margin-top: 2px; }
+  .cmp-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 18px; }
+  @media (max-width: 900px) { .cmp-grid2 { grid-template-columns: 1fr; } }
+  .cmp-empty  { padding: 60px 20px; text-align: center; color: var(--muted); font-size: .9rem; }
+  .cmp-export { display: inline-flex; align-items: center; gap: 6px; padding: 8px 18px; border: 2px solid var(--mp-navy); border-radius: 8px; background: white; color: var(--mp-navy); font-size: .78rem; font-weight: 700; cursor: pointer; font-family: var(--font); transition: all .15s; margin-left: 12px; }
+  .cmp-export:hover { background: var(--mp-navy); color: var(--mp-yellow); }
+  @media print {
+    body.cmp-printing * { visibility: hidden !important; }
+    body.cmp-printing #cmpPrintArea, body.cmp-printing #cmpPrintArea * { visibility: visible !important; }
+    body.cmp-printing #cmpPrintArea { position: absolute; left: 0; top: 0; width: 100%; padding: 16px; }
+    body.cmp-printing .cmp-export, body.cmp-printing .cmp-back, body.cmp-printing .cmp-subtabs { display: none !important; }
+  }
   </style>
 </head>
 <body>
@@ -412,6 +474,9 @@
 <!-- HISTORICO PANEL -->
 <div id="historicoPanel" style="display:none;min-height:400px;background:white;border-bottom:1px solid var(--border)"></div>
 
+<!-- COMPARATIVA HISTÓRICA PANEL -->
+<div id="comparativaPanel" style="display:none;background:white;border-bottom:1px solid var(--border)"></div>
+
 <!-- FILTERS -->
 <div class="filters">
   <span class="flabel">Cohort</span>
@@ -451,6 +516,9 @@
   </button>
   <button id="historicoBtn" onclick="toggleHistorico()" style="display:inline-flex;align-items:center;gap:8px;padding:10px 22px;border:none;border-radius:8px;background:var(--mp-navy);color:var(--mp-yellow);font-size:.82rem;font-weight:700;cursor:pointer;font-family:var(--font);transition:all .2s;box-shadow:0 3px 10px rgba(10,0,128,.25);letter-spacing:.02em;margin-left:4px">
     📈 KPIs Histórico
+  </button>
+  <button id="comparativaBtn" onclick="toggleComparativa()" style="display:inline-flex;align-items:center;gap:8px;padding:10px 22px;border:none;border-radius:8px;background:var(--mp-navy);color:var(--mp-yellow);font-size:.82rem;font-weight:700;cursor:pointer;font-family:var(--font);transition:all .2s;box-shadow:0 3px 10px rgba(10,0,128,.25);letter-spacing:.02em;margin-left:4px">
+    📊 Comparativa Histórica
   </button>
 </div>
 
@@ -2724,6 +2792,457 @@ function renderMonitoreo(data) {
         </table>
       </div>
     </div>`;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   COMPARATIVA HISTÓRICA
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+let comparativaActive = false;
+let cmpInitiative = 'temprano';
+let cmpAsesor     = '__ALL__';
+let cmpSubtab     = 'kpis';
+const histCharts  = {};
+
+const HIST_TARGETS = {
+  temprano:     { total: 550e6, perAsesor: 110e6 },
+  tardio:       { total: 800e6, perAsesor: 100e6 },
+  reactivacion: { total: 400e6, perAsesor: 80e6  },
+  chinos:       { total: 100e6, perAsesor: 100e6, multiplyCohorts: false },
+};
+const CMP_CVR_TARGET  = 40;
+const ANOMALY_PERIOD  = '2026-02-01';
+
+const CMP_INIT = {
+  temprano:     { label: 'Recupero Temprano', color: '#00A650' },
+  tardio:       { label: 'Recupero Tardío',   color: '#FF7733' },
+  reactivacion: { label: 'Reactivación',      color: '#8C4DFF' },
+  chinos:       { label: 'Chinos',            color: '#E53935' },
+};
+
+function cmpMatch(initKey, r) {
+  const asesor  = r.ASESOR || '';
+  const isChino = CHINOS_ASESORES.some(a => norm(a) === norm(asesor));
+  if (initKey === 'chinos')       return isChino;
+  if (isChino)                    return false;
+  const tag = norm(r.RECUPERO_TIPO || r.FORMULARIO || '');
+  if (initKey === 'temprano')     return tag.includes('temprano');
+  if (initKey === 'tardio')       return tag.includes('tard');
+  if (initKey === 'reactivacion') return tag.includes('reactiv');
+  return false;
+}
+
+function cmpRows(initKey, asesor) {
+  return allData.filter(r => {
+    const m = String(r.MES || '').trim();
+    if (!m || m < MIN_PERIOD) return false;
+    if (!cmpMatch(initKey, r)) return false;
+    if (asesor && asesor !== '__ALL__' && norm(r.ASESOR || '') !== norm(asesor)) return false;
+    return true;
+  });
+}
+
+function cmpPeriods(initKey, asesor) {
+  const set = new Set(cmpRows(initKey, asesor).map(r => String(r.MES || '').trim()).filter(Boolean));
+  return [...set].sort();
+}
+
+function cmpAsesores(initKey) {
+  if (initKey === 'chinos') {
+    const present = new Set(cmpRows('chinos', null).map(r => norm(r.ASESOR || '')));
+    return CHINOS_ASESORES.filter(a => present.has(norm(a)));
+  }
+  const set = new Set();
+  cmpRows(initKey, null).forEach(r => {
+    const a = (r.ASESOR || '').trim();
+    if (a && !CHINOS_ASESORES.some(c => norm(c) === norm(a))) set.add(a);
+  });
+  return [...set].sort((a, b) => a.localeCompare(b, 'es'));
+}
+
+const PRE_STATES  = ['no aplica', 'sin tipificar'];
+const GEST_EXCL   = ['no aplica', 'sin tipificar'];
+const CONT_EXCL   = ['no aplica', 'sin tipificar', 'gestionado', 'volvio sin gestion', 'volvio s/gestion'];
+
+function cmpIsValid(r) {
+  return typeof isValidRow === 'function'
+    ? isValidRow(r)
+    : (String(r.RECUPERO_VALIDO || '').trim() === '1' || parseNum(r.RECUPERO_VALIDO) === 1);
+}
+
+function cmpMetrics(rows) {
+  const m = { asesores: new Set(), asignados: 0, reales: 0, gestionados: 0, contactados: 0,
+    convDecl: 0, convVal: 0, tpvM0: 0, tpvM1: 0, vcM0: 0, vcM1: 0,
+    estados: {}, motivos: {}, naCount: 0 };
+  rows.forEach(r => {
+    const e = norm(r.ESTADO || '');
+    if (r.ASESOR) m.asesores.add((r.ASESOR || '').trim());
+    m.asignados++;
+    if (!PRE_STATES.includes(e))  m.reales++;
+    if (!GEST_EXCL.includes(e))   m.gestionados++;
+    if (!CONT_EXCL.includes(e))   m.contactados++;
+    if (e.includes('convertido')) m.convDecl++;
+    if (cmpIsValid(r))            m.convVal++;
+    if (e === 'no aplica')        m.naCount++;
+    m.tpvM0 += parseNum(r.TPV_M0);
+    m.tpvM1 += parseNum(r.TPV_M1);
+    m.vcM0  += parseNum(r.VC_M0);
+    m.vcM1  += parseNum(r.VC_M1);
+    const eLabel = (r.ESTADO || '—').trim() || '—';
+    m.estados[eLabel] = (m.estados[eLabel] || 0) + 1;
+    if (e.includes('sin inter')) {
+      const mo = (r.MOTIVO_ABANDONO || 'Sin especificar').trim() || 'Sin especificar';
+      m.motivos[mo] = (m.motivos[mo] || 0) + 1;
+    }
+  });
+  m.cvr = m.reales ? (m.convVal / m.reales * 100) : 0;
+  return m;
+}
+
+function cmpMetricsByPeriod(initKey, asesor) {
+  const periods = cmpPeriods(initKey, asesor);
+  const all     = cmpRows(initKey, asesor);
+  const byP = {};
+  periods.forEach(p => {
+    byP[p] = cmpMetrics(all.filter(r => String(r.MES || '').trim() === p));
+  });
+  return { periods, byP };
+}
+
+function cmpTodayPeriod() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-01`;
+}
+function cmpIsOpenMonth(p) { return p === cmpTodayPeriod(); }
+function cmpHeaderMeta(p, latest) {
+  let cls = '', mark = '';
+  if (p === latest)        cls  = 'mo-latest';
+  if (p === ANOMALY_PERIOD) { cls = 'mo-anomaly'; mark = ' ⚡'; }
+  if (cmpIsOpenMonth(p))   mark += ' *';
+  return { cls, mark };
+}
+function cmpColourClass(v, good, near) {
+  if (v == null) return 'v-mut';
+  return v >= good ? 'v-good' : v >= near ? 'v-near' : 'v-bad';
+}
+function cmpInitials(name) {
+  const p = String(name || '').trim().split(/\s+/).filter(Boolean);
+  return p.length ? (p[0][0] + (p[1] ? p[1][0] : '')).toUpperCase() : '?';
+}
+
+/* ── Toggle ── */
+function toggleComparativa() {
+  if (typeof historicoActive !== 'undefined' && historicoActive) {
+    historicoActive = false;
+    document.getElementById('historicoBtn')?.classList.remove('active');
+    const hp = document.getElementById('historicoPanel'); if (hp) hp.style.display = 'none';
+  }
+  if (typeof monitoreoActive !== 'undefined' && monitoreoActive) {
+    monitoreoActive = false;
+    document.getElementById('monitoreoBtn')?.classList.remove('active');
+    const mp = document.getElementById('monitoreoPanel'); if (mp) mp.style.display = 'none';
+  }
+  comparativaActive = !comparativaActive;
+  const btn   = document.getElementById('comparativaBtn');
+  const panel = document.getElementById('comparativaPanel');
+  const flt   = document.querySelector('.filters');
+  const ita   = document.getElementById('itabs');
+  const dash  = document.getElementById('dash');
+  const load  = document.getElementById('loadingDiv');
+  if (comparativaActive) {
+    btn.classList.add('active');
+    if (flt)  flt.style.display  = 'none';
+    if (ita)  ita.style.display  = 'none';
+    if (dash) dash.style.display = 'none';
+    if (load) load.style.display = 'none';
+    panel.style.display = 'block';
+    renderComparativa();
+  } else {
+    btn.classList.remove('active');
+    panel.style.display = 'none';
+    if (flt)  flt.style.display  = '';
+    if (ita)  ita.style.display  = '';
+    if (dash && dash.children.length) dash.style.display = 'block';
+    else if (load) load.style.display = 'flex';
+  }
+}
+
+function cmpDestroyCharts() {
+  Object.keys(histCharts).forEach(k => { try { histCharts[k].destroy(); } catch(e){} delete histCharts[k]; });
+}
+
+/* ── Render shell ── */
+function renderComparativa() {
+  cmpDestroyCharts();
+  const panel = document.getElementById('comparativaPanel');
+  if (!panel) return;
+  if (!allData || !allData.length) {
+    panel.innerHTML = `<div class="cmp-wrap"><div class="cmp-empty">Sin datos cargados todavía.</div></div>`;
+    return;
+  }
+  const asesores = cmpAsesores(cmpInitiative);
+  if (cmpAsesor !== '__ALL__' && !asesores.some(a => norm(a) === norm(cmpAsesor))) cmpAsesor = '__ALL__';
+  const color = CMP_INIT[cmpInitiative].color;
+  const itabsHtml = Object.keys(CMP_INIT).map(k =>
+    `<button class="cmp-itab ${k === cmpInitiative ? 'active' : ''}" style="--tc:${CMP_INIT[k].color}" onclick="cmpSetInitiative('${k}')">${CMP_INIT[k].label}</button>`).join('');
+  const optHtml = [`<option value="__ALL__" ${cmpAsesor === '__ALL__' ? 'selected' : ''}>👥 Equipo completo</option>`]
+    .concat(asesores.map(a => `<option value="${a.replace(/"/g,'&quot;')}" ${norm(a)===norm(cmpAsesor)?'selected':''}>${a}</option>`)).join('');
+  const subtabsHtml = cmpAsesor === '__ALL__' ? `<div class="cmp-subtabs">
+    ${['kpis|KPIs','tpv|TPV Completo','cvr|CVR','estados|Estados'].map(s => {
+      const [k,l] = s.split('|');
+      return `<button class="cmp-subtab ${k===cmpSubtab?'active':''}" onclick="cmpSetSubtab('${k}')">${l}</button>`;
+    }).join('')}</div>` : '';
+  panel.innerHTML = `<div class="cmp-wrap">
+    <div class="cmp-top">
+      <button class="cmp-back" onclick="toggleComparativa()">← Dashboard</button>
+      <div><div class="cmp-title">📊 Comparativa Histórica</div>
+        <div class="cmp-sub">Evolución mes a mes por iniciativa — desde ${fmtPeriod(MIN_PERIOD)}</div></div>
+    </div>
+    <div class="cmp-itabs">${itabsHtml}</div>
+    <div class="cmp-controls">
+      <label for="cmpAsesorSel">Vista</label>
+      <select id="cmpAsesorSel" class="cmp-sel" onchange="cmpSetAsesor(this.value)">${optHtml}</select>
+      ${subtabsHtml}
+    </div>
+    <div id="cmpBody"></div>
+  </div>`;
+  if (cmpAsesor === '__ALL__') renderCmpTeam(cmpInitiative, color);
+  else                          renderCmpAsesor(cmpInitiative, cmpAsesor, color);
+}
+
+function cmpSetInitiative(k) { cmpInitiative = k; cmpAsesor = '__ALL__'; cmpSubtab = 'kpis'; renderComparativa(); }
+function cmpSetAsesor(v)     { cmpAsesor = v; renderComparativa(); }
+function cmpSetSubtab(k)     { cmpSubtab = k; renderComparativa(); }
+
+/* ── Team view ── */
+function renderCmpTeam(initKey, color) {
+  const body = document.getElementById('cmpBody');
+  const { periods, byP } = cmpMetricsByPeriod(initKey, '__ALL__');
+  if (!periods.length) { body.innerHTML = `<div class="cmp-empty">No hay datos para ${CMP_INIT[initKey].label}.</div>`; return; }
+  const latest = periods[periods.length - 1];
+  if      (cmpSubtab === 'kpis')    renderTeamKpis(body, initKey, color, periods, byP, latest);
+  else if (cmpSubtab === 'tpv')     renderTeamTpv(body, initKey, color, periods, byP, latest);
+  else if (cmpSubtab === 'cvr')     renderTeamCvr(body, initKey, color, periods, byP, latest);
+  else if (cmpSubtab === 'estados') renderTeamEstados(body, initKey, color, periods, byP, latest);
+}
+
+function cmpHead(periods, latest, firstLabel) {
+  const ths = periods.map(p => { const {cls,mark} = cmpHeaderMeta(p,latest); return `<th class="${cls}">${fmtPeriod(p)}${mark}</th>`; }).join('');
+  return `<thead><tr><th class="lbl">${firstLabel}</th>${ths}</tr></thead>`;
+}
+function cmpRow(label, periods, byP, cellFn, rowCls) {
+  const tds = periods.map(p => {
+    const out = cellFn(p, byP[p]) || {};
+    const anom = p === ANOMALY_PERIOD ? ' col-anomaly' : '';
+    return `<td class="${out.cls||''}${anom}">${out.text != null ? out.text : '—'}</td>`;
+  }).join('');
+  return `<tr class="${rowCls||''}"><td class="lbl">${label}</td>${tds}</tr>`;
+}
+
+function renderTeamKpis(body, initKey, color, periods, byP, latest) {
+  const tgt = HIST_TARGETS[initKey];
+  const rows = [
+    `<tr class="sec"><td class="lbl" colspan="${periods.length+1}">Funnel</td></tr>`,
+    cmpRow('Nómina (asesores)',  periods, byP, (p,m) => ({text: fmtN(m.asesores.size)})),
+    cmpRow('Leads asignados',    periods, byP, (p,m) => ({text: fmtN(m.asignados)})),
+    cmpRow('Leads reales',       periods, byP, (p,m) => ({text: fmtN(m.reales)})),
+    cmpRow('% reales / asig.',   periods, byP, (p,m) => ({text: fmtPct(m.reales,m.asignados), cls:'v-mut'})),
+    cmpRow('Gestionados %',      periods, byP, (p,m) => ({text: fmtPct(m.gestionados,m.reales)})),
+    cmpRow('Contactados %',      periods, byP, (p,m) => ({text: fmtPct(m.contactados,m.reales)})),
+    cmpRow('Conv. declarados',   periods, byP, (p,m) => ({text: fmtN(m.convDecl)})),
+    cmpRow('Conv. válidos',      periods, byP, (p,m) => ({text: fmtN(m.convVal), cls:'v-good'})),
+    cmpRow('% vál. / decl.',     periods, byP, (p,m) => ({text: fmtPct(m.convVal,m.convDecl), cls:'v-mut'})),
+    cmpRow('CVR total',          periods, byP, (p,m) => ({text: m.cvr.toFixed(1)+'%', cls: cmpColourClass(m.cvr,CMP_CVR_TARGET,CMP_CVR_TARGET*.75)})),
+    cmpRow('Avance vs target',   periods, byP, (p,m) => {
+      const tt = tgt.perAsesor ? tgt.perAsesor * Math.max(m.asesores.size,1) : tgt.total;
+      if (!tt) return {text:'—'};
+      const pct = m.tpvM1/tt*100;
+      return {text: Math.round(pct)+'%'+(cmpIsOpenMonth(p)?'*':''), cls: cmpColourClass(pct,100,80)};
+    }, 'result'),
+  ];
+  body.innerHTML = `<div class="cmp-tw"><table class="ctable">${cmpHead(periods,latest,'Métrica')}<tbody>${rows.join('')}</tbody></table></div>
+    <div class="cmp-chart-card"><div class="cct">Conv. válidos — evolución mensual</div><div class="cmp-chart-box"><canvas id="cmpKpiChart"></canvas></div></div>`;
+  cmpLineChart('cmpKpiChart', periods, [{label:'Conv. válidos', data:periods.map(p=>byP[p].convVal), color, fill:true}], {yTitle:'Conv. válidos'});
+}
+
+function renderTeamTpv(body, initKey, color, periods, byP, latest) {
+  const tgt = HIST_TARGETS[initKey];
+  const M = v => v/1e6;
+  const rows = [
+    `<tr class="sec"><td class="lbl" colspan="${periods.length+1}">TPV (Transacciones)</td></tr>`,
+    cmpRow('TPV M0 ($M)',           periods, byP, (p,m) => ({text:fmtM(m.tpvM0), cls:'v-mut'})),
+    cmpRow('TPV M1 ($M)',           periods, byP, (p,m) => ({text:fmtM(m.tpvM1), cls:'v-good'})),
+    cmpRow('vs M0 (M1/M0)',         periods, byP, (p,m) => { if(!m.tpvM0)return{text:'—'}; const r=m.tpvM1/m.tpvM0; return{text:r.toFixed(2)+'×',cls:cmpColourClass(r,1,.8)}; }),
+    cmpRow('Target TPV M1 equipo',  periods, byP, (p,m) => { const tt=tgt.perAsesor?tgt.perAsesor*Math.max(m.asesores.size,1):tgt.total; return{text:fmtM(tt),cls:'v-mut'}; }),
+    cmpRow('Avance vs target',      periods, byP, (p,m) => { const tt=tgt.perAsesor?tgt.perAsesor*Math.max(m.asesores.size,1):tgt.total; if(!tt)return{text:'—'}; const pct=m.tpvM1/tt*100; return{text:Math.round(pct)+'%'+(cmpIsOpenMonth(p)?'*':''),cls:cmpColourClass(pct,100,80)}; }, 'result'),
+    `<tr class="sec"><td class="lbl" colspan="${periods.length+1}">VC (Valor Convertidos)</td></tr>`,
+    cmpRow('VC M0 ($M)', periods, byP, (p,m) => ({text:fmtM(m.vcM0), cls:'v-mut'})),
+    cmpRow('VC M1 ($M)', periods, byP, (p,m) => ({text:fmtM(m.vcM1)})),
+    cmpRow('vs M0 (M1/M0)', periods, byP, (p,m) => { if(!m.vcM0)return{text:'—'}; const r=m.vcM1/m.vcM0; return{text:r.toFixed(2)+'×',cls:cmpColourClass(r,1,.8)}; }),
+    `<tr class="sec"><td class="lbl" colspan="${periods.length+1}">Referencia</td></tr>`,
+    cmpRow('Conv. válidos',         periods, byP, (p,m) => ({text:fmtN(m.convVal)})),
+    cmpRow('TPV M1 / conv. válido', periods, byP, (p,m) => ({text:m.convVal?fmtM(m.tpvM1/m.convVal):'—',cls:'v-mut'})),
+  ];
+  body.innerHTML = `<div class="cmp-tw"><table class="ctable">${cmpHead(periods,latest,'Métrica')}<tbody>${rows.join('')}</tbody></table></div>
+    <div class="cmp-chart-card"><div class="cct">TPV y VC — evolución mensual ($M)</div><div class="cmp-chart-box"><canvas id="cmpTpvChart"></canvas></div></div>`;
+  cmpLineChart('cmpTpvChart', periods, [
+    {label:'TPV M1', data:periods.map(p=>M(byP[p].tpvM1)), color, fill:false, width:3},
+    {label:'TPV M0', data:periods.map(p=>M(byP[p].tpvM0)), color, dashed:true, width:2},
+    {label:'VC M1',  data:periods.map(p=>M(byP[p].vcM1)),  color:'#0075BE', fill:false, width:1.5},
+    {label:'VC M0',  data:periods.map(p=>M(byP[p].vcM0)),  color:'#0075BE', dashed:true, width:1},
+  ], {yTitle:'$M'});
+}
+
+function renderTeamCvr(body, initKey, color, periods, byP, latest) {
+  const motivoKey = (m, key) => {
+    const total = Object.values(m.motivos).reduce((s,v)=>s+v,0);
+    if (!total) return null;
+    const hit = Object.entries(m.motivos).filter(([k])=>norm(k).includes(key)).reduce((s,[,v])=>s+v,0);
+    return hit/total*100;
+  };
+  const rows = [
+    cmpRow('CVR total',            periods, byP, (p,m) => ({text:m.cvr.toFixed(1)+'%', cls:cmpColourClass(m.cvr,CMP_CVR_TARGET,CMP_CVR_TARGET*.75)})),
+    cmpRow('Comisiones (tgt 40%)', periods, byP, (p,m) => { const v=motivoKey(m,'comision'); return v==null?{text:'—'}:{text:v.toFixed(1)+'%',cls:cmpColourClass(v,CMP_CVR_TARGET,CMP_CVR_TARGET*.75)}; }),
+    cmpRow('Prob. Dispositivo',    periods, byP, (p,m) => { const v=motivoKey(m,'dispositivo'); return v==null?{text:'—'}:{text:v.toFixed(1)+'%',cls:'v-mut'}; }),
+    cmpRow('Créditos',             periods, byP, (p,m) => { const v=motivoKey(m,'credito'); return v==null?{text:'—'}:{text:v.toFixed(1)+'%',cls:'v-mut'}; }),
+    cmpRow('Bloqueo Cuenta',       periods, byP, (p,m) => { const v=motivoKey(m,'bloqueo'); return v==null?{text:'—'}:{text:v.toFixed(1)+'%',cls:'v-mut'}; }),
+  ];
+  body.innerHTML = `<div class="cmp-tw"><table class="ctable">${cmpHead(periods,latest,'CVR / Motivo')}<tbody>${rows.join('')}</tbody></table></div>
+    <div class="cmp-chart-card"><div class="cct">CVR y motivos — evolución mensual (%)</div><div class="cmp-chart-box"><canvas id="cmpCvrChart"></canvas></div></div>`;
+  cmpLineChart('cmpCvrChart', periods, [
+    {label:'CVR Total',        data:periods.map(p=>byP[p].cvr), color, fill:false, width:3},
+    {label:'Comisiones',       data:periods.map(p=>motivoKey(byP[p],'comision')||0),    color:'#FF7733', width:2},
+    {label:'Prob. Dispositivo',data:periods.map(p=>motivoKey(byP[p],'dispositivo')||0), color:'#8C4DFF', width:2},
+  ], {yTitle:'%'});
+}
+
+function renderTeamEstados(body, initKey, color, periods, byP, latest) {
+  const totals = {};
+  periods.forEach(p => Object.entries(byP[p].estados).forEach(([k,v]) => { totals[k]=(totals[k]||0)+v; }));
+  const estadoLabels = Object.keys(totals).sort((a,b)=>totals[b]-totals[a]);
+  const rows = [
+    cmpRow('Total asignados', periods, byP, (p,m) => ({text:fmtN(m.asignados)}), 'sec'),
+    ...estadoLabels.map(lbl => cmpRow(lbl, periods, byP, (p,m) => {
+      const n = m.estados[lbl]||0;
+      const pct = m.asignados ? Math.round(n/m.asignados*100) : 0;
+      return {text: n ? `${fmtN(n)} · ${pct}%` : '—', cls: n ? '' : 'v-mut'};
+    })),
+    cmpRow('Conv. válidos',       periods, byP, (p,m) => ({text:fmtN(m.convVal), cls:'v-good'}), 'result'),
+    cmpRow('% NA sobre asignados',periods, byP, (p,m) => ({text:fmtPct(m.naCount,m.asignados), cls:'v-mut'}), 'result'),
+  ];
+  body.innerHTML = `<div class="cmp-tw"><table class="ctable">${cmpHead(periods,latest,'Estado')}<tbody>${rows.join('')}</tbody></table></div>`;
+}
+
+/* ── Individual asesor view ── */
+function renderCmpAsesor(initKey, asesor, color) {
+  const body = document.getElementById('cmpBody');
+  const { periods, byP } = cmpMetricsByPeriod(initKey, asesor);
+  if (!periods.length) { body.innerHTML = `<div class="cmp-empty">Sin registros históricos para <b>${asesor}</b>.</div>`; return; }
+  const latest   = periods[periods.length-1];
+  const prev     = periods.length > 1 ? periods[periods.length-2] : null;
+  const lastM    = byP[latest];
+  const deltaConv = prev ? lastM.convVal - byP[prev].convVal : null;
+  const totalConv = periods.reduce((s,p)=>s+byP[p].convVal, 0);
+  let bestConvP = periods[0];
+  periods.forEach(p => { if(byP[p].convVal > byP[bestConvP].convVal) bestConvP=p; });
+  let bestTpvP = periods[0];
+  periods.forEach(p => { if(byP[p].tpvM1 > byP[bestTpvP].tpvM1) bestTpvP=p; });
+  const deltaHtml = deltaConv==null ? '<span class="v-mut">—</span>'
+    : `<span class="${deltaConv>0?'v-good':deltaConv<0?'v-bad':'v-mut'}">${deltaConv>0?'▲':deltaConv<0?'▼':'='} ${Math.abs(deltaConv)}</span>`;
+  const histRows = [
+    cmpRow('Conv. válidos', periods, byP, (p,m) => ({text:fmtN(m.convVal), cls:'v-good'})),
+    cmpRow('TPV M1 ($M)',   periods, byP, (p,m) => ({text:fmtM(m.tpvM1)})),
+    cmpRow('TPV M0 ($M)',   periods, byP, (p,m) => ({text:fmtM(m.tpvM0), cls:'v-mut'})),
+    cmpRow('VC M1 ($M)',    periods, byP, (p,m) => ({text:fmtM(m.vcM1)})),
+    cmpRow('VC M0 ($M)',    periods, byP, (p,m) => ({text:fmtM(m.vcM0), cls:'v-mut'})),
+  ].join('');
+  body.innerHTML = `<div id="cmpPrintArea">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+      <div class="cmp-profile" style="flex:1;min-width:280px;margin-bottom:0">
+        <div class="cmp-avatar" style="background:${color}">${cmpInitials(asesor)}</div>
+        <div>
+          <div class="cmp-profile-name">${asesor}</div>
+          <div class="cmp-profile-meta">Activo desde ${fmtPeriod(periods[0])}</div>
+          <span class="cmp-profile-pill" style="background:${color}">${CMP_INIT[initKey].label}</span>
+        </div>
+      </div>
+      <button class="cmp-export" onclick="cmpExportPDF()">🖨️ Exportar PDF</button>
+    </div>
+    <div class="cmp-kpis" style="margin-top:18px">
+      <div class="cmp-kpi"><div class="k-label">Conv. válidos (${fmtPeriod(latest)})</div><div class="k-value">${fmtN(lastM.convVal)}</div><div class="k-sub">último mes</div></div>
+      <div class="cmp-kpi"><div class="k-label">Δ vs mes anterior</div><div class="k-value">${deltaHtml}</div><div class="k-sub">${prev?'vs '+fmtPeriod(prev):'sin histórico previo'}</div></div>
+      <div class="cmp-kpi"><div class="k-label">Total histórico</div><div class="k-value">${fmtN(totalConv)}</div><div class="k-sub">conv. válidos acumulados</div></div>
+      <div class="cmp-kpi"><div class="k-label">Mejor mes conv.</div><div class="k-value">${fmtN(byP[bestConvP].convVal)}</div><div class="k-sub">${fmtPeriod(bestConvP)}</div></div>
+      <div class="cmp-kpi"><div class="k-label">TPV M1 último</div><div class="k-value">${fmtM(lastM.tpvM1)}</div><div class="k-sub">${fmtPeriod(latest)}</div></div>
+      <div class="cmp-kpi"><div class="k-label">Mejor TPV M1</div><div class="k-value">${fmtM(byP[bestTpvP].tpvM1)}</div><div class="k-sub">${fmtPeriod(bestTpvP)}</div></div>
+    </div>
+    <div class="cmp-grid2">
+      <div class="cmp-chart-card" style="margin-top:0"><div class="cct">Conv. válidos mes a mes</div><div class="cmp-chart-box"><canvas id="cmpAsConvChart"></canvas></div></div>
+      <div class="cmp-chart-card" style="margin-top:0"><div class="cct">TPV M1 ($M)</div><div class="cmp-chart-box"><canvas id="cmpAsTpv1Chart"></canvas></div></div>
+      <div class="cmp-chart-card" style="margin-top:0"><div class="cct">TPV M0 ($M)</div><div class="cmp-chart-box"><canvas id="cmpAsTpv0Chart"></canvas></div></div>
+      <div class="cmp-chart-card" style="margin-top:0"><div class="cct">VC M0 y VC M1 ($M)</div><div class="cmp-chart-box"><canvas id="cmpAsVcChart"></canvas></div></div>
+    </div>
+    <div class="cmp-chart-card">
+      <div class="cct">Tabla histórica completa</div>
+      <div class="cmp-tw"><table class="ctable">${cmpHead(periods,latest,'Métrica')}<tbody>${histRows}</tbody></table></div>
+    </div>
+  </div>`;
+  const M = v => v/1e6;
+  const barColors = periods.map(p => p===bestConvP ? '#FFC107' : color);
+  cmpBarChart('cmpAsConvChart', periods, periods.map(p=>byP[p].convVal), barColors, {yTitle:'Conv. válidos'});
+  cmpLineChart('cmpAsTpv1Chart', periods, [{label:'TPV M1', data:periods.map(p=>M(byP[p].tpvM1)), color, fill:true, width:3}], {yTitle:'$M'});
+  cmpLineChart('cmpAsTpv0Chart', periods, [{label:'TPV M0', data:periods.map(p=>M(byP[p].tpvM0)), color:'#888888', fill:true, dashed:true, width:2}], {yTitle:'$M'});
+  cmpLineChart('cmpAsVcChart', periods, [
+    {label:'VC M1', data:periods.map(p=>M(byP[p].vcM1)), color:'#0075BE', width:2.5},
+    {label:'VC M0', data:periods.map(p=>M(byP[p].vcM0)), color:'#FF7733', dashed:true, width:2},
+  ], {yTitle:'$M'});
+}
+
+function cmpExportPDF() {
+  document.body.classList.add('cmp-printing');
+  const cleanup = () => { document.body.classList.remove('cmp-printing'); window.removeEventListener('afterprint', cleanup); };
+  window.addEventListener('afterprint', cleanup);
+  setTimeout(() => { if(document.body.classList.contains('cmp-printing')) cleanup(); }, 1500);
+  window.print();
+}
+
+function cmpLineChart(id, periods, series, opts) {
+  const el = document.getElementById(id); if (!el) return;
+  if (histCharts[id]) { try{histCharts[id].destroy();}catch(e){} delete histCharts[id]; }
+  histCharts[id] = new Chart(el, {
+    type:'line',
+    data:{ labels:periods.map(fmtPeriod), datasets:series.map(s=>({
+      label:s.label, data:s.data, borderColor:s.color,
+      backgroundColor: s.fill ? cmpHexA(s.color,.12) : s.color,
+      borderWidth:s.width||2, borderDash:s.dashed?[6,4]:[], fill:!!s.fill,
+      tension:.25, pointRadius:3, pointHoverRadius:5, pointBackgroundColor:s.color,
+    }))},
+    options:{ responsive:true, maintainAspectRatio:false,
+      interaction:{mode:'index',intersect:false},
+      plugins:{ legend:{display:series.length>1, labels:{usePointStyle:true,boxWidth:8}}, tooltip:{} },
+      scales:{ y:{beginAtZero:true, title:{display:!!(opts&&opts.yTitle),text:opts&&opts.yTitle}, grid:{color:'#F0F0F0'}}, x:{grid:{display:false}} },
+    },
+  });
+}
+
+function cmpBarChart(id, periods, data, colors, opts) {
+  const el = document.getElementById(id); if (!el) return;
+  if (histCharts[id]) { try{histCharts[id].destroy();}catch(e){} delete histCharts[id]; }
+  histCharts[id] = new Chart(el, {
+    type:'bar',
+    data:{ labels:periods.map(fmtPeriod), datasets:[{data, backgroundColor:colors, borderRadius:6, maxBarThickness:48}] },
+    options:{ responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false} },
+      scales:{ y:{beginAtZero:true, title:{display:!!(opts&&opts.yTitle),text:opts&&opts.yTitle}, ticks:{precision:0}, grid:{color:'#F0F0F0'}}, x:{grid:{display:false}} },
+    },
+  });
+}
+
+function cmpHexA(hex, a) {
+  const h = String(hex).replace('#','');
+  const f = h.length===3 ? h.split('').map(c=>c+c).join('') : h;
+  const n = parseInt(f,16);
+  return `rgba(${(n>>16)&255},${(n>>8)&255},${n&255},${a})`;
 }
 </script>
 </body>
