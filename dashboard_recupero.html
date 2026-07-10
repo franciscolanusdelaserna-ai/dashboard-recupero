@@ -1071,6 +1071,34 @@ function onProductChange(p) {
 function onSegmentChange(s) { activeSegment = s; applyDataFilters(); buildProdFilterBar(); render(); }
 function onFiscalChange(f)  { activeFiscal  = f; applyDataFilters(); buildProdFilterBar(); render(); }
 
+// ─── V3: lookup de histórico para MoM (mes cerrado = último snapshot con valor != 0) ──
+let histM1 = {}, histM0 = {}, histLoaded = false;
+const TAB_TO_INIT = { total:'Total', temprano:'Recupero Temprano', tardio:'Recupero Tardío', reactivacion:'Reactivación', chinos:'Chinos' };
+async function loadHistLookup() {
+  try {
+    const res = await fetch(`kpis_historico.json?v=${Date.now()}`);
+    if (!res.ok) return;
+    const d = await res.json();
+    const byKey = {};
+    for (const r of d) {
+      const key = (r.Iniciativa||'') + '|' + (r['Cohort (Mes)']||'');
+      (byKey[key] = byKey[key] || []).push(r);
+    }
+    for (const key in byKey) {
+      const rows = byKey[key].sort((a,b)=>String(a.Fecha||'').localeCompare(String(b.Fecha||'')));
+      let lm1=0, lm0=0;
+      for (const r of rows) {
+        const m1 = parseNum(r['TPV M1 Real']), m0 = parseNum(r['TPV M0']);
+        if (m1 > 0) lm1 = m1;
+        if (m0 > 0) lm0 = m0;
+      }
+      histM1[key] = lm1; histM0[key] = lm0;
+    }
+    histLoaded = true;
+    render();  // re-render con el MoM ya disponible
+  } catch(e) { console.warn('histórico no cargado:', e); }
+}
+
 function boot(data) {
   allDataFull = data.filter(r => {
     const m = String(r.MES_COHORT || '').trim();
@@ -1084,6 +1112,7 @@ function boot(data) {
   buildFilters();
   updatePills();
   render();
+  loadHistLookup();  // V3: carga histórico para el MoM (asíncrono, re-renderiza al terminar)
   document.getElementById('loadingDiv').style.display = 'none';
   document.getElementById('dash').style.display = 'block';
   scheduleRefresh();
@@ -1726,6 +1755,14 @@ function renderMoneyCaratula() {
   const rows = getMoneyRows(activePeriod);
   const P = ['POINT','QR','LINK'], LBL = {POINT:'Point', QR:'QR', LINK:'Link'};
   const m = {}; P.forEach(p => m[p] = productMoney(rows, p, openCohort, activePeriod));
+  // V3: histórico para MoM y para meses cerrados (planilla en 0)
+  const initName = (TAB_TO_INIT[activeTab] || 'Total');
+  const hv = (map, c) => (map[initName + '|' + c] || 0);
+  const momCohort = (activePeriod !== 'all') ? activePeriod : (openCohort ? openCohort.cohortPeriod : null);
+  if (activePeriod !== 'all') {   // cohort cerrado: tomar valor real del histórico (solo Point)
+    if (m.POINT.m0 === 0) m.POINT.m0 = hv(histM0, activePeriod);
+    if (m.POINT.m1 === 0) { m.POINT.m1 = hv(histM1, activePeriod); m.POINT.isFcst = false; }
+  }
   const anyFcst = P.some(p => m[p].isFcst);
   const fTag = `<span style="font-size:.52rem;font-weight:700;color:#FF8C00;background:#FFF3E0;padding:1px 4px;border-radius:5px;margin-left:3px">fcst</span>`;
   const LB = 'font-size:.6rem;color:#888;font-weight:700;text-transform:uppercase;letter-spacing:.3px';
@@ -1741,7 +1778,12 @@ function renderMoneyCaratula() {
 
   const col = p => {
     const d = m[p];
-    const pm1 = productPrevSum(p,'TPV_M1'), pvc1 = productPrevSum(p,'VC_M1');
+    let pm1 = productPrevSum(p,'TPV_M1');
+    const pvc1 = productPrevSum(p,'VC_M1');
+    if (p === 'POINT' && momCohort) {   // MoM Point desde histórico (mes anterior final)
+      const hp = hv(histM1, getPrevPeriod(momCohort));
+      if (hp > 0) pm1 = hp;
+    }
     const cell = (lbl, val, fc, vsBase, momBase, colr) => `
       <div>
         <div style="${LB}">${lbl}${fc?fTag:''}</div>
