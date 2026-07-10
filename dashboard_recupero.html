@@ -824,7 +824,7 @@ function getOpenCohortInfo() {
   const cohortPeriod = `${cohortY}-${String(cohortM).padStart(2,'0')}-01`;
 
   // Verificar que exista en los datos
-  if (!allData.some(r => String(r.MES||'').trim() === cohortPeriod)) return null;
+  if (!allDataFull.some(r => String(r.MES_COHORT||'').trim() === cohortPeriod)) return null;  // V3: cohort abierto = concepto de tiempo, no de producto
 
   const daysInMonth = new Date(todayY, todayM, 0).getDate();  // último día del mes corriente
   const multiplier  = daysInMonth / daysElapsed;
@@ -1066,7 +1066,7 @@ function buildProdFilterBar() {
 
 function onProductChange(p) {
   activeProduct = p; activeSegment = 'all';
-  applyDataFilters(); buildFilters(); buildProdFilterBar(); render();
+  applyDataFilters(); buildProdFilterBar(); render();   // NO reconstruir asesores (mantener universo completo)
 }
 function onSegmentChange(s) { activeSegment = s; applyDataFilters(); buildProdFilterBar(); render(); }
 function onFiscalChange(f)  { activeFiscal  = f; applyDataFilters(); buildProdFilterBar(); render(); }
@@ -1139,11 +1139,12 @@ function showErr(msg) {
 
 // ─── FILTERS ─────────────────────────────────────────────────────────────────
 function buildFilters() {
-  const periods = [...new Set(allData.map(r => String(r.MES||'').trim()).filter(Boolean))].sort();
+  // V3: universo completo (todos los productos) para que el filtro de producto NO achique asesores/cohorts
+  const periods = [...new Set(allDataFull.map(r => String(r.MES_COHORT||'').trim()).filter(Boolean))].sort();
   buildCohortOptions(periods);
 
-  // Multi-select de asesores
-  allAsesores = [...new Set(allData.map(r => (r.ASESOR||'').trim()).filter(Boolean))].sort();
+  // Multi-select de asesores — del universo completo
+  allAsesores = [...new Set(allDataFull.map(r => (r.ASESOR||'').trim()).filter(Boolean))].sort();
   activeAsesores = getDefaultAsesores();
   buildAsesorCheckboxes();
 }
