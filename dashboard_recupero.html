@@ -1778,6 +1778,7 @@ function renderMoneyCaratula() {
 
   const col = p => {
     const d = m[p];
+    const hasData = d.m0 > 0 || d.m1 > 0 || d.vc0 > 0 || d.vc1 > 0;
     let pm1 = productPrevSum(p,'TPV_M1');
     const pvc1 = productPrevSum(p,'VC_M1');
     if (p === 'POINT' && momCohort) {   // MoM Point desde histórico (mes anterior final)
@@ -1787,14 +1788,14 @@ function renderMoneyCaratula() {
     const cell = (lbl, val, fc, vsBase, momBase, colr) => `
       <div>
         <div style="${LB}">${lbl}${fc?fTag:''}</div>
-        <div style="${VL}${colr?';color:'+colr:''}">${fmtM(val)}</div>
+        <div style="${VL}${(colr&&hasData)?';color:'+colr:''}">${hasData ? fmtM(val) : '—'}</div>
         <div style="display:flex;gap:3px;flex-wrap:wrap;margin-top:2px">
           ${vsBase!==null ? badge(val, vsBase, 'vs M0') : ''}${momBase!==null ? badge(val, momBase, 'MoM') : ''}
         </div>
       </div>`;
     return `
       <div style="flex:1;min-width:170px;background:#fafbff;border:1px solid #eaeefb;border-radius:12px;padding:14px 16px">
-        <div style="font-weight:800;color:#0a0080;font-size:.92rem;margin-bottom:10px">${LBL[p]}</div>
+        <div style="font-weight:800;color:#0a0080;font-size:.92rem;margin-bottom:${hasData?'10px':'2px'}">${LBL[p]}</div>${hasData ? '' : '<div style="font-size:.6rem;color:#aaa;margin-bottom:8px">sin datos aún</div>'}
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px 14px">
           ${cell('TPV M0', d.m0, false, null, null, null)}
           ${cell('TPV M1', d.m1, d.isFcst, d.m0>0?d.m0:null, (pm1!==null&&pm1>0)?pm1:null, '#0075BE')}
