@@ -2576,9 +2576,13 @@ function renderHistorico() {
     { key:'Conv. Declarados',       lbl:'Conv. Decl.',     tpv:false, pct:false },
     { key:'Conv. Válidos',          lbl:'Conv. Vál.',      tpv:false, pct:false },
     { key:'Conv. Válidos Mes Ant.', lbl:'Conv. Vál. M1',   tpv:false, pct:false },
-    { key:'TPV M0',                 lbl:'TPV M0',          tpv:true,  pct:false },
-    { key:'TPV M1 Real M-1',        lbl:'TPV M1 Real M-1', tpv:true,  pct:false },
-    { key:'TPV M1 Fcst M-1',        lbl:'TPV M1 Fcst M-1', tpv:true,  pct:false },
+    { key:'TPV M0',                 lbl:'TPV M0 Point',    tpv:true,  pct:false },
+    { key:'TPV M1 Real M-1',        lbl:'M1 Real Point',   tpv:true,  pct:false },
+    { key:'TPV M1 Fcst M-1',        lbl:'M1 Fcst Point',   tpv:true,  pct:false },
+    { key:'TPV M0 QR',              lbl:'TPV M0 QR',       tpv:true,  pct:false },
+    { key:'TPV M1 Real M-1 QR',     lbl:'M1 Real QR',      tpv:true,  pct:false },
+    { key:'TPV M0 LINK',            lbl:'TPV M0 Link',     tpv:true,  pct:false },
+    { key:'TPV M1 Real M-1 LINK',   lbl:'M1 Real Link',    tpv:true,  pct:false },
   ];
 
   const thS  = 'padding:6px 10px;text-align:right;font-size:.62rem;text-transform:uppercase;color:#555;font-weight:700;border-bottom:2px solid #E0E0E0;white-space:nowrap';
@@ -2720,11 +2724,21 @@ async function loadMonitoreo() {
       } catch(e) {}
     }
     if (!data || !data.length) throw new Error('No se pudo cargar data_activa.json');
-    // V3: solo sellers monitoreados en el producto activo; alias de campos + MES = Corriente/Anterior
-    data = data.filter(r => (r.PRODUCTOS || []).includes(activeProduct))
-               .map(r => { aliasProduct(r, activeProduct); r.MES = r.MES_LABEL || ''; return r; });
-    monitoreoData = data;
-    renderMonitoreo(data);
+    // V3: explotar a una fila por (seller × producto monitoreado); semáforo/TPV/días de ESE producto
+    const PLBL = { POINT:'Point', QR:'QR', LINK:'Link' };
+    const exploded = [];
+    for (const r of data) {
+      const prods = (r.PRODUCTOS && r.PRODUCTOS.length) ? r.PRODUCTOS : ['POINT'];
+      for (const prod of prods) {
+        const rr = Object.assign({}, r);
+        aliasProduct(rr, prod);
+        rr.MES = rr.MES_LABEL || '';
+        rr._PRODUCTO = PLBL[prod] || prod;
+        exploded.push(rr);
+      }
+    }
+    monitoreoData = exploded;
+    renderMonitoreo(exploded);
   } catch(e) {
     panel.innerHTML = `<div style="text-align:center;padding:40px;color:#E53935">Error cargando datos: ${e.message}<br><small>Corré actualizar_dashboard.py para generar data_activa.json</small></div>`;
   }
@@ -2895,6 +2909,7 @@ function renderMonitoreo(data) {
 
   const cols = [
     { key:'CUST_ID',         label:'Cust ID' },
+    { key:'_PRODUCTO',       label:'Producto' },
     { key:'SEGMENTO',        label:'Segmento' },
     { key:'RECUPERO_TIPO',   label:'Tipo' },
     { key:'DIAS_SIN_COBRAR', label:'Días sin cobrar' },
@@ -2925,6 +2940,7 @@ function renderMonitoreo(data) {
 
     return `<tr style="background:${bg}">
       <td>${dot}${r.CUST_ID}</td>
+      <td style="font-weight:700;color:#0a0080">${r._PRODUCTO||''}</td>
       <td>${r.SEGMENTO}</td>
       <td>${r.RECUPERO_TIPO}</td>
       <td style="text-align:center">${diasCell}</td>
