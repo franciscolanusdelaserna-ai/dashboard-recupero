@@ -1778,8 +1778,10 @@ function renderMoneyCaratula() {
   };
 
   const col = p => {
+    const isSel = (p === activeProduct);          // producto elegido en el selector de arriba
     const d = m[p];
     const hasData = d.m0 > 0 || d.m1 > 0 || d.vc0 > 0 || d.vc1 > 0;
+    const show = isSel && hasData;                // solo el seleccionado muestra datos; los otros en blanco
     let pm1 = productPrevSum(p,'TPV_M1');
     const pvc1 = productPrevSum(p,'VC_M1');
     if (p === 'POINT' && momCohort) {   // MoM Point desde histórico (mes anterior final)
@@ -1788,15 +1790,19 @@ function renderMoneyCaratula() {
     }
     const cell = (lbl, val, fc, vsBase, momBase, colr) => `
       <div>
-        <div style="${LB}">${lbl}${fc?fTag:''}</div>
-        <div style="${VL}${(colr&&hasData)?';color:'+colr:''}">${hasData ? fmtM(val) : '—'}</div>
+        <div style="${LB}">${lbl}${(fc&&show)?fTag:''}</div>
+        <div style="${VL}${(colr&&show)?';color:'+colr:''}">${show ? fmtM(val) : '—'}</div>
         <div style="display:flex;gap:3px;flex-wrap:wrap;margin-top:2px">
-          ${vsBase!==null ? badge(val, vsBase, 'vs M0') : ''}${momBase!==null ? badge(val, momBase, 'MoM') : ''}
+          ${show&&vsBase!==null ? badge(val, vsBase, 'vs M0') : ''}${show&&momBase!==null ? badge(val, momBase, 'MoM') : ''}
         </div>
       </div>`;
+    const blockStyle = isSel
+      ? 'flex:1;min-width:170px;background:#eef7ff;border:2px solid #009EE3;border-radius:12px;padding:13px 15px'
+      : 'flex:1;min-width:170px;background:#f7f7f8;border:1px solid #eee;border-radius:12px;padding:14px 16px;opacity:.4';
+    const note = (isSel && !hasData) ? '<div style="font-size:.6rem;color:#aaa;margin-bottom:8px">sin datos aún</div>' : '';
     return `
-      <div style="flex:1;min-width:170px;background:#fafbff;border:1px solid #eaeefb;border-radius:12px;padding:14px 16px">
-        <div style="font-weight:800;color:#0a0080;font-size:.92rem;margin-bottom:${hasData?'10px':'2px'}">${LBL[p]}</div>${hasData ? '' : '<div style="font-size:.6rem;color:#aaa;margin-bottom:8px">sin datos aún</div>'}
+      <div style="${blockStyle}">
+        <div style="font-weight:800;color:#0a0080;font-size:.92rem;margin-bottom:${(isSel&&!hasData)?'2px':'10px'}">${LBL[p]}${isSel?' ✓':''}</div>${note}
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px 14px">
           ${cell('TPV M0', d.m0, false, null, null, null)}
           ${cell('TPV M1', d.m1, d.isFcst, d.m0>0?d.m0:null, (pm1!==null&&pm1>0)?pm1:null, '#0075BE')}
