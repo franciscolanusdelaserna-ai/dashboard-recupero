@@ -541,10 +541,17 @@
 
   <div id="dash" style="display:none;">
 
-    <!-- TARGET BAR -->
+    <!-- V3: FILTROS PRODUCTO / SEGMENTO / CONDICIÓN FISCAL -->
+    <div id="prodFilterBar" style="margin-bottom:14px;"></div>
+
+    <!-- TARGET BAR (V3: desactivado, se redefine más adelante) -->
     <div id="targetBar" style="margin-bottom:14px;"></div>
 
-    <!-- KPIs -->
+    <!-- V3: CARÁTULA $ (TPV/VC por producto Point/QR/Link) -->
+    <div id="moneyCaratula" style="margin-bottom:18px;"></div>
+
+    <!-- GESTIÓN (funnel) -->
+    <div class="sdiv">Gestión</div>
     <div class="kpi-grid" id="kpiGrid"></div>
 
     <!-- FUNNEL + ESTADO -->
@@ -702,6 +709,7 @@ function getDefaultAsesores() {
 
 // Devuelve el target efectivo según cuántos asesores y cuántos cohorts están visibles
 function getEffectiveTarget(tab) {
+  return null;  // V3: targets desactivados (se redefinen más adelante). Deja el targetBar vacío.
   const cfg = TARGETS[tab];
   if (!cfg) return null;
 
@@ -988,22 +996,91 @@ async function loadData() {
   showErr('No se pudieron cargar los datos.<br><code>Corré actualizar_dashboard.py para subir los datos.</code>');
 }
 
+// ─── V3: producto / segmento / condición fiscal ────────────────────────────────
+let allDataFull   = [];
+let activeProduct = 'POINT';
+let activeSegment = 'all';
+let activeFiscal  = 'all';
+const PROD_LABEL  = { POINT:'Point', QR:'QR', LINK:'Link' };
+const SEG_SENTINELS = new Set(['NO POINTER','NO QR','NO LINK','']);
+
+// Mapea los campos V3 (por producto) a los nombres genéricos que ya usan las vistas
+function aliasProduct(r, prod) {
+  r.MES           = r.MES_COHORT || '';
+  r.RECUPERO_TIPO = r.CANAL_ASIGNACION || '';
+  r.SEGMENTO      = r['SEGMENTO_' + prod] || '';
+  r.TPV_M0        = r['TPV_M0_' + prod] || 0;
+  r.TPV_M1        = r['TPV_M1_' + prod] || 0;
+  r.VC_M0         = r['VC_M0_' + prod] || 0;
+  r.VC_M1         = r['VC_M1_' + prod] || 0;
+  const dk = 'DIAS_' + prod;
+  if (r[dk] !== undefined) r.DIAS_SIN_COBRAR = r[dk];
+  return r;
+}
+
+// Sellers monitoreados en el producto activo (según columna S), ya aliaseados
+function productData() {
+  return allDataFull
+    .filter(r => (r.PRODUCTOS || []).includes(activeProduct))
+    .map(r => aliasProduct(r, activeProduct));
+}
+
+function applyDataFilters() {
+  allData = productData().filter(r =>
+    (activeSegment === 'all' || (r.SEGMENTO || '')     === activeSegment) &&
+    (activeFiscal  === 'all' || (r.COND_FISCAL || '')  === activeFiscal)
+  );
+}
+
+function buildProdFilterBar() {
+  const pd   = productData();
+  const segs = [...new Set(pd.map(r => r.SEGMENTO).filter(s => !SEG_SENTINELS.has(s)))].sort();
+  const fisc = [...new Set(allDataFull.map(r => r.COND_FISCAL).filter(Boolean))].sort();
+  const prodBtns = ['POINT','QR','LINK'].map(p => {
+    const on = p === activeProduct;
+    return `<button onclick="onProductChange('${p}')" style="padding:7px 16px;border:none;border-radius:8px;cursor:pointer;font-family:var(--font);font-size:.8rem;font-weight:700;${on?'background:#009EE3;color:#fff':'background:#eef1f6;color:#555'}">${PROD_LABEL[p]}</button>`;
+  }).join(' ');
+  document.getElementById('prodFilterBar').innerHTML = `
+    <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap;background:#fff;border-radius:14px;padding:14px 20px;box-shadow:0 4px 24px rgba(0,0,0,.06)">
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="font-size:.72rem;font-weight:800;color:#0a0080;text-transform:uppercase;letter-spacing:.5px">Producto</span>
+        ${prodBtns}
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="font-size:.72rem;font-weight:700;color:#666">Segmento</span>
+        <select onchange="onSegmentChange(this.value)" style="padding:7px 10px;border:1px solid #ddd;border-radius:8px;font-family:var(--font);font-size:.8rem">
+          <option value="all">Todos</option>
+          ${segs.map(s => `<option value="${s}"${s===activeSegment?' selected':''}>${s}</option>`).join('')}
+        </select>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="font-size:.72rem;font-weight:700;color:#666">Condición fiscal</span>
+        <select onchange="onFiscalChange(this.value)" style="padding:7px 10px;border:1px solid #ddd;border-radius:8px;font-family:var(--font);font-size:.8rem">
+          <option value="all">Todas</option>
+          ${fisc.map(f => `<option value="${f}"${f===activeFiscal?' selected':''}>${f}</option>`).join('')}
+        </select>
+      </div>
+      <span style="font-size:.7rem;color:#999">${allData.length.toLocaleString('es-AR')} registros · producto <b>${PROD_LABEL[activeProduct]}</b></span>
+    </div>`;
+}
+
+function onProductChange(p) {
+  activeProduct = p; activeSegment = 'all';
+  applyDataFilters(); buildFilters(); buildProdFilterBar(); render();
+}
+function onSegmentChange(s) { activeSegment = s; applyDataFilters(); buildProdFilterBar(); render(); }
+function onFiscalChange(f)  { activeFiscal  = f; applyDataFilters(); buildProdFilterBar(); render(); }
+
 function boot(data) {
-  // Filter periods < 2025-12-01
-  allData = data.filter(r => {
-    const m = String(r.MES||'').trim();
+  allDataFull = data.filter(r => {
+    const m = String(r.MES_COHORT || '').trim();
     return m && m >= MIN_PERIOD;
   });
   document.getElementById('lastUpdated').textContent =
-    `Actualizado: ${new Date().toLocaleString('es-AR')} · ${allData.length.toLocaleString('es-AR')} registros`;
-  document.getElementById('headerBadge').textContent = `${allData.length.toLocaleString('es-AR')} registros`;
-  // Debug TPV: log RECUPERO_VALIDO unique values and sample TPV
-  const rvVals = [...new Set(allData.map(r => String(r.RECUPERO_VALIDO||'').trim()))];
-  const tpvSample = allData.slice(0,5).map(r => r.TPV_M0);
-  console.log('[DEBUG] RECUPERO_VALIDO valores únicos:', rvVals);
-  console.log('[DEBUG] TPV_M0 muestra (5 filas):', tpvSample);
-  console.log('[DEBUG] Filas con RECUPERO_VALIDO truthy:', allData.filter(isValidRow).length, '/', allData.length);
-
+    `Actualizado: ${new Date().toLocaleString('es-AR')} · ${allDataFull.length.toLocaleString('es-AR')} registros`;
+  document.getElementById('headerBadge').textContent = `${allDataFull.length.toLocaleString('es-AR')} registros`;
+  applyDataFilters();
+  buildProdFilterBar();
   buildFilters();
   updatePills();
   render();
@@ -1367,6 +1444,7 @@ function render() {
   const vcM0MoM   = (prevVcM0  !== null && prevVcM0  > 0) ? (vcM0  - prevVcM0)  / prevVcM0  * 100 : null;
 
   renderTargetBar(tpvM1Disp, isFcst, openCohort);
+  renderMoneyCaratula();  // V3: bloque $ por producto (Point/QR/Link)
   renderKPIs({ asign, reals, gest, cont, cvdcl, cvval, tpvM0, tpvM1:tpvM1Disp, vcM0, vcM1:vcM1Disp,
                tpvM1Real: isFcst ? tpvM1 : null,
                vcM1Real:  isFcst ? vcM1  : null,
@@ -1381,7 +1459,7 @@ function render() {
   const stats = byAsesor(data, openCohort);
   lastStats = stats;
   diagOpen = false;
-  const perAsesorTarget = TARGETS[activeTab]?.perAsesor ?? null;
+  const perAsesorTarget = null;  // V3: sin línea de target en el chart
   renderAsesorChart('tpvChart', stats, 'tpvM0', color, 'TPV M0');
   renderAsesorChart('vcChart',  stats, 'tpvM1', color, 'TPV M1' + (isFcst ? ' (fcst)' : ''), perAsesorTarget);
   const t = document.getElementById('tpvM1ChartTitle');
@@ -1580,11 +1658,7 @@ function renderKPIs({ asign, reals, gest, cont, cvdcl, cvval, tpvM0, tpvM1, vcM0
     { lbl:'Contactados',        val: fmtPct(cont,reals), sub: fmtN(cont)+' contactados', color:c3, delta:null, delta2:null },
     { lbl:'Convertidos Declarados', val: fmtN(cvdcl), sub: fmtPct(cvdcl,cont)+' de contactados', color:c4, delta:null, delta2:null },
     { lbl:'Convertidos Válidos',    val: fmtN(cvval), sub: fmtPct(cvval,cvdcl)+' de conv. declarados', color:c4, delta:cvValMoM, delta2:null, dlbl1:'MoM' },
-    { lbl:'TPV M0',  val: fmtM(tpvM0), sub:'', color, delta:tpvM0MoM, delta2:null, dlbl1:'MoM' },
-    { lbl:'TPV M1',  val: fmtM(tpvM1), fcstTag, sub:'', realVal: tpvM1Real, color:'#0075BE', delta:tpvD1, delta2:tpvMoM, dlbl1:'vs M0', dlbl2:'MoM' },
-    { lbl:'VC M0',   val: fmtM(vcM0),  sub:'', color:c4, delta:vcM0MoM, delta2:null, dlbl1:'MoM' },
-    { lbl:'VC M1',   val: fmtM(vcM1),  fcstTag, sub:'', realVal: vcM1Real, color:'#00854A', delta:vcD1, delta2:vcMoM, dlbl1:'vs M0', dlbl2:'MoM' },
-  ];
+  ];  // V3: TPV/VC pasaron a la carátula $ (renderMoneyCaratula)
   document.getElementById('kpiGrid').innerHTML = cards.map(k => {
     const d1 = k.delta  !== null && k.delta  !== undefined;
     const d2 = k.delta2 !== null && k.delta2 !== undefined;
@@ -1603,6 +1677,96 @@ function renderKPIs({ asign, reals, gest, cont, cvdcl, cvval, tpvM0, tpvM1, vcM0
       ${badges}
     </div>`;
   }).join('');
+}
+
+// ─── V3: CARÁTULA $ POR PRODUCTO (Point / QR / Link) ───────────────────────────
+// Filas válidas (convertidos válidos) del universo filtrado por período/tab/asesor/fiscal,
+// SIN filtrar por producto (la carátula muestra los 3 a la vez).
+function getMoneyRows(period) {
+  const t = TAB_CFG[activeTab];
+  return allDataFull.filter(r => {
+    if (period && period !== 'all' && String(r.MES_COHORT||'').trim() !== period) return false;
+    if (t.asesores && !t.asesores.some(a => norm(a) === norm(r.ASESOR||''))) return false;
+    if (activeAsesores && !activeAsesores.has((r.ASESOR||'').trim())) return false;
+    if (t.match && !norm(r.CANAL_ASIGNACION||'').includes(t.match)) return false;
+    if (activeFiscal !== 'all' && (r.COND_FISCAL||'') !== activeFiscal) return false;
+    return isValidRow(r);
+  });
+}
+
+function productMoney(rows, prod, openCohort, period) {
+  const f = (r,k) => parseNum(r[k+'_'+prod]);
+  const m0  = rows.reduce((s,r)=>s+f(r,'TPV_M0'),0);
+  const vc0 = rows.reduce((s,r)=>s+f(r,'VC_M0'),0);
+  let m1 = rows.reduce((s,r)=>s+f(r,'TPV_M1'),0);
+  let vc1 = rows.reduce((s,r)=>s+f(r,'VC_M1'),0);
+  let isFcst = false;
+  if (openCohort) {
+    if (period && period !== 'all') {
+      if (period === openCohort.cohortPeriod) { m1*=openCohort.multiplier; vc1*=openCohort.multiplier; isFcst=true; }
+    } else {
+      const open   = rows.filter(r => String(r.MES_COHORT||'').trim() === openCohort.cohortPeriod);
+      const closed = rows.filter(r => String(r.MES_COHORT||'').trim() !== openCohort.cohortPeriod);
+      m1  = closed.reduce((s,r)=>s+f(r,'TPV_M1'),0) + open.reduce((s,r)=>s+f(r,'TPV_M1'),0)*openCohort.multiplier;
+      vc1 = closed.reduce((s,r)=>s+f(r,'VC_M1'),0)  + open.reduce((s,r)=>s+f(r,'VC_M1'),0)*openCohort.multiplier;
+      isFcst = open.length > 0;
+    }
+  }
+  return { m0, m1, vc0, vc1, isFcst };
+}
+
+function productPrevSum(prod, field) {
+  const prev = getPrevPeriod(activePeriod);
+  if (!prev) return null;
+  return getMoneyRows(prev).reduce((s,r)=>s+parseNum(r[field+'_'+prod]),0);
+}
+
+function renderMoneyCaratula() {
+  const openCohort = getOpenCohortInfo();
+  const rows = getMoneyRows(activePeriod);
+  const P = ['POINT','QR','LINK'], LBL = {POINT:'Point', QR:'QR', LINK:'Link'};
+  const m = {}; P.forEach(p => m[p] = productMoney(rows, p, openCohort, activePeriod));
+  const anyFcst = P.some(p => m[p].isFcst);
+  const fTag = `<span style="font-size:.52rem;font-weight:700;color:#FF8C00;background:#FFF3E0;padding:1px 4px;border-radius:5px;margin-left:3px">fcst</span>`;
+  const LB = 'font-size:.6rem;color:#888;font-weight:700;text-transform:uppercase;letter-spacing:.3px';
+  const VL = 'font-size:1.12rem;font-weight:800;color:#333;margin-top:1px';
+
+  const badge = (val, base, lbl) => {
+    if (base === null || base === undefined || base === 0) return '';
+    const pv = (val - base) / base * 100;
+    if (!isFinite(pv)) return '';
+    const cls = pv >= 0 ? 'up' : 'down';
+    return `<span class="kpi-delta ${cls}" style="font-size:.6rem">${lbl} ${pv>=0?'▲':'▼'}${Math.abs(pv).toFixed(0)}%</span>`;
+  };
+
+  const col = p => {
+    const d = m[p];
+    const pm1 = productPrevSum(p,'TPV_M1'), pvc1 = productPrevSum(p,'VC_M1');
+    const cell = (lbl, val, fc, vsBase, momBase, colr) => `
+      <div>
+        <div style="${LB}">${lbl}${fc?fTag:''}</div>
+        <div style="${VL}${colr?';color:'+colr:''}">${fmtM(val)}</div>
+        <div style="display:flex;gap:3px;flex-wrap:wrap;margin-top:2px">
+          ${vsBase!==null ? badge(val, vsBase, 'vs M0') : ''}${momBase!==null ? badge(val, momBase, 'MoM') : ''}
+        </div>
+      </div>`;
+    return `
+      <div style="flex:1;min-width:170px;background:#fafbff;border:1px solid #eaeefb;border-radius:12px;padding:14px 16px">
+        <div style="font-weight:800;color:#0a0080;font-size:.92rem;margin-bottom:10px">${LBL[p]}</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px 14px">
+          ${cell('TPV M0', d.m0, false, null, null, null)}
+          ${cell('TPV M1', d.m1, d.isFcst, d.m0>0?d.m0:null, (pm1!==null&&pm1>0)?pm1:null, '#0075BE')}
+          ${cell('VC M0', d.vc0, false, null, null, null)}
+          ${cell('VC M1', d.vc1, d.isFcst, d.vc0>0?d.vc0:null, (pvc1!==null&&pvc1>0)?pvc1:null, '#00854A')}
+        </div>
+      </div>`;
+  };
+
+  document.getElementById('moneyCaratula').innerHTML = `
+    <div class="card" style="padding:18px 20px">
+      <div class="card-title" style="margin-bottom:12px">💰 TPV / VC por producto${anyFcst?' · <span style="font-weight:700;color:#FF8C00">M1 proyectado a fin de mes</span>':''}</div>
+      <div style="display:flex;gap:14px;flex-wrap:wrap">${P.map(col).join('')}</div>
+    </div>`;
 }
 
 // ─── FUNNEL ───────────────────────────────────────────────────────────────────
@@ -2513,6 +2677,9 @@ async function loadMonitoreo() {
       } catch(e) {}
     }
     if (!data || !data.length) throw new Error('No se pudo cargar data_activa.json');
+    // V3: solo sellers monitoreados en el producto activo; alias de campos + MES = Corriente/Anterior
+    data = data.filter(r => (r.PRODUCTOS || []).includes(activeProduct))
+               .map(r => { aliasProduct(r, activeProduct); r.MES = r.MES_LABEL || ''; return r; });
     monitoreoData = data;
     renderMonitoreo(data);
   } catch(e) {
