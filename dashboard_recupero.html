@@ -1001,7 +1001,7 @@ let allDataFull   = [];
 let activeProduct = 'POINT';
 let activeSegment = 'all';
 let activeFiscal  = 'all';
-const PROD_LABEL  = { POINT:'Point', QR:'QR', LINK:'Link' };
+const PROD_LABEL  = { TOTAL:'Total', POINT:'Point', QR:'QR', LINK:'Link' };
 const SEG_SENTINELS = new Set(['NO POINTER','NO QR','NO LINK','']);
 
 // Mapea los campos V3 (por producto) a los nombres genéricos que ya usan las vistas
@@ -1018,8 +1018,24 @@ function aliasProduct(r, prod) {
   return r;
 }
 
-// Sellers monitoreados en el producto activo (según columna S), ya aliaseados
+// Total: cada seller una sola vez, con TPV/VC sumados entre sus productos monitoreados
+function aliasTotal(r) {
+  r.MES           = r.MES_COHORT || '';
+  r.RECUPERO_TIPO = r.CANAL_ASIGNACION || '';
+  r.SEGMENTO      = '';                       // segmento es por producto → no aplica en Total
+  const prods = (r.PRODUCTOS && r.PRODUCTOS.length) ? r.PRODUCTOS : ['POINT'];
+  const sum = f => prods.reduce((s,p) => s + parseNum(r[f + '_' + p]), 0);
+  r.TPV_M0 = sum('TPV_M0'); r.TPV_M1 = sum('TPV_M1');
+  r.VC_M0  = sum('VC_M0');  r.VC_M1  = sum('VC_M1');
+  const dd = prods.map(p => r['DIAS_' + p]).filter(v => v !== undefined && v !== null && v !== '');
+  if (dd.length) r.DIAS_SIN_COBRAR = Math.min(...dd.map(Number));
+  return r;
+}
+
+// Sellers monitoreados en el producto activo (según columna S), ya aliaseados.
+// En 'TOTAL' devuelve TODOS los sellers una sola vez, con montos sumados entre productos.
 function productData() {
+  if (activeProduct === 'TOTAL') return allDataFull.map(r => aliasTotal(r));
   return allDataFull
     .filter(r => (r.PRODUCTOS || []).includes(activeProduct))
     .map(r => aliasProduct(r, activeProduct));
@@ -1036,7 +1052,7 @@ function buildProdFilterBar() {
   const pd   = productData();
   const segs = [...new Set(pd.map(r => r.SEGMENTO).filter(s => !SEG_SENTINELS.has(s)))].sort();
   const fisc = [...new Set(allDataFull.map(r => r.COND_FISCAL).filter(Boolean))].sort();
-  const prodBtns = ['POINT','QR','LINK'].map(p => {
+  const prodBtns = ['TOTAL','POINT','QR','LINK'].map(p => {
     const on = p === activeProduct;
     return `<button onclick="onProductChange('${p}')" style="padding:7px 16px;border:none;border-radius:8px;cursor:pointer;font-family:var(--font);font-size:.8rem;font-weight:700;${on?'background:#009EE3;color:#fff':'background:#eef1f6;color:#555'}">${PROD_LABEL[p]}</button>`;
   }).join(' ');
@@ -1754,7 +1770,7 @@ function productPrevSum(prod, field) {
 function renderMoneyCaratula() {
   const openCohort = getOpenCohortInfo();
   const rows = getMoneyRows(activePeriod);
-  const P = ['POINT','QR','LINK'], LBL = {POINT:'Point', QR:'QR', LINK:'Link'};
+  const P = ['POINT','QR','LINK'], LBL = {TOTAL:'Total', POINT:'Point', QR:'QR', LINK:'Link'};
   const m = {}; P.forEach(p => m[p] = productMoney(rows, p, openCohort, activePeriod));
   // V3: histórico para MoM y para meses cerrados (planilla en 0)
   const initName = (TAB_TO_INIT[activeTab] || 'Total');
@@ -1764,6 +1780,14 @@ function renderMoneyCaratula() {
     if (m.POINT.m0 === 0) m.POINT.m0 = hv(histM0, activePeriod);
     if (m.POINT.m1 === 0) { m.POINT.m1 = hv(histM1, activePeriod); m.POINT.isFcst = false; }
   }
+  m.TOTAL = {
+    m0:  m.POINT.m0  + m.QR.m0  + m.LINK.m0,
+    m1:  m.POINT.m1  + m.QR.m1  + m.LINK.m1,
+    vc0: m.POINT.vc0 + m.QR.vc0 + m.LINK.vc0,
+    vc1: m.POINT.vc1 + m.QR.vc1 + m.LINK.vc1,
+    isFcst: m.POINT.isFcst || m.QR.isFcst || m.LINK.isFcst,
+  };
+  const DISP = (activeProduct === 'TOTAL') ? ['TOTAL','POINT','QR','LINK'] : P;
   const anyFcst = P.some(p => m[p].isFcst);
   const fTag = `<span style="font-size:.52rem;font-weight:700;color:#FF8C00;background:#FFF3E0;padding:1px 4px;border-radius:5px;margin-left:3px">fcst</span>`;
   const LB = 'font-size:.6rem;color:#888;font-weight:700;text-transform:uppercase;letter-spacing:.3px';
@@ -1783,7 +1807,16 @@ function renderMoneyCaratula() {
     const hasData = d.m0 > 0 || d.m1 > 0 || d.vc0 > 0 || d.vc1 > 0;
     const show = isSel && hasData;                // solo el seleccionado muestra datos; los otros en blanco
     let pm1 = productPrevSum(p,'TPV_M1');
-    const pvc1 = productPrevSum(p,'VC_M1');
+    let pvc1 = productPrevSum(p,'VC_M1');
+    if (p === 'TOTAL') {   // MoM Total = suma de los 3 productos del período anterior
+      const liveSum = fld => ['POINT','QR','LINK'].reduce((s,pp) => s + (productPrevSum(pp,fld)||0), 0);
+      let tp1 = liveSum('TPV_M1');
+      if (momCohort) {   // Point del mes anterior desde histórico (mismo criterio que la columna Point)
+        const hp = hv(histM1, getPrevPeriod(momCohort));
+        if (hp > 0) tp1 = hp + (productPrevSum('QR','TPV_M1')||0) + (productPrevSum('LINK','TPV_M1')||0);
+      }
+      pm1 = tp1 || null; pvc1 = liveSum('VC_M1') || null;
+    }
     if (p === 'POINT' && momCohort) {   // MoM Point desde histórico (mes anterior final)
       const hp = hv(histM1, getPrevPeriod(momCohort));
       if (hp > 0) pm1 = hp;
@@ -1815,7 +1848,7 @@ function renderMoneyCaratula() {
   document.getElementById('moneyCaratula').innerHTML = `
     <div class="card" style="padding:18px 20px">
       <div class="card-title" style="margin-bottom:12px">💰 TPV / VC por producto${anyFcst?' · <span style="font-weight:700;color:#FF8C00">M1 proyectado a fin de mes</span>':''}</div>
-      <div style="display:flex;gap:14px;flex-wrap:wrap">${P.map(col).join('')}</div>
+      <div style="display:flex;gap:14px;flex-wrap:wrap">${DISP.map(col).join('')}</div>
     </div>`;
 }
 
