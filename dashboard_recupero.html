@@ -528,6 +528,7 @@
   <button class="itab"        data-tab="temprano"     style="--tc:#00A650">Recupero Temprano</button>
   <button class="itab"        data-tab="tardio"       style="--tc:#FF7733">Recupero Tardío</button>
   <button class="itab"        data-tab="reactivacion" style="--tc:#8C4DFF">Reactivación</button>
+  <button class="itab"        data-tab="activacion"   style="--tc:#0AB6C4">Activación</button>
   <button class="itab"        data-tab="chinos"       style="--tc:#E53935">Chinos</button>
 </div>
 
@@ -676,21 +677,32 @@ const TAB_CFG = {
   temprano:     { color:'#00A650', match: 'temprano', asesores: null },
   tardio:       { color:'#FF7733', match: 'tard',     asesores: null },
   reactivacion: { color:'#8C4DFF', match: 'reactiv',  asesores: null },
+  activacion:   { color:'#0AB6C4', match: 'activacion', exclude: 'reactivacion', asesores: null },
   chinos:       { color:'#E53935', match: null,       asesores: ['Sofia Zhuang','Ema Du Chen'] },
 };
+
+// ¿El canal (ya normalizado) corresponde al match de la iniciativa?
+// Maneja el caso Activación ⊂ Reactivación: activación usa exclude:'reactivacion'.
+function canalOk(canalNorm, t) {
+  if (!t.match) return true;
+  if (!canalNorm.includes(t.match)) return false;
+  if (t.exclude && canalNorm.includes(t.exclude)) return false;
+  return true;
+}
 
 // Targets TPV M1 por iniciativa { total, perAsesor }
 const TARGETS = {
   temprano:     { total: 550e6,  perAsesor: 110e6 },
   tardio:       { total: 800e6,  perAsesor: 100e6 },
   reactivacion: { total: 400e6,  perAsesor:  80e6 },
+  activacion:   { total: 0,      perAsesor: null  },
   chinos:       { total: 100e6,  perAsesor: 100e6, multiplyCohorts: false },
   total:        { total: 1750e6, perAsesor: null  },
 };
 
 // Mínimo de Convertidos Válidos por asesor por iniciativa
 const CV_TARGETS = {
-  temprano: 15, tardio: 10, reactivacion: 8, chinos: 12, total: null,
+  temprano: 15, tardio: 10, reactivacion: 8, activacion: null, chinos: 12, total: null,
 };
 
 // Asesoras exclusivas del tab Chinos — excluidas por defecto en otros tabs
@@ -732,7 +744,7 @@ function getEffectiveTarget(tab) {
         .filter(r => {
           if (t.asesores && !t.asesores.some(a => norm(a) === norm(r.ASESOR||''))) return false;
           if (activeAsesores && !activeAsesores.has((r.ASESOR||'').trim())) return false;
-          if (t.match && !norm(r.RECUPERO_TIPO||'').includes(t.match)) return false;
+          if (t.match && !canalOk(norm(r.RECUPERO_TIPO||''), t)) return false;
           return true;
         })
         .map(r => String(r.MES||'').trim())
@@ -851,7 +863,7 @@ function getPrevPeriodCount(filterFn) {
     if (String(r.MES||'').trim() !== prev) return false;
     if (t.asesores && !t.asesores.some(a => norm(a) === norm(r.ASESOR||''))) return false;
     if (activeAsesores && !activeAsesores.has((r.ASESOR||'').trim())) return false;
-    if (t.match && !norm(r.RECUPERO_TIPO||'').includes(t.match)) return false;
+    if (t.match && !canalOk(norm(r.RECUPERO_TIPO||''), t)) return false;
     return filterFn(r);
   }).length;
 }
@@ -865,7 +877,7 @@ function getPrevPeriodSum(field) {
     if (String(r.MES||'').trim() !== prev) return false;
     if (t.asesores && !t.asesores.some(a => norm(a) === norm(r.ASESOR||''))) return false;
     if (activeAsesores && !activeAsesores.has((r.ASESOR||'').trim())) return false;
-    if (t.match && !norm(r.RECUPERO_TIPO||'').includes(t.match)) return false;
+    if (t.match && !canalOk(norm(r.RECUPERO_TIPO||''), t)) return false;
     return isValidRow(r);
   });
   return rows.reduce((s,r) => s + parseNum(r[field]), 0);
@@ -1089,7 +1101,7 @@ function onFiscalChange(f)  { activeFiscal  = f; applyDataFilters(); buildProdFi
 
 // ─── V3: lookup de histórico para MoM (mes cerrado = último snapshot con valor != 0) ──
 let histM1 = {}, histM0 = {}, histLoaded = false;
-const TAB_TO_INIT = { total:'Total', temprano:'Recupero Temprano', tardio:'Recupero Tardío', reactivacion:'Reactivación', chinos:'Chinos' };
+const TAB_TO_INIT = { total:'Total', temprano:'Recupero Temprano', tardio:'Recupero Tardío', reactivacion:'Reactivación', activacion:'Activación', chinos:'Chinos' };
 async function loadHistLookup() {
   try {
     const res = await fetch(`kpis_historico.json?v=${Date.now()}`);
@@ -1355,7 +1367,7 @@ function getFiltered(tab) {
     // Filtro multi-select de asesores del UI
     if (activeAsesores !== null && activeAsesores !== undefined && !activeAsesores.has((r.ASESOR||'').trim())) return false;
     // Filtro por tipo de recupero
-    if (t.match && !norm(r.RECUPERO_TIPO||'').includes(t.match)) return false;
+    if (t.match && !canalOk(norm(r.RECUPERO_TIPO||''), t)) return false;
     return true;
   });
 }
@@ -1454,7 +1466,7 @@ function render() {
         if (String(r.MES||'').trim() !== openCohort.cohortPeriod) return false;
         if (t.asesores && !t.asesores.some(a => norm(a) === norm(r.ASESOR||''))) return false;
         if (activeAsesores && !activeAsesores.has((r.ASESOR||'').trim())) return false;
-        if (t.match && !norm(r.RECUPERO_TIPO||'').includes(t.match)) return false;
+        if (t.match && !canalOk(norm(r.RECUPERO_TIPO||''), t)) return false;
         return isValidRow(r);
       });
       const closedRows  = vrows.filter(r => String(r.MES||'').trim() !== openCohort.cohortPeriod);
@@ -1527,7 +1539,7 @@ function renderTargetBar(tpvM1Disp, isFcst, openCohort) {
   const fcstTag  = isFcst && openCohort
     ? `<span style="font-size:.6rem;font-weight:700;color:#FF8C00;background:#FFF3E0;padding:1px 6px;border-radius:6px;margin-left:6px" title="Proyección al ${openCohort.daysInMonth}/${new Date().getMonth()+1}">fcst</span>`
     : '';
-  const tabNames = { total:'Total Recupero', temprano:'Recupero Temprano', tardio:'Recupero Tardío', reactivacion:'Reactivación', chinos:'Chinos' };
+  const tabNames = { total:'Total Recupero', temprano:'Recupero Temprano', tardio:'Recupero Tardío', reactivacion:'Reactivación', activacion:'Activación', chinos:'Chinos' };
   const isIndividual = activeAsesores && activeAsesores.size > 0 && TARGETS[activeTab]?.perAsesor;
   const targetLbl = 'Target';
 
@@ -1734,7 +1746,7 @@ function getMoneyRows(period) {
     if (period && period !== 'all' && String(r.MES_COHORT||'').trim() !== period) return false;
     if (t.asesores && !t.asesores.some(a => norm(a) === norm(r.ASESOR||''))) return false;
     if (activeAsesores && !activeAsesores.has((r.ASESOR||'').trim())) return false;
-    if (t.match && !norm(r.CANAL_ASIGNACION||'').includes(t.match)) return false;
+    if (t.match && !canalOk(norm(r.CANAL_ASIGNACION||''), t)) return false;
     if (activeFiscal !== 'all' && (r.COND_FISCAL||'') !== activeFiscal) return false;
     return isValidRow(r);
   });
@@ -2490,6 +2502,7 @@ function computeTodaySnapshot() {
     { name:'Recupero Temprano', match:'temprano' },
     { name:'Recupero Tardío',   match:'tard'     },
     { name:'Reactivación',      match:'reactiv'  },
+    { name:'Activación',        match:'activacion', exclude:'reactivacion' },
   ];
   const td = new Date();
   const todayStr   = `${td.getFullYear()}-${String(td.getMonth()+1).padStart(2,'0')}-${String(td.getDate()).padStart(2,'0')}`;
@@ -2498,9 +2511,9 @@ function computeTodaySnapshot() {
   const fcstMult    = td.getDate() < daysInMonth ? daysInMonth / td.getDate() : 1;
 
   const records = [];
-  for (const { name: initName, match } of INIT_MAP) {
+  for (const { name: initName, match, exclude } of INIT_MAP) {
     let subset = allData.filter(r => String(r.MES||'').trim() === cohort);
-    if (match) subset = subset.filter(r => norm(r.RECUPERO_TIPO||'').includes(match));
+    if (match) subset = subset.filter(r => { const c = norm(r.RECUPERO_TIPO||''); return c.includes(match) && !(exclude && c.includes(exclude)); });
     if (!subset.length) continue;
 
     const reales      = subset.filter(isLeadReal).length;
@@ -3074,6 +3087,7 @@ const HIST_TARGETS = {
   temprano:     { total: 550e6, perAsesor: 110e6 },
   tardio:       { total: 800e6, perAsesor: 100e6 },
   reactivacion: { total: 400e6, perAsesor: 80e6  },
+  activacion:   { total: 0,     perAsesor: 0     },
   chinos:       { total: 100e6, perAsesor: 100e6, multiplyCohorts: false },
 };
 const CMP_CVR_TARGET  = 40;
@@ -3083,6 +3097,7 @@ const CMP_INIT = {
   temprano:     { label: 'Recupero Temprano', color: '#00A650' },
   tardio:       { label: 'Recupero Tardío',   color: '#FF7733' },
   reactivacion: { label: 'Reactivación',      color: '#8C4DFF' },
+  activacion:   { label: 'Activación',        color: '#0AB6C4' },
   chinos:       { label: 'Chinos',            color: '#E53935' },
 };
 
@@ -3101,6 +3116,7 @@ function cmpMatch(initKey, r) {
   if (initKey === 'temprano')     return tag.includes('temprano');
   if (initKey === 'tardio')       return tag.includes('tard');
   if (initKey === 'reactivacion') return tag.includes('reactiv');
+  if (initKey === 'activacion')   return tag.includes('activacion') && !tag.includes('reactivacion');
   return false;
 }
 
