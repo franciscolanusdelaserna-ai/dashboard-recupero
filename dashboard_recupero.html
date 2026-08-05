@@ -2577,7 +2577,7 @@ function renderHistorico() {
   const panel = document.getElementById('historicoPanel');
   if (!historicoData) return;
 
-  const INITS = ['Total', 'Recupero Temprano', 'Recupero Tardío', 'Reactivación', 'Chinos'];
+  const INITS = ['Total', 'Recupero Temprano', 'Recupero Tardío', 'Reactivación', 'Activación', 'Chinos'];
 
   // Días disponibles en los datos
   const diasDisp = [...new Set(historicoData.map(r => {
