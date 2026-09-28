@@ -757,9 +757,10 @@ function getEffectiveTarget(tab) {
 }
 
 // Estados that count as GESTIONADO (numerator: sobre leads reales, excluye pendiente)
-const ESTADOS_GEST = ['gestionado','contactado','no aplica','irresoluble','regestion','sin interes/rechazado','en negociacion / en resolucion','convertido'];
+// 28-sep-2026: se suma 'rechazado - mala experiencia' (contactado que rechazó; antes no contaba en ningún lado).
+const ESTADOS_GEST = ['gestionado','contactado','no aplica','irresoluble','regestion','sin interes/rechazado','rechazado - mala experiencia','en negociacion / en resolucion','convertido'];
 // Estados that count as CONTACTADO
-const ESTADOS_CONT = ['contactado','no aplica','irresoluble','regestion','sin interes/rechazado','en negociacion / en resolucion','convertido'];
+const ESTADOS_CONT = ['contactado','no aplica','irresoluble','regestion','sin interes/rechazado','rechazado - mala experiencia','en negociacion / en resolucion','convertido'];
 
 // Motivos que se agrupan como "Otros"
 const MOTIVOS_OTROS = ['otro particular gestionable','otro particular','problema cobros','impuestos y retenciones','promociones y cuotas'];
