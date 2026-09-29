@@ -796,7 +796,10 @@ function isTrue(v) {
   return s==='si'||s==='sí'||s==='true'||s==='1'||s==='x'||s==='yes'||s==='s';
 }
 function fmtN(n)  { return n.toLocaleString('es-AR'); }
-function fmtM(n)  {
+// 29-sep-2026: TPV/VC en pesos exactos (sin redondear a M/K) — se usan para calcular targets de pago.
+function fmtM(n)  { return '$'+Math.round(n||0).toLocaleString('es-AR'); }
+// Formato compacto: solo para ejes de gráficos, donde el número exacto no entra.
+function fmtMShort(n)  {
   function fmt1(v) { const s = v.toFixed(1); return s.endsWith('.0') ? s.slice(0,-2) : s.replace('.',','); }
   if(n>=1e9) return '$'+fmt1(n/1e9)+' B';
   if(n>=1e6) return '$'+fmt1(n/1e6)+' M';
@@ -2359,7 +2362,7 @@ function renderAsesorChart(id, stats, field, color, label, perAsesorTarget) {
       },
       scales: {
         x: { grid:{display:false}, ticks:{font:{size:10,family:'MELI Proxima Nova A, Helvetica Neue, Arial, sans-serif'}} },
-        y: { grid:{color:'#f0f0f0'}, suggestedMax: perAsesorTarget ? perAsesorTarget * 1.15 : undefined, ticks:{callback:v=>fmtM(v),font:{size:10,family:'MELI Proxima Nova A, Helvetica Neue, Arial, sans-serif'}} }
+        y: { grid:{color:'#f0f0f0'}, suggestedMax: perAsesorTarget ? perAsesorTarget * 1.15 : undefined, ticks:{callback:v=>fmtMShort(v),font:{size:10,family:'MELI Proxima Nova A, Helvetica Neue, Arial, sans-serif'}} }
       }
     },
     plugins: targetLinePlugin ? [targetLinePlugin] : []
