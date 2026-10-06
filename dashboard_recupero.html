@@ -1793,7 +1793,8 @@ function renderMoneyCaratula() {
   // V3: histórico para MoM y para meses cerrados (planilla en 0)
   const initName = (TAB_TO_INIT[activeTab] || 'Total');
   const hv = (map, c) => (map[initName + '|' + c] || 0);
-  const momCohort = (activePeriod !== 'all') ? activePeriod : (openCohort ? openCohort.cohortPeriod : null);
+  // 6-oct-2026: sin MoM con "Todos" los cohorts — comparaba la suma de todos los meses contra el M1 de uno solo (daba ▲1222%).
+  const momCohort = (activePeriod !== 'all') ? activePeriod : null;
   if (activePeriod !== 'all') {   // cohort cerrado: tomar valor real del histórico (solo Point)
     if (m.POINT.m0 === 0) m.POINT.m0 = hv(histM0, activePeriod);
     if (m.POINT.m1 === 0) { m.POINT.m1 = hv(histM1, activePeriod); m.POINT.isFcst = false; }
