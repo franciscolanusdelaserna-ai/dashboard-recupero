@@ -2791,7 +2791,11 @@ async function loadMonitoreo() {
     const PLBL = { POINT:'Point', QR:'QR', LINK:'Link' };
     const exploded = [];
     for (const r of data) {
-      const prods = (r.PRODUCTOS && r.PRODUCTOS.length) ? r.PRODUCTOS : ['POINT'];
+      // 20-oct-2026 (opción B): el monitoreo (semáforo y días) es solo de los productos de la columna S
+      // (PRODUCTO_RECUPERO). Los agregados por la regla de jul-2026 siguen sumando TPV en KPIs/TPV, pero acá no se muestran.
+      const recS = String(r.PRODUCTO_RECUPERO || '').toUpperCase();
+      const prodsS = ['POINT', 'QR', 'LINK'].filter(p => recS.includes(p));
+      const prods = prodsS.length ? prodsS : ((r.PRODUCTOS && r.PRODUCTOS.length) ? r.PRODUCTOS : ['POINT']);
       for (const prod of prods) {
         const rr = Object.assign({}, r);
         aliasProduct(rr, prod);
