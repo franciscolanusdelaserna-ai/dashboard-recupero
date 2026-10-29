@@ -2796,12 +2796,30 @@ async function loadMonitoreo() {
       const recS = String(r.PRODUCTO_RECUPERO || '').toUpperCase();
       const prodsS = ['POINT', 'QR', 'LINK'].filter(p => recS.includes(p));
       const prods = prodsS.length ? prodsS : ((r.PRODUCTOS && r.PRODUCTOS.length) ? r.PRODUCTOS : ['POINT']);
+      let base = null;
       for (const prod of prods) {
         const rr = Object.assign({}, r);
         aliasProduct(rr, prod);
         rr.MES = rr.MES_LABEL || '';
         rr._PRODUCTO = PLBL[prod] || prod;
         exploded.push(rr);
+        if (!base) base = rr;
+      }
+      // 29-oct-2026: los productos sumados (fuera de la columna S) que el seller está cobrando ahora
+      // (TPV en el mes que se mide: M1 en Anterior, M0 en Corriente, y menos de 8 días sin cobrar)
+      // aparecen como fila "sumado": con su TPV y días, sin semáforo propio ni conteo.
+      if (prodsS.length) {
+        for (const prod of (r.PRODUCTOS || [])) {
+          if (prodsS.includes(prod)) continue;
+          const rr = aliasProduct(Object.assign({}, r), prod);
+          const tpvMes = parseFloat(r.MES_LABEL === 'Anterior' ? rr.TPV_M1 : rr.TPV_M0) || 0;
+          if (!(tpvMes > 0 && (parseInt(rr.DIAS_SIN_COBRAR) || 99) < 8)) continue;
+          rr.MES = rr.MES_LABEL || '';
+          rr._PRODUCTO = PLBL[prod] || prod;
+          rr._SUMADO = true;
+          rr._BASE = base;
+          exploded.push(rr);
+        }
       }
     }
     monitoreoData = exploded;
@@ -2817,6 +2835,7 @@ function dedupeSellers(rows) {
   const PRIO = { 'Point':0, 'QR':1, 'Link':2 };
   const byId = new Map();
   for (const r of rows) {
+    if (r._SUMADO) continue;   // los productos sumados no cuentan como seller ni definen su color
     const id = r.CUST_ID;
     const cur = byId.get(id);
     if (!cur || ((PRIO[r._PRODUCTO] ?? 9) < (PRIO[cur._PRODUCTO] ?? 9))) byId.set(id, r);
@@ -2825,6 +2844,7 @@ function dedupeSellers(rows) {
 }
 
 function monitoreoColor(r) {
+  if (r._SUMADO && r._BASE) return monitoreoColor(r._BASE);   // filtra con el color del producto principal
   const m0 = parseFloat(r.TPV_M0) || 0;
   const m1 = parseFloat(r.TPV_M1) || 0;
   const dias = parseInt(r.DIAS_SIN_COBRAR) || 0;
@@ -3015,16 +3035,22 @@ function renderMonitoreo(data) {
 
   const rows = sorted.map(r => {
     const color = monitoreoColor(r);
-    const bg = colorStyle[color];
-    const dot = `<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${dotColor[color]};margin-right:6px;vertical-align:middle"></span>`;
+    const sum = !!r._SUMADO;
+    const bg = sum ? '#F4F6FF' : colorStyle[color];
+    const dot = sum
+      ? `<span style="display:inline-block;width:8px;height:8px;border-radius:50%;border:1.5px solid #8C9EFF;box-sizing:border-box;margin-right:6px;vertical-align:middle"></span>`
+      : `<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${dotColor[color]};margin-right:6px;vertical-align:middle"></span>`;
     const m0 = parseFloat(r.TPV_M0)||0, m1 = parseFloat(r.TPV_M1)||0;
     const vc0 = parseFloat(r.VC_M0)||0, vc1 = parseFloat(r.VC_M1)||0;
     const dias = parseInt(r.DIAS_SIN_COBRAR)||0;
-    const diasCell = `<span style="font-weight:700;color:${dotColor[color]}">${dias}</span>`;
+    const diasCell = `<span style="font-weight:700;color:${sum ? '#555' : dotColor[color]}">${dias}</span>`;
+    const prodCell = sum
+      ? `<td style="font-weight:700;color:#0a0080" title="Producto que el seller empezó a usar y no está en la columna S: suma TPV, sin semáforo ni conteo">${r._PRODUCTO||''} <span style="font-weight:600;font-size:.62rem;color:#5C6BC0;background:#E8EAF6;border-radius:6px;padding:1px 5px">sumado</span></td>`
+      : `<td style="font-weight:700;color:#0a0080">${r._PRODUCTO||''}</td>`;
 
     return `<tr style="background:${bg}">
       <td>${dot}${r.CUST_ID}</td>
-      <td style="font-weight:700;color:#0a0080">${r._PRODUCTO||''}</td>
+      ${prodCell}
       <td>${r.SEGMENTO}</td>
       <td>${r.RECUPERO_TIPO}</td>
       <td style="text-align:center">${diasCell}</td>
